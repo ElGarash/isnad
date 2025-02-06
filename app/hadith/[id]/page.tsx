@@ -13,11 +13,9 @@ interface PageProps {
 export default function HadithPage({ params }: PageProps) {
   return (
     <ErrorBoundary>
-      <div className="h-screen w-screen">
-        <Suspense fallback={<LoadingSpinner />}>
-          <ChainVisualization hadithId={params.id} />
-        </Suspense>
-      </div>
+      <Suspense fallback={<LoadingSpinner />}>
+        <ChainVisualization hadithId={params.id} />
+      </Suspense>
     </ErrorBoundary>
   )
 }
