@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { Graph } from "react-d3-graph"
+import { Graph, GraphNode, GraphLink } from "react-d3-graph"
 
 interface HadithChainProps {
   hadithData: {
@@ -23,28 +23,46 @@ const generationColors = {
   'Succ_TabaTabi': "#FFC107",
 }
 
+interface CustomNode extends GraphNode {
+  id: string;
+  name: string;
+  color: string;
+  symbolType: string;
+  labelPosition: string;
+  x: number;
+  y: number;
+  fx: number;
+  fy: number;
+}
+
+interface CustomLink extends GraphLink {
+  source: string;
+  target: string;
+  type: string;
+}
+
 export default function HadithTransmissionChain({ hadithData }: HadithChainProps) {
-  const [dimensions, setDimensions] = useState({ width: 800, height: 600 })
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    setDimensions({
-      width: window.innerWidth,
-      height: window.innerHeight
-    })
-
-    const handleResize = () => {
+    setIsMounted(true)
+    const updateDimensions = () => {
       setDimensions({
         width: window.innerWidth,
         height: window.innerHeight
       })
     }
 
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    updateDimensions()
+    window.addEventListener('resize', updateDimensions)
+    return () => window.removeEventListener('resize', updateDimensions)
   }, [])
 
   // Transform data for react-d3-graph
   const graphData = React.useMemo(() => {
+    if (!isMounted || dimensions.width === 0) return { nodes: [], links: [] }
+    
     const nodes: any[] = []
     const links: any[] = []
     const seenNodes = new Set()
@@ -195,9 +213,9 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
     })
 
     return { nodes, links }
-  }, [hadithData, dimensions])
+  }, [hadithData, dimensions, isMounted])
 
-  const graphConfig = {
+  const graphConfig: Partial<GraphConfiguration<CustomNode, CustomLink>> = {
     directed: true,
     nodeHighlightBehavior: true,
     linkHighlightBehavior: true,
@@ -209,7 +227,7 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
       color: "lightgreen",
       size: 120, // Further reduced from 150 to 120
       highlightStrokeColor: "blue",
-      labelProperty: "name",
+      labelProperty: (node: CustomNode) => node.name,
       fontSize: 12,
       highlightFontSize: 14,
       renderLabel: true,
@@ -228,20 +246,17 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
     width: dimensions.width,
   }
 
+  if (!isMounted) return null
+
   return (
-    <div style={{ 
-      position: 'fixed', 
-      top: 0, 
-      left: 0, 
-      right: 0, 
-      bottom: 0, 
-      backgroundColor: 'transparent' 
-    }}>
-      <Graph
-        id="hadith-graph"
-        data={graphData}
-        config={graphConfig}
-      />
+    <div className="fixed inset-0 bg-transparent">
+      {dimensions.width > 0 && (
+        <Graph
+          id="hadith-graph"
+          data={graphData}
+          config={graphConfig}
+        />
+      )}
     </div>
   )
 }
