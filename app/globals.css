@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-dot-pattern;
+}
+
+.bg-dot-pattern {
+  background-color: #ffffff;
+}
+
+.node-group {
+  transition: transform 0.3s ease-in-out;
+}
+
+.node-group:hover {
+  cursor: pointer;
+}
+
+.node-group circle {
+  transition: r 0.3s ease-in-out;
+}
+

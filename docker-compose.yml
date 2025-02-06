@@ -16,7 +16,6 @@ services:
     volumes:
       - ./volume/data:/data
       - ./volume/plugins:/plugins
-      - ./volume/import:/import
       - ./seed:/seed
     networks:
       - neo4j-network

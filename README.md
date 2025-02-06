@@ -5,7 +5,6 @@ This repository contains a Neo4j Docker setup that automatically seeds the datab
 ## Prerequisites
 
 - Docker
-- Docker Compose
 
 ## How to Use
 
