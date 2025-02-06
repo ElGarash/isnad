@@ -25,3 +25,22 @@ export async function getPeopleAndLinks() {
         await session.close()
     }
 }
+
+export async function getIsnadByHadithId(hadithId: string) {
+    const session = driver.session()
+    try {
+        const result = await session.run(`
+            MATCH (n)-[r]->()
+            WHERE r.HadithNo = $hadithId
+            WITH r.HadithNo AS HadithNo, r.SanadNo AS SanadNo,
+                collect({NarratorName: n.NarratorName, NarratorID: n.narID, NarratorGen: n.NarratorGen}) AS Narrators
+            ORDER BY HadithNo, SanadNo
+            WITH HadithNo, collect({SanadNo: SanadNo, Narrators: Narrators}) AS TransmissionChains
+            RETURN HadithNo, TransmissionChains
+        `, { hadithId })
+
+        return parseHadithRecords([JSON.stringify(result.records[0])])
+    } finally {
+        await session.close()
+    }
+}
