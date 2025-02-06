@@ -215,7 +215,7 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
     return { nodes, links }
   }, [hadithData, dimensions, isMounted])
 
-  const graphConfig: Partial<GraphConfiguration<CustomNode, CustomLink>> = {
+  const graphConfig = {
     directed: true,
     nodeHighlightBehavior: true,
     linkHighlightBehavior: true,
@@ -251,8 +251,9 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
   return (
     <div className="fixed inset-0 bg-transparent">
       {dimensions.width > 0 && (
-        <Graph
-          id="hadith-graph"
+    /* @ts-ignore */
+    <Graph<CustomNode, CustomLink>          
+        id="hadith-graph"
           data={graphData}
           config={graphConfig}
         />
