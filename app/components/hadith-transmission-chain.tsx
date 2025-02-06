@@ -48,21 +48,70 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
     const nodes: any[] = []
     const links: any[] = []
     const seenNodes = new Set()
+    const levelNodes = new Map<number, string[]>()
+    const nodePositions = new Map<string, {x: number, y: number}>()
 
+    // First pass: determine maximum chain length and group nodes by level
+    const maxChainLength = Math.max(
+      ...hadithData.map(h => Math.max(...h.transmissionChains.map(c => c.Narrators.length)))
+    )
+    const verticalSpacing = dimensions.height / (maxChainLength + 2) / 1.5  // Reduced spacing
+
+    // Group nodes by their level
     hadithData.forEach(hadith => {
       hadith.transmissionChains.forEach(chain => {
         chain.Narrators.forEach((narrator, index) => {
+          if (!levelNodes.has(index)) {
+            levelNodes.set(index, [])
+          }
+          if (!levelNodes.get(index)?.includes(narrator.NarratorID)) {
+            levelNodes.get(index)?.push(narrator.NarratorID)
+          }
+        })
+      })
+    })
+
+    // Create nodes with positions - modified to maintain vertical alignment
+    hadithData.forEach(hadith => {
+      hadith.transmissionChains.forEach((chain, chainIndex) => {
+        let parentX: number | null = null;
+        
+        chain.Narrators.forEach((narrator, index) => {
           if (!seenNodes.has(narrator.NarratorID)) {
             seenNodes.add(narrator.NarratorID)
+            const yPosition = (index + 1) * verticalSpacing
+            
+            const nodesAtLevel = levelNodes.get(index) || []
+            const position = nodesAtLevel.indexOf(narrator.NarratorID)
+            const totalNodesAtLevel = nodesAtLevel.length
+            
+            // Reduce horizontal spacing by using a smaller divisor
+            let xPosition = parentX ?? ((position + 1) * (dimensions.width / (totalNodesAtLevel + 1)) / 2)
+            
+            // Adjust position to be more centered
+            xPosition = Math.max(100, Math.min(dimensions.width - 100, xPosition))
+            
+            parentX = xPosition
+            nodePositions.set(narrator.NarratorID, {x: xPosition, y: yPosition})
+
+            // Fix the center point calculation
+            const centerPoint = dimensions.width / 4  // Changed from width/2 to width/4
+            const isRightSide = xPosition > centerPoint
+
             nodes.push({
               id: narrator.NarratorID,
               name: narrator.NarratorName,
               color: "red",
               symbolType: "circle",
-              labelPosition: "top"
+              labelPosition: isRightSide ? "right" : "left",
+              x: xPosition,
+              y: yPosition,
+              fx: xPosition, // Fix x position
+              fy: yPosition, // Fix y position
             })
           }
 
+          // Update links
           if (index < chain.Narrators.length - 1) {
             const nextNarrator = chain.Narrators[index + 1]
             links.push({
@@ -76,9 +125,8 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
     })
 
     return { nodes, links }
-  }, [hadithData])
+  }, [hadithData, dimensions])
 
-  // Updated configuration for better compatibility
   const graphConfig = {
     directed: true,
     nodeHighlightBehavior: true,
@@ -89,7 +137,7 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
     minZoom: 0.1,
     node: {
       color: "lightgreen",
-      size: 250,
+      size: 120, // Further reduced from 150 to 120
       highlightStrokeColor: "blue",
       labelProperty: "name",
       fontSize: 12,
@@ -101,10 +149,10 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
       highlightColor: "lightblue",
     },
     d3: {
-      alphaTarget: 0.05,
-      gravity: -250,
-      linkLength: 100,
+      gravity: 0, // Disable gravity
+      linkLength: 30, // Further reduced from 50 to 30
       linkStrength: 1,
+      alphaTarget: 0,
     },
     height: dimensions.height,
     width: dimensions.width,
