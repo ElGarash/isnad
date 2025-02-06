@@ -51,12 +51,48 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
     const levelNodes = new Map<number, string[]>()
     const nodePositions = new Map<string, {x: number, y: number}>()
 
-    // First pass: determine maximum chain length and group nodes by level
+    // Calculate spacing values
     const maxChainLength = Math.max(
       ...hadithData.map(h => Math.max(...h.transmissionChains.map(c => c.Narrators.length)))
     )
-    const verticalSpacing = dimensions.height / (maxChainLength + 2) / 1.5  // Reduced spacing
+    const verticalSpacing = dimensions.height / (maxChainLength + 2) / 1.5
+    const horizontalOffset = dimensions.width * 0.2
+    const rootX = dimensions.width / 2  // Store root X position for centering
 
+    // Add root node (Prophet PBUH) centered
+    const rootNodeId = "prophet-pbuh"
+    nodes.push({
+      id: rootNodeId,
+      name: "The Prophet (PBUH)",
+      color: "#FFD700",
+      symbolType: "circle",
+      labelPosition: "left",
+      x: rootX,
+      y: verticalSpacing / 2,
+      fx: rootX,
+      fy: verticalSpacing / 2,
+    })
+    seenNodes.add(rootNodeId)
+
+    // Add author node at the bottom
+    const authorNodeId = "author-node"
+    nodes.push({
+      id: authorNodeId,
+      name: "Muslim",
+      color: "#C71585", // Deep pink color for distinction
+      symbolType: "circle",
+      labelPosition: "bottom",
+      x: rootX,
+      y: (maxChainLength + 1) * verticalSpacing,
+      fx: rootX,
+      fy: (maxChainLength + 1) * verticalSpacing,
+    })
+    seenNodes.add(authorNodeId)
+
+    // Track leaf nodes to connect them to author
+    const leafNodes = new Set<string>()
+
+    // First pass: determine maximum chain length and group nodes by level
     // Group nodes by their level
     hadithData.forEach(hadith => {
       hadith.transmissionChains.forEach(chain => {
@@ -85,17 +121,23 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
             const position = nodesAtLevel.indexOf(narrator.NarratorID)
             const totalNodesAtLevel = nodesAtLevel.length
             
-            // Reduce horizontal spacing by using a smaller divisor
-            let xPosition = parentX ?? ((position + 1) * (dimensions.width / (totalNodesAtLevel + 1)) / 2)
+            // Calculate x position with special handling for single nodes
+            let xPosition
+            if (totalNodesAtLevel === 1) {
+              // Center single nodes with root node
+              xPosition = rootX
+            } else {
+              xPosition = parentX ?? (horizontalOffset + 
+                (position * (dimensions.width - 2 * horizontalOffset) / (Math.max(totalNodesAtLevel - 1, 1))))
+            }
             
-            // Adjust position to be more centered
-            xPosition = Math.max(100, Math.min(dimensions.width - 100, xPosition))
+            // Ensure xPosition stays within bounds
+            xPosition = Math.max(horizontalOffset, Math.min(dimensions.width - horizontalOffset, xPosition))
             
             parentX = xPosition
             nodePositions.set(narrator.NarratorID, {x: xPosition, y: yPosition})
 
-            // Fix the center point calculation
-            const centerPoint = dimensions.width / 4  // Changed from width/2 to width/4
+            const centerPoint = dimensions.width / 2
             const isRightSide = xPosition > centerPoint
 
             nodes.push({
@@ -111,6 +153,15 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
             })
           }
 
+          // Connect first-level narrators to the Prophet's node
+          if (index === 0) {
+            links.push({
+              source: rootNodeId,
+              target: narrator.NarratorID,
+              type: "STRAIGHT"
+            })
+          }
+
           // Update links
           if (index < chain.Narrators.length - 1) {
             const nextNarrator = chain.Narrators[index + 1]
@@ -121,6 +172,25 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
             })
           }
         })
+      })
+    })
+
+    // After all nodes and links are created, connect leaf nodes to author
+    hadithData.forEach(hadith => {
+      hadith.transmissionChains.forEach(chain => {
+        const lastNarrator = chain.Narrators[chain.Narrators.length - 1]
+        if (lastNarrator) {
+          leafNodes.add(lastNarrator.NarratorID)
+        }
+      })
+    })
+
+    // Add links from leaf nodes to author
+    leafNodes.forEach(nodeId => {
+      links.push({
+        source: nodeId,
+        target: authorNodeId,
+        type: "STRAIGHT"
       })
     })
 
