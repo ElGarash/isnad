@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/is-prop-valid": "latest",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-alert-dialog": "^1.1.4",
@@ -41,14 +42,16 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
+    "d3": "latest",
     "date-fns": "4.1.0",
     "embla-carousel-react": "8.5.1",
+    "framer-motion": "latest",
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
+    "neo4j-driver": "^5.28.0",
     "next": "14.2.16",
     "next-themes": "^0.4.4",
     "react": "^18",
-    "react-day-picker": "8.10.1",
     "react-dom": "^18",
     "react-hook-form": "^7.54.1",
     "react-resizable-panels": "^2.1.7",
@@ -57,13 +60,11 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.6",
-    "zod": "^3.24.1",
-    "@emotion/is-prop-valid": "latest",
-    "d3": "latest",
-    "framer-motion": "latest"
+    "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@types/node": "^22",
+    "@types/d3": "^7.4.3",
+    "@types/node": "^22.13.1",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "postcss": "^8",
