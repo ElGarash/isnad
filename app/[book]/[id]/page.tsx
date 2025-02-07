@@ -31,10 +31,12 @@ export default async function HadithPage({ params: { id, book } }: PageProps) {
   }
 
   return (
-    <ErrorBoundary>
-      <Suspense fallback={<LoadingSpinner />}>
-        <HadithTransmissionChain hadithData={hadithData} />
-      </Suspense>
-    </ErrorBoundary>
+    <div className="flex min-h-screen items-center justify-center">
+      <ErrorBoundary>
+        <Suspense fallback={<LoadingSpinner />}>
+          <HadithTransmissionChain hadithData={hadithData} />
+        </Suspense>
+      </ErrorBoundary>
+    </div>
   )
 }

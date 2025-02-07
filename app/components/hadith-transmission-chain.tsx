@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import { Graph, GraphNode, GraphLink } from "react-d3-graph"
+import NarratorCard from "./narrator-card"
 
 interface HadithChainProps {
   hadithData: {
@@ -41,6 +42,18 @@ interface CustomLink extends GraphLink {
   type: string;
 }
 
+const viewGenerator = (nodeData: any) => {
+  const person = {
+    id: nodeData.id,
+    name: nodeData.name,
+    generation: nodeData.generation || "Companion",
+    grade: nodeData.grade || 1,
+    description: nodeData.description || ""
+  }
+
+  return <NarratorCard person={person} />
+}
+
 export default function HadithTransmissionChain({ hadithData }: HadithChainProps) {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
   const [isMounted, setIsMounted] = useState(false)
@@ -69,12 +82,14 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
     const levelNodes = new Map<number, string[]>()
     const nodePositions = new Map<string, {x: number, y: number}>()
 
-    // Calculate spacing values
+    // Calculate spacing values with fixed node size in mind
+    const nodeWidth = 120
+    const nodeHeight = 140
     const maxChainLength = Math.max(
       ...hadithData.map(h => Math.max(...h.transmissionChains.map(c => c.Narrators.length)))
     )
-    const verticalSpacing = dimensions.height / (maxChainLength + 2) / 1.5
-    const horizontalOffset = dimensions.width * 0.2
+    const verticalSpacing = Math.max(dimensions.height / (maxChainLength + 1), nodeHeight * 1.5)
+    const horizontalOffset = Math.max(dimensions.width * 0.005, nodeWidth) // Reduced from 0.1 to 0.05
     const rootX = dimensions.width / 2  // Store root X position for centering
 
     // Add root node (Prophet PBUH) centered
@@ -82,6 +97,9 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
     nodes.push({
       id: rootNodeId,
       name: "The Prophet (PBUH)",
+      generation: "",
+      grade: 7,
+      description: "The Prophet Muhammad, peace be upon him",
       color: "#FFD700",
       symbolType: "circle",
       labelPosition: "left",
@@ -97,6 +115,9 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
     nodes.push({
       id: authorNodeId,
       name: "Muslim",
+      generation: "3rd century scholar",
+      grade: 5,
+      description: "Imam Muslim, compiler of Sahih Muslim",
       color: "#C71585", // Deep pink color for distinction
       symbolType: "circle",
       labelPosition: "bottom",
@@ -161,6 +182,9 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
             nodes.push({
               id: narrator.NarratorID,
               name: narrator.NarratorName,
+              generation: narrator.NarratorGen,
+              grade: 3, // You might want to get this from your data
+              description: "", // Add description if available
               color: "red",
               symbolType: "circle",
               labelPosition: isRightSide ? "right" : "left",
@@ -223,23 +247,24 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
     highlightOpacity: 0.2,
     maxZoom: 8,
     minZoom: 0.1,
+
     node: {
-      color: "lightgreen",
-      size: 120, // Further reduced from 150 to 120
-      highlightStrokeColor: "blue",
-      labelProperty: (node: CustomNode) => node.name,
-      fontSize: 12,
-      highlightFontSize: 14,
-      renderLabel: true,
+      size: {
+        width: 1200,  // Match actual card width
+        height: 1400, // Match actual card height
+      },
+      viewGenerator,
+      renderLabel: false,
     },
     link: {
-      strokeWidth: 1.5,
+      strokeWidth: 2,
       highlightColor: "lightblue",
+      type: "STRAIGHT",
     },
     d3: {
-      gravity: 0, // Disable gravity
-      linkLength: 30, // Further reduced from 50 to 30
-      linkStrength: 1,
+      gravity: -100,
+      linkLength: 250, // Increase link length for better spacing
+      linkStrength: 0.8,
       alphaTarget: 0,
     },
     height: dimensions.height,
