@@ -1,5 +1,5 @@
 import { ErrorBoundary } from "@/app/components/error-boundary";
-import HadithTransmissionChain from "@/app/components/hadith-transmission-chain";
+import HadithTransmissionChain from "@/app/components/transmission-chain";
 import { LoadingSpinner } from "@/app/components/loading-spinner";
 import { getChainForHadith, getHadithById } from "@/lib/sqlite";
 import { Suspense } from "react";
