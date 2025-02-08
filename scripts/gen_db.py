@@ -40,6 +40,21 @@ def create_tables(conn: sqlite3.Connection) -> None:
         FOREIGN KEY(scholar_indx) REFERENCES rawis(scholar_indx),
         PRIMARY KEY(source, chapter_no, hadith_no, scholar_indx)
     );
+
+    -- Indexes for hadiths table (read-heavy optimization)
+    CREATE INDEX idx_hadiths_hadith_id ON hadiths(hadith_id);
+    CREATE INDEX idx_hadiths_source_chapter ON hadiths(source, chapter_no);  -- For chapter browsing
+    CREATE INDEX idx_hadiths_text_ar ON hadiths(text_ar);  -- For Arabic text search
+    CREATE INDEX idx_hadiths_text_en ON hadiths(text_en);  -- For English text search
+    
+    -- Indexes for rawis table (read-heavy optimization)
+    CREATE INDEX idx_rawis_name ON rawis(name);
+    CREATE INDEX idx_rawis_grade ON rawis(grade);  -- For filtering by scholar grade
+    CREATE INDEX idx_rawis_death_date ON rawis(death_date_hijri, death_date_gregorian);  -- For timeline queries
+    
+    -- Indexes for hadith_chains table (read-heavy optimization)
+    CREATE INDEX idx_chains_scholar_pos ON hadith_chains(scholar_indx, position);  -- Combined index for chain analysis
+    CREATE INDEX idx_chains_source_scholar ON hadith_chains(source, scholar_indx);  -- For finding scholar's hadiths
     """
     )
 
@@ -50,9 +65,9 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
     hadiths = hadiths_df.select(
         [
             "hadith_id",
-            "source",
+            pl.col("source").str.strip_chars(),
             "chapter_no",
-            "hadith_no",
+            pl.col("hadith_no").str.strip_chars(),
             "chapter",
             "text_ar",
             "text_en",
@@ -86,12 +101,14 @@ def insert_chains(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
     chains = (
         hadiths_df.with_columns(
             [
+                pl.col("source").str.strip_chars(),
+                pl.col("hadith_no").str.strip_chars(),
                 pl.col("chain_indx")
                 .str.strip_chars()
                 .str.split(",")
                 .list.eval(pl.element().str.strip_chars())
                 .cast(pl.List(pl.Int64))
-                .alias("scholar_indices")
+                .alias("scholar_indices"),
             ]
         )
         .explode("scholar_indices")

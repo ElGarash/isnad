@@ -62,3 +62,45 @@ describe("SQLite Database Tests", () => {
         expect(chainItem).toHaveProperty('position');
     });
 });
+
+
+describe("Hadith 6800 retrieval", () => {
+    test("should find Sahih Bukhari 84:6800", () => {
+        const hadith = getHadithById("Sahih Bukhari", 84, "6800");
+        expect(hadith).not.toBeNull();
+        expect(hadith).toMatchObject({
+            hadith_id: 84,
+            source: "Sahih Bukhari",
+            chapter_no: 84,
+            hadith_no: "6800",
+            chapter: "Expiation for Unfulfilled Oaths - كتاب كفارات الأيمان"
+        });
+        expect(hadith?.text_en).toContain("Narrated Abu Huraira");
+    });
+
+    test("should have correct chain for 84:6800", () => {
+        const chain = getChainForHadith("Sahih Bukhari", 84, "6800");
+        expect(chain).toHaveLength(8);
+
+        // Verify specific narrators
+        const expectedNarrators = [
+            "Abu Hurairah",
+            "Ali bin al-Husain bin 'Ali",
+            "Zayd bin Aslam",
+            "Sa'id bin Marjana",
+            "Muhammad bin Matraf",
+            "al-Walid bin Muslim al-Quraishi",
+            "Da'ud bin Rshyd",
+            "Muhammad bin 'Abdul Rahim bin Abi Zuhayr"
+        ];
+
+        chain.forEach((narrator, idx) => {
+            expect(narrator.name).toContain(expectedNarrators[idx]);
+            expect(narrator.position).toBe(idx + 1);
+        });
+    });
+
+    afterAll(() => {
+        close();
+    });
+})

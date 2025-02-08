@@ -1,6 +1,7 @@
 import { Database } from 'bun:sqlite'
 
 interface Hadith {
+    id: number;
     hadith_id: number;
     source: string;
     chapter_no: number;
