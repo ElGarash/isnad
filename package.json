@@ -67,6 +67,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/d3": "^7.4.3",
     "@types/node": "^22.13.1",
     "@types/react": "^18",

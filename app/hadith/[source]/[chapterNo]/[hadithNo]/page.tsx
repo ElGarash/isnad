@@ -1,8 +1,8 @@
-import { Suspense } from "react";
-import HadithTransmissionChain from "@/app/components/hadith-transmission-chain";
-import { getHadithById, getChainForHadith } from "@/lib/sqlite";
-import { LoadingSpinner } from "@/app/components/loading-spinner";
 import { ErrorBoundary } from "@/app/components/error-boundary";
+import HadithTransmissionChain from "@/app/components/hadith-transmission-chain";
+import { LoadingSpinner } from "@/app/components/loading-spinner";
+import { getChainForHadith, getHadithById } from "@/lib/sqlite";
+import { Suspense } from "react";
 
 interface PageProps {
   params: {

@@ -1,9 +1,8 @@
 "use client";
 
+import NarratorCard from "./narrator-card";
 import React, { useEffect, useState } from "react";
 import { Graph } from "react-d3-graph";
-
-import NarratorCard from "./narrator-card";
 
 interface HadithChainProps {
   hadithData: {

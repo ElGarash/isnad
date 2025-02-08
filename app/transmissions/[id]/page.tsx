@@ -1,9 +1,9 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { Navbar } from "../../components/navbar";
 import { Footer } from "../../components/footer";
+import { Navbar } from "../../components/navbar";
 import { TransmissionChain } from "../../components/transmission-chain";
+import { useParams } from "next/navigation";
 
 // Mock data for demonstration purposes
 const mockChains = [
