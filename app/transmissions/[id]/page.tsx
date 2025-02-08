@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useParams } from "next/navigation"
-import { Navbar } from "../../components/navbar"
-import { Footer } from "../../components/footer"
-import { TransmissionChain } from "../../components/transmission-chain"
+import { useParams } from "next/navigation";
+import { Navbar } from "../../components/navbar";
+import { Footer } from "../../components/footer";
+import { TransmissionChain } from "../../components/transmission-chain";
 
 // Mock data for demonstration purposes
 const mockChains = [
@@ -28,11 +28,11 @@ const mockChains = [
     { id: "d3", name: "Yahya ibn Sa'id al-Qattan", rank: "Scholar" },
     { id: "e3", name: "Ahmad ibn Hanbal", rank: "Scholar" },
   ],
-]
+];
 
 export default function TransmissionsPage() {
-  const params = useParams()
-  const { id } = params
+  const params = useParams();
+  const { id } = params;
 
   // In a real application, you would fetch the data for the specific person here
   // For now, we'll use the mock data
@@ -42,12 +42,18 @@ export default function TransmissionsPage() {
       <Navbar />
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">All Transmission Chains</h1>
-          <p className="text-lg text-gray-700 mb-8">Displaying all transmission chains for {mockChains[0][0].name}</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            All Transmission Chains
+          </h1>
+          <p className="text-lg text-gray-700 mb-8">
+            Displaying all transmission chains for {mockChains[0][0].name}
+          </p>
           <div className="space-y-6">
             {mockChains.map((chain, index) => (
               <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                <h2 className="text-xl font-semibold mb-2">Chain {index + 1}</h2>
+                <h2 className="text-xl font-semibold mb-2">
+                  Chain {index + 1}
+                </h2>
                 <TransmissionChain chain={chain} />
               </div>
             ))}
@@ -56,6 +62,5 @@ export default function TransmissionsPage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
-

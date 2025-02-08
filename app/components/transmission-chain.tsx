@@ -1,14 +1,14 @@
-import React from "react"
-import { ArrowRight } from "lucide-react"
+import React from "react";
+import { ArrowRight } from "lucide-react";
 
 interface Transmitter {
-  id: string
-  name: string
-  rank: string
+  id: string;
+  name: string;
+  rank: string;
 }
 
 interface TransmissionChainProps {
-  chain: Transmitter[]
+  chain: Transmitter[];
 }
 
 export function TransmissionChain({ chain }: TransmissionChainProps) {
@@ -30,7 +30,7 @@ export function TransmissionChain({ chain }: TransmissionChainProps) {
         </React.Fragment>
       ))}
     </div>
-  )
+  );
 }
 
 function getColorForRank(rank: string): string {
@@ -41,7 +41,6 @@ function getColorForRank(rank: string): string {
     Collector: "#FF5722",
     Commentator: "#9C27B0",
     Contemporary: "#607D8B",
-  }
-  return rankColors[rank] || "#9E9E9E"
+  };
+  return rankColors[rank] || "#9E9E9E";
 }
-
