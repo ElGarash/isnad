@@ -1,47 +1,191 @@
-import React from "react"
-import { ArrowRight } from "lucide-react"
+"use client";
 
-interface Transmitter {
-  id: string
-  name: string
-  rank: string
+import NarratorCard from "./narrator-card";
+import type { HadithWithChain } from "@/lib/sqlite";
+import tailwindConfig from "@/tailwind.config";
+import React, { useEffect, useState } from "react";
+import { Graph } from "react-d3-graph";
+
+interface HadithChainProps {
+  hadithData: {
+    hadithNo: string;
+    transmissionChains: {
+      sanadNo: number;
+      narrators: HadithWithChain[];
+    }[];
+  };
 }
 
-interface TransmissionChainProps {
-  chain: Transmitter[]
-}
+const viewGenerator = (nodeData: HadithWithChain | any) => {
+  // FIXME: the type of nodeData is not correct
+  return <NarratorCard {...nodeData} />;
+};
 
-export function TransmissionChain({ chain }: TransmissionChainProps) {
+export default function HadithTransmissionChain({
+  hadithData,
+}: HadithChainProps) {
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+
+  useEffect(() => {
+    setDimensions({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+
+    const handleResize = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Transform data for react-d3-graph
+  const graphData = React.useMemo(() => {
+    const nodes: any[] = [];
+    const links: any[] = [];
+    const seenNodes = new Set();
+    const levelNodes = new Map<number, string[]>();
+    const nodePositions = new Map<string, { x: number; y: number }>();
+
+    const nodeWidth = 120;
+    const nodeHeight = 140;
+    // Calculate spacing values
+    const maxChainLength = Math.max(
+      ...hadithData.transmissionChains.map((c) => c.narrators.length),
+    );
+    const verticalSpacing = Math.max(
+      dimensions.height / (maxChainLength + 1),
+      nodeHeight * 1.5,
+    );
+    const horizontalOffset = Math.max(dimensions.width * 0.005, nodeWidth); // Reduced from 0.1 to 0.05
+
+    const rootX = dimensions.width / 2; // Store root X position for centering
+
+    // Track leaf nodes to connect them to author
+
+    // First pass: determine maximum chain length and group nodes by level
+    // Group nodes by their level
+    hadithData.transmissionChains.forEach((chain) => {
+      chain.narrators.forEach((narrator, index) => {
+        if (!levelNodes.has(index)) {
+          levelNodes.set(index, []);
+        }
+        if (
+          !levelNodes.get(index)?.includes(narrator.scholar_indx.toString())
+        ) {
+          levelNodes.get(index)?.push(narrator.scholar_indx.toString());
+        }
+      });
+    });
+
+    // Create nodes with positions - modified to maintain vertical alignment
+    hadithData.transmissionChains.forEach((chain) => {
+      let parentX: number | null = null;
+
+      chain.narrators.forEach((narrator, index) => {
+        if (!seenNodes.has(narrator.scholar_indx.toString())) {
+          seenNodes.add(narrator.scholar_indx.toString());
+          const yPosition = (index + 1) * verticalSpacing;
+
+          const nodesAtLevel = levelNodes.get(index) || [];
+          const position = nodesAtLevel.indexOf(
+            narrator.scholar_indx.toString(),
+          );
+          const totalNodesAtLevel = nodesAtLevel.length;
+
+          // Calculate x position with special handling for single nodes
+          let xPosition;
+          if (totalNodesAtLevel === 1) {
+            // Center single nodes with root node
+            xPosition = rootX;
+          } else {
+            xPosition =
+              parentX ??
+              horizontalOffset +
+                (position * (dimensions.width - 2 * horizontalOffset)) /
+                  Math.max(totalNodesAtLevel - 1, 1);
+          }
+
+          // Ensure xPosition stays within bounds
+          xPosition = Math.max(
+            horizontalOffset,
+            Math.min(dimensions.width - horizontalOffset, xPosition),
+          );
+
+          parentX = xPosition;
+          nodePositions.set(narrator.scholar_indx.toString(), {
+            x: xPosition,
+            y: yPosition,
+          });
+
+          const centerPoint = dimensions.width / 2;
+          const isRightSide = xPosition > centerPoint;
+
+          nodes.push({
+            ...narrator, // Spread all narrator properties
+            id: narrator.scholar_indx.toString(),
+            x: xPosition,
+            y: yPosition,
+            fx: xPosition, // Fix x position
+            fy: yPosition, // Fix y position
+          });
+        }
+
+        // Update links
+        if (index < chain.narrators.length - 1) {
+          const nextNarrator = chain.narrators[index + 1];
+          links.push({
+            source: narrator.scholar_indx.toString(),
+            target: nextNarrator.scholar_indx.toString(),
+            type: "STRAIGHT",
+          });
+        }
+      });
+    });
+
+    return { nodes, links };
+  }, [hadithData, dimensions]);
+
+  const graphConfig = {
+    directed: true,
+    nodeHighlightBehavior: true,
+    linkHighlightBehavior: true,
+    highlightDegree: 1,
+    highlightOpacity: 0.2,
+    maxZoom: 8,
+    minZoom: 0.1,
+    node: {
+      size: {
+        // Match actual card size
+        width: 1200,
+        height: 1600,
+      },
+      viewGenerator,
+      renderLabel: false,
+    },
+    link: {
+      strokeWidth: 2,
+      // @ts-ignore
+      highlightColor: tailwindConfig.theme!.extend!.colors!.navy,
+    },
+    d3: {
+      gravity: 0, // Disable gravity
+      linkLength: 30,
+      linkStrength: 1,
+      alphaTarget: 0,
+    },
+    height: dimensions.height,
+    width: dimensions.width,
+  };
+
   return (
-    <div className="flex flex-wrap items-center gap-2 p-4 bg-white rounded-lg shadow-md">
-      {chain.map((transmitter, index) => (
-        <React.Fragment key={transmitter.id}>
-          <div className="flex flex-col items-center">
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
-              style={{ backgroundColor: getColorForRank(transmitter.rank) }}
-            >
-              {transmitter.name.charAt(0)}
-            </div>
-            <span className="text-xs mt-1 text-center">{transmitter.name}</span>
-            <span className="text-xs text-gray-500">{transmitter.rank}</span>
-          </div>
-          {index < chain.length - 1 && <ArrowRight className="text-gray-400" />}
-        </React.Fragment>
-      ))}
+    <div className="fixed inset-0 bg-transparent">
+      {/* @ts-ignore */}
+      <Graph id="hadith-graph" data={graphData} config={graphConfig} />
     </div>
-  )
+  );
 }
-
-function getColorForRank(rank: string): string {
-  const rankColors: { [key: string]: string } = {
-    Companion: "#4CAF50",
-    Follower: "#2196F3",
-    Scholar: "#FFC107",
-    Collector: "#FF5722",
-    Commentator: "#9C27B0",
-    Contemporary: "#607D8B",
-  }
-  return rankColors[rank] || "#9E9E9E"
-}
-

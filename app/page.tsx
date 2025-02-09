@@ -1,6 +1,5 @@
-import { redirect } from 'next/navigation'
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  redirect('/hadith/1')
+  redirect("/hadith/Sahih Bukhari/84/6800");
 }
-

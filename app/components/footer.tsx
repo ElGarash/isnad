@@ -7,6 +7,5 @@ export function Footer() {
         </p>
       </div>
     </footer>
-  )
+  );
 }
-
