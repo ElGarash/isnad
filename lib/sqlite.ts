@@ -31,6 +31,8 @@ export interface Chain {
     position: number;
 }
 
+export type HadithWithChain = Hadith & Chain;
+
 let db: Database | null = null;
 let statements: {
     getHadiths?: ReturnType<Database['prepare']>,
@@ -77,13 +79,13 @@ export function getHadithById(source: string, chapterNo: number, hadithNo: strin
     }) as Hadith | null;
 }
 
-export function getChainForHadith(source: string, chapterNo: number, hadithNo: string): (Chain & Narrator)[] {
+export function getChainForHadith(source: string, chapterNo: number, hadithNo: string): (HadithWithChain)[] {
     getDb();
     return statements.getChainForHadith!.all({
         $source: source,
         $chapter_no: chapterNo,
         $hadith_no: hadithNo
-    }) as (Chain & Narrator)[];
+    }) as (HadithWithChain)[];
 }
 
 export function close() {

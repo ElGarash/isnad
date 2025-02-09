@@ -10,7 +10,6 @@ const config: Config = {
 	],
 	theme: {
 		extend: {
-
 			colors: {
 				parchment: '#e6ded1',
 				navy: '#1b2b3b',

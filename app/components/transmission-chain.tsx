@@ -1,33 +1,23 @@
 "use client";
 
 import NarratorCard from "./narrator-card";
+import type { HadithWithChain } from "@/lib/sqlite";
+import tailwindConfig from "@/tailwind.config";
 import React, { useEffect, useState } from "react";
 import { Graph } from "react-d3-graph";
-import type { Narrator, Chain } from "@/lib/sqlite";
-
-type TransmissionChainNarrator = Narrator & Chain;
 
 interface HadithChainProps {
   hadithData: {
     hadithNo: string;
     transmissionChains: {
       sanadNo: number;
-      narrators: TransmissionChainNarrator[];
+      narrators: HadithWithChain[];
     }[];
   };
 }
 
-const generationColors = {
-  1: "#4CAF50", // First generation
-  2: "#2196F3", // Second generation
-  3: "#FFC107", // Third generation
-  4: "#9C27B0", // Fourth generation
-  5: "#FF5722", // Fifth generation
-  default: "#757575", // Default color for other generations
-};
-
-const viewGenerator = (nodeData: TransmissionChainNarrator | any) => {
-
+const viewGenerator = (nodeData: HadithWithChain | any) => {
+  // FIXME: the type of nodeData is not correct
   return <NarratorCard {...nodeData} />;
 };
 
@@ -84,7 +74,9 @@ export default function HadithTransmissionChain({
         if (!levelNodes.has(index)) {
           levelNodes.set(index, []);
         }
-        if (!levelNodes.get(index)?.includes(narrator.scholar_indx.toString())) {
+        if (
+          !levelNodes.get(index)?.includes(narrator.scholar_indx.toString())
+        ) {
           levelNodes.get(index)?.push(narrator.scholar_indx.toString());
         }
       });
@@ -100,7 +92,9 @@ export default function HadithTransmissionChain({
           const yPosition = (index + 1) * verticalSpacing;
 
           const nodesAtLevel = levelNodes.get(index) || [];
-          const position = nodesAtLevel.indexOf(narrator.scholar_indx.toString());
+          const position = nodesAtLevel.indexOf(
+            narrator.scholar_indx.toString(),
+          );
           const totalNodesAtLevel = nodesAtLevel.length;
 
           // Calculate x position with special handling for single nodes
@@ -112,8 +106,8 @@ export default function HadithTransmissionChain({
             xPosition =
               parentX ??
               horizontalOffset +
-              (position * (dimensions.width - 2 * horizontalOffset)) /
-              Math.max(totalNodesAtLevel - 1, 1);
+                (position * (dimensions.width - 2 * horizontalOffset)) /
+                  Math.max(totalNodesAtLevel - 1, 1);
           }
 
           // Ensure xPosition stays within bounds
@@ -132,21 +126,14 @@ export default function HadithTransmissionChain({
           const isRightSide = xPosition > centerPoint;
 
           nodes.push({
-            id: narrator.scholar_indx.toString(),
             ...narrator, // Spread all narrator properties
-            color:
-              generationColors[
-              narrator.position as keyof typeof generationColors
-              ] || generationColors.default,
-            symbolType: "circle",
-            labelPosition: isRightSide ? "right" : "left",
+            id: narrator.scholar_indx.toString(),
             x: xPosition,
             y: yPosition,
             fx: xPosition, // Fix x position
             fy: yPosition, // Fix y position
           });
         }
-
 
         // Update links
         if (index < chain.narrators.length - 1) {
@@ -182,7 +169,8 @@ export default function HadithTransmissionChain({
     },
     link: {
       strokeWidth: 2,
-      highlightColor: "lightblue",
+      // @ts-ignore
+      highlightColor: tailwindConfig.theme!.extend!.colors!.navy,
     },
     d3: {
       gravity: 0, // Disable gravity
