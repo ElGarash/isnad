@@ -1,11 +1,17 @@
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Noto_Naskh_Arabic } from "next/font/google";
+import { Navbar } from "@/app/components/navbar";
+import { ThemeProvider } from "@/components/theme-provider";
 
-const inter = Inter({ subsets: ["latin"] });
+const notoNaskhArabic = Noto_Naskh_Arabic({
+  subsets: ["arabic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-naskh",
+})
 
 export const metadata = {
-  title: "Hadith Transmission Chain Visualizer",
-  description: "Visualize the transmission chain of Hadiths",
+  title: "Isnad - Hadith Transmission Chain Visualizer",
+  description: "Visualize and explore hadith transmission chains",
 };
 
 export default function RootLayout({
@@ -14,8 +20,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="ar" dir="rtl">
+      <body className={notoNaskhArabic.className}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <Navbar />
+          <main>{children}</main>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
