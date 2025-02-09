@@ -1,6 +1,6 @@
 import { Database } from 'bun:sqlite'
 
-interface Hadith {
+export interface Hadith {
     id: number;
     hadith_id: number;
     source: string;
@@ -11,7 +11,7 @@ interface Hadith {
     text_en: string;
 }
 
-interface Narrator {
+export interface Narrator {
     scholar_indx: number;
     name: string;
     grade: string;
@@ -23,7 +23,7 @@ interface Narrator {
     death_place: string;
 }
 
-interface Chain {
+export interface Chain {
     source: string;
     chapter_no: number;
     hadith_no: string;

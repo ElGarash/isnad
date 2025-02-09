@@ -3,17 +3,16 @@
 import NarratorCard from "./narrator-card";
 import React, { useEffect, useState } from "react";
 import { Graph } from "react-d3-graph";
+import type { Narrator, Chain } from "@/lib/sqlite";
+
+type TransmissionChainNarrator = Narrator & Chain;
 
 interface HadithChainProps {
   hadithData: {
     hadithNo: string;
     transmissionChains: {
       sanadNo: number;
-      narrators: {
-        narratorId: string;
-        narratorName: string;
-        narratorGen: number; // Changed from string to number to match SQLite position
-      }[];
+      narrators: TransmissionChainNarrator[];
     }[];
   };
 }
@@ -27,16 +26,9 @@ const generationColors = {
   default: "#757575", // Default color for other generations
 };
 
-const viewGenerator = (nodeData: any) => {
-  const person = {
-    id: nodeData.id,
-    name: nodeData.name,
-    generation: nodeData.generation,
-    rank: nodeData.rank,
-    status: nodeData.status,
-  };
+const viewGenerator = (nodeData: TransmissionChainNarrator | any) => {
 
-  return <NarratorCard person={person} />;
+  return <NarratorCard {...nodeData} />;
 };
 
 export default function HadithTransmissionChain({
@@ -83,36 +75,6 @@ export default function HadithTransmissionChain({
 
     const rootX = dimensions.width / 2; // Store root X position for centering
 
-    // Add root node (Prophet PBUH) centered
-    const rootNodeId = "prophet-pbuh";
-    nodes.push({
-      id: rootNodeId,
-      name: "The Prophet (PBUH)",
-      color: "#FFD700",
-      symbolType: "circle",
-      labelPosition: "left",
-      x: rootX,
-      y: verticalSpacing / 2,
-      fx: rootX,
-      fy: verticalSpacing / 2,
-    });
-    seenNodes.add(rootNodeId);
-
-    // Add author node at the bottom
-    const authorNodeId = "author-node";
-    nodes.push({
-      id: authorNodeId,
-      name: "Muslim",
-      generation: "",
-      rank: "",
-      status: "",
-      x: rootX,
-      y: (maxChainLength + 1) * verticalSpacing,
-      fx: rootX,
-      fy: (maxChainLength + 1) * verticalSpacing,
-    });
-    seenNodes.add(authorNodeId);
-
     // Track leaf nodes to connect them to author
 
     // First pass: determine maximum chain length and group nodes by level
@@ -122,8 +84,8 @@ export default function HadithTransmissionChain({
         if (!levelNodes.has(index)) {
           levelNodes.set(index, []);
         }
-        if (!levelNodes.get(index)?.includes(narrator.narratorId)) {
-          levelNodes.get(index)?.push(narrator.narratorId);
+        if (!levelNodes.get(index)?.includes(narrator.scholar_indx.toString())) {
+          levelNodes.get(index)?.push(narrator.scholar_indx.toString());
         }
       });
     });
@@ -133,12 +95,12 @@ export default function HadithTransmissionChain({
       let parentX: number | null = null;
 
       chain.narrators.forEach((narrator, index) => {
-        if (!seenNodes.has(narrator.narratorId)) {
-          seenNodes.add(narrator.narratorId);
+        if (!seenNodes.has(narrator.scholar_indx.toString())) {
+          seenNodes.add(narrator.scholar_indx.toString());
           const yPosition = (index + 1) * verticalSpacing;
 
           const nodesAtLevel = levelNodes.get(index) || [];
-          const position = nodesAtLevel.indexOf(narrator.narratorId);
+          const position = nodesAtLevel.indexOf(narrator.scholar_indx.toString());
           const totalNodesAtLevel = nodesAtLevel.length;
 
           // Calculate x position with special handling for single nodes
@@ -161,7 +123,7 @@ export default function HadithTransmissionChain({
           );
 
           parentX = xPosition;
-          nodePositions.set(narrator.narratorId, {
+          nodePositions.set(narrator.scholar_indx.toString(), {
             x: xPosition,
             y: yPosition,
           });
@@ -170,11 +132,11 @@ export default function HadithTransmissionChain({
           const isRightSide = xPosition > centerPoint;
 
           nodes.push({
-            id: narrator.narratorId,
-            name: narrator.narratorName,
+            id: narrator.scholar_indx.toString(),
+            ...narrator, // Spread all narrator properties
             color:
               generationColors[
-              narrator.narratorGen as keyof typeof generationColors
+              narrator.position as keyof typeof generationColors
               ] || generationColors.default,
             symbolType: "circle",
             labelPosition: isRightSide ? "right" : "left",
@@ -185,30 +147,13 @@ export default function HadithTransmissionChain({
           });
         }
 
-        // Connect first-level narrators to the Prophet's node
-        if (index === 0) {
-          links.push({
-            source: rootNodeId,
-            target: narrator.narratorId,
-            type: "STRAIGHT",
-          });
-        }
 
         // Update links
         if (index < chain.narrators.length - 1) {
           const nextNarrator = chain.narrators[index + 1];
           links.push({
-            source: narrator.narratorId,
-            target: nextNarrator.narratorId,
-            type: "STRAIGHT",
-          });
-        }
-
-        // Connect last narrator to author
-        if (index === chain.narrators.length - 1) {
-          links.push({
-            source: narrator.narratorId,
-            target: authorNodeId,
+            source: narrator.scholar_indx.toString(),
+            target: nextNarrator.scholar_indx.toString(),
             type: "STRAIGHT",
           });
         }
@@ -228,8 +173,9 @@ export default function HadithTransmissionChain({
     minZoom: 0.1,
     node: {
       size: {
-        width: 1200, // Match actual card width
-        height: 1400, // Match actual card height
+        // Match actual card size
+        width: 1200,
+        height: 1600,
       },
       viewGenerator,
       renderLabel: false,

@@ -38,18 +38,14 @@ function ChainVisualization({
     return <div>Hadith not found</div>;
   }
 
-  const chain = getChainForHadith(source, chapterNo, hadithNo);
+  const chainNarrators = getChainForHadith(source, chapterNo, hadithNo);
 
   const transformedData = {
     hadithNo: hadith.hadith_no,
     transmissionChains: [
       {
         sanadNo: 1,
-        narrators: chain.map((narrator) => ({
-          narratorName: narrator.name,
-          narratorId: narrator.scholar_indx.toString(),
-          narratorGen: narrator.position,
-        })),
+        narrators: chainNarrators,
       },
     ],
   };
