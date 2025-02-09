@@ -7,20 +7,23 @@ interface HadithChainProps {
   hadithData: {
     hadithNo: string;
     transmissionChains: {
-      SanadNo: string;
-      Narrators: {
-        NarratorID: string;
-        NarratorName: string;
-        NarratorGen: string;
+      sanadNo: number;
+      narrators: {
+        narratorId: string;
+        narratorName: string;
+        narratorGen: number;  // Changed from string to number to match SQLite position
       }[];
     }[];
-  }[];
+  }
 }
 
 const generationColors = {
-  'Comp_RA': "#4CAF50",
-  'Follower_Tabi': "#2196F3",
-  'Succ_TabaTabi': "#FFC107",
+  1: "#4CAF50",  // First generation
+  2: "#2196F3",  // Second generation
+  3: "#FFC107",  // Third generation
+  4: "#9C27B0",  // Fourth generation
+  5: "#FF5722",  // Fifth generation
+  default: "#757575"  // Default color for other generations
 }
 
 export default function HadithTransmissionChain({ hadithData }: HadithChainProps) {
@@ -53,7 +56,7 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
 
     // Calculate spacing values
     const maxChainLength = Math.max(
-      ...hadithData.map(h => Math.max(...h.transmissionChains.map(c => c.Narrators.length)))
+      ...hadithData.transmissionChains.map(c => c.narrators.length)
     )
     const verticalSpacing = dimensions.height / (maxChainLength + 2) / 1.5
     const horizontalOffset = dimensions.width * 0.2
@@ -94,103 +97,89 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
 
     // First pass: determine maximum chain length and group nodes by level
     // Group nodes by their level
-    hadithData.forEach(hadith => {
-      hadith.transmissionChains.forEach(chain => {
-        chain.Narrators.forEach((narrator, index) => {
-          if (!levelNodes.has(index)) {
-            levelNodes.set(index, [])
-          }
-          if (!levelNodes.get(index)?.includes(narrator.NarratorID)) {
-            levelNodes.get(index)?.push(narrator.NarratorID)
-          }
-        })
-      })
-    })
-
-    // Create nodes with positions - modified to maintain vertical alignment
-    hadithData.forEach(hadith => {
-      hadith.transmissionChains.forEach((chain, chainIndex) => {
-        let parentX: number | null = null;
-        
-        chain.Narrators.forEach((narrator, index) => {
-          if (!seenNodes.has(narrator.NarratorID)) {
-            seenNodes.add(narrator.NarratorID)
-            const yPosition = (index + 1) * verticalSpacing
-            
-            const nodesAtLevel = levelNodes.get(index) || []
-            const position = nodesAtLevel.indexOf(narrator.NarratorID)
-            const totalNodesAtLevel = nodesAtLevel.length
-            
-            // Calculate x position with special handling for single nodes
-            let xPosition
-            if (totalNodesAtLevel === 1) {
-              // Center single nodes with root node
-              xPosition = rootX
-            } else {
-              xPosition = parentX ?? (horizontalOffset + 
-                (position * (dimensions.width - 2 * horizontalOffset) / (Math.max(totalNodesAtLevel - 1, 1))))
-            }
-            
-            // Ensure xPosition stays within bounds
-            xPosition = Math.max(horizontalOffset, Math.min(dimensions.width - horizontalOffset, xPosition))
-            
-            parentX = xPosition
-            nodePositions.set(narrator.NarratorID, {x: xPosition, y: yPosition})
-
-            const centerPoint = dimensions.width / 2
-            const isRightSide = xPosition > centerPoint
-
-            nodes.push({
-              id: narrator.NarratorID,
-              name: narrator.NarratorName,
-              color: "red",
-              symbolType: "circle",
-              labelPosition: isRightSide ? "right" : "left",
-              x: xPosition,
-              y: yPosition,
-              fx: xPosition, // Fix x position
-              fy: yPosition, // Fix y position
-            })
-          }
-
-          // Connect first-level narrators to the Prophet's node
-          if (index === 0) {
-            links.push({
-              source: rootNodeId,
-              target: narrator.NarratorID,
-              type: "STRAIGHT"
-            })
-          }
-
-          // Update links
-          if (index < chain.Narrators.length - 1) {
-            const nextNarrator = chain.Narrators[index + 1]
-            links.push({
-              source: narrator.NarratorID,
-              target: nextNarrator.NarratorID,
-              type: "STRAIGHT"
-            })
-          }
-        })
-      })
-    })
-
-    // After all nodes and links are created, connect leaf nodes to author
-    hadithData.forEach(hadith => {
-      hadith.transmissionChains.forEach(chain => {
-        const lastNarrator = chain.Narrators[chain.Narrators.length - 1]
-        if (lastNarrator) {
-          leafNodes.add(lastNarrator.NarratorID)
+    hadithData.transmissionChains.forEach(chain => {
+      chain.narrators.forEach((narrator, index) => {
+        if (!levelNodes.has(index)) {
+          levelNodes.set(index, [])
+        }
+        if (!levelNodes.get(index)?.includes(narrator.narratorId)) {
+          levelNodes.get(index)?.push(narrator.narratorId)
         }
       })
     })
 
-    // Add links from leaf nodes to author
-    leafNodes.forEach(nodeId => {
-      links.push({
-        source: nodeId,
-        target: authorNodeId,
-        type: "STRAIGHT"
+    // Create nodes with positions - modified to maintain vertical alignment
+    hadithData.transmissionChains.forEach(chain => {
+      let parentX: number | null = null;
+      
+      chain.narrators.forEach((narrator, index) => {
+        if (!seenNodes.has(narrator.narratorId)) {
+          seenNodes.add(narrator.narratorId)
+          const yPosition = (index + 1) * verticalSpacing
+          
+          const nodesAtLevel = levelNodes.get(index) || []
+          const position = nodesAtLevel.indexOf(narrator.narratorId)
+          const totalNodesAtLevel = nodesAtLevel.length
+          
+          // Calculate x position with special handling for single nodes
+          let xPosition
+          if (totalNodesAtLevel === 1) {
+            // Center single nodes with root node
+            xPosition = rootX
+          } else {
+            xPosition = parentX ?? (horizontalOffset + 
+              (position * (dimensions.width - 2 * horizontalOffset) / (Math.max(totalNodesAtLevel - 1, 1))))
+          }
+          
+          // Ensure xPosition stays within bounds
+          xPosition = Math.max(horizontalOffset, Math.min(dimensions.width - horizontalOffset, xPosition))
+          
+          parentX = xPosition
+          nodePositions.set(narrator.narratorId, {x: xPosition, y: yPosition})
+
+          const centerPoint = dimensions.width / 2
+          const isRightSide = xPosition > centerPoint
+
+          nodes.push({
+            id: narrator.narratorId,
+            name: narrator.narratorName,
+            color: generationColors[narrator.narratorGen as keyof typeof generationColors] || generationColors.default,
+            symbolType: "circle",
+            labelPosition: isRightSide ? "right" : "left",
+            x: xPosition,
+            y: yPosition,
+            fx: xPosition, // Fix x position
+            fy: yPosition, // Fix y position
+          })
+        }
+
+        // Connect first-level narrators to the Prophet's node
+        if (index === 0) {
+          links.push({
+            source: rootNodeId,
+            target: narrator.narratorId,
+            type: "STRAIGHT"
+          })
+        }
+
+        // Update links
+        if (index < chain.narrators.length - 1) {
+          const nextNarrator = chain.narrators[index + 1]
+          links.push({
+            source: narrator.narratorId,
+            target: nextNarrator.narratorId,
+            type: "STRAIGHT"
+          })
+        }
+
+        // Connect last narrator to author
+        if (index === chain.narrators.length - 1) {
+          links.push({
+            source: narrator.narratorId,
+            target: authorNodeId,
+            type: "STRAIGHT"
+          })
+        }
       })
     })
 
@@ -237,6 +226,7 @@ export default function HadithTransmissionChain({ hadithData }: HadithChainProps
       bottom: 0, 
       backgroundColor: 'transparent' 
     }}>
+      {/* @ts-ignore */}
       <Graph
         id="hadith-graph"
         data={graphData}
