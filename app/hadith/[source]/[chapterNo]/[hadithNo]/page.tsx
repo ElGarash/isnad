@@ -14,7 +14,13 @@ interface PageProps {
 
 export default function HadithPage({ params }: PageProps) {
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center" style={{
+      backgroundImage: `
+      radial-gradient(circle at 1px 1px, #cbd5e1 1px, transparent 0),
+      radial-gradient(circle at 20px 20px, #94a3b8 0.5px, transparent 0)
+    `,
+      backgroundSize: "20px 20px, 40px 40px",
+    }}>
       <ErrorBoundary>
         <Suspense fallback={<LoadingSpinner />}>
           <ChainVisualization
@@ -24,7 +30,7 @@ export default function HadithPage({ params }: PageProps) {
           />
         </Suspense>
       </ErrorBoundary>
-    </div>
+    </div >
   );
 }
 
