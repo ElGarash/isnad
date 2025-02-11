@@ -66,6 +66,7 @@ export default function HadithTransmissionChain({
       dimensions.height / (maxChainLength + 1),
       nodeHeight * 1.5,
     );
+    const topMargin = nodeHeight / 2; // Add top margin
     const horizontalOffset = Math.max(dimensions.width * 0.005, nodeWidth); // Reduced from 0.1 to 0.05
 
     const rootX = dimensions.width / 2; // Store root X position for centering
@@ -94,7 +95,8 @@ export default function HadithTransmissionChain({
       chain.narrators.forEach((narrator, index) => {
         if (!seenNodes.has(narrator.scholar_indx.toString())) {
           seenNodes.add(narrator.scholar_indx.toString());
-          const yPosition = (index + 1) * verticalSpacing;
+          // Invert the y-position calculation to start from top
+          const yPosition = topMargin + (index * verticalSpacing);
 
           const nodesAtLevel = levelNodes.get(index) || [];
           const position = nodesAtLevel.indexOf(
@@ -111,8 +113,8 @@ export default function HadithTransmissionChain({
             xPosition =
               parentX ??
               horizontalOffset +
-                (position * (dimensions.width - 2 * horizontalOffset)) /
-                  Math.max(totalNodesAtLevel - 1, 1);
+              (position * (dimensions.width - 2 * horizontalOffset)) /
+              Math.max(totalNodesAtLevel - 1, 1);
           }
 
           // Ensure xPosition stays within bounds
@@ -165,9 +167,8 @@ export default function HadithTransmissionChain({
     minZoom: 0.1,
     node: {
       size: {
-        // Match actual card size
         width: 1200,
-        height: 1600,
+        height: 1000,
       },
       viewGenerator,
       renderLabel: false,
@@ -176,10 +177,12 @@ export default function HadithTransmissionChain({
       strokeWidth: 2,
       // @ts-ignore
       highlightColor: tailwindConfig.theme!.extend!.colors!.navy,
+      type: "CURVE_SMOOTH",
+      strokeLinecap: "round",
     },
     d3: {
-      gravity: 0, // Disable gravity
-      linkLength: 30,
+      gravity: 0,
+      linkLength: 15, // Reduced from 30
       linkStrength: 1,
       alphaTarget: 0,
     },
