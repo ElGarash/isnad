@@ -1,13 +1,13 @@
 import "./globals.css";
-import { Noto_Naskh_Arabic } from "next/font/google";
 import Navbar from "@/app/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Noto_Naskh_Arabic } from "next/font/google";
 
 const notoNaskhArabic = Noto_Naskh_Arabic({
   subsets: ["arabic"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-naskh",
-})
+});
 
 export const metadata = {
   title: "Isnad - Hadith Transmission Chain Visualizer",
@@ -22,7 +22,12 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <body className={notoNaskhArabic.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <Navbar />
           <main>{children}</main>
         </ThemeProvider>
