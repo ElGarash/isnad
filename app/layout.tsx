@@ -1,6 +1,6 @@
 import "./globals.css";
 import { Noto_Naskh_Arabic } from "next/font/google";
-import { Navbar } from "@/app/components/navbar";
+import Navbar from "@/app/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const notoNaskhArabic = Noto_Naskh_Arabic({
