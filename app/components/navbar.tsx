@@ -10,12 +10,12 @@ function Navbar() {
         <div className="flex flex-1 items-center justify-around">
           <Link
             href="/"
-            className="flex items-center space-x-2 rtl:space-x-reverse"
+            className="group flex items-center space-x-2 rtl:space-x-reverse"
           >
-            <div className="relative w-10 h-10 bg-parchment rotate-45 transform transition-transform hover:rotate-0">
+            <div className="relative w-10 h-10 bg-parchment rotate-45 transform transition-transform group-hover:-skew-x-12 group-hover:rotate-0">
               <LinkIcon className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -rotate-45 text-black w-6 h-6" />
             </div>
-            <span className="inline-block text-xl font-bold bg-black text-white px-2 py-1 transform -skew-x-12">
+            <span className="inline-block text-xl font-bold bg-black text-white px-2 py-1 transform -skew-x-12 transition-transform">
               إسناد
             </span>
           </Link>
