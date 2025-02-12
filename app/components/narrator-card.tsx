@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { getArabicGrade } from "@/lib/grade-mapping";
 import type { Narrator } from "@/lib/sqlite";
 import { Calendar, Hash, MapPin, Users } from "lucide-react";
 
@@ -28,7 +29,7 @@ export const NarratorCard = ({
 }: Narrator) => {
   death_date_hijri === "NA" ? "غير معلوم" : `${death_date_hijri} `;
   return (
-    <Card className="w-[120px] h-[100px] border-2 border-[#1B2B3B] shadow-[2px_2px_0px_0px_rgba(27,43,59,1)] hover:shadow-[4px_4px_0px_0px_rgba(27,43,59,1)] transition-all duration-300 overflow-hidden bg-[#E6DED1] relative p-2 text-[8px]">
+    <Card className="w-[120px] h-[140px] border-2 border-[#1B2B3B] shadow-[2px_2px_0px_0px_rgba(27,43,59,1)] hover:shadow-[4px_4px_0px_0px_rgba(27,43,59,1)] transition-all duration-300 overflow-hidden bg-[#E6DED1] relative p-2 text-[8px]">
       <div className="absolute top-1 left-1 bg-[#1B2B3B] text-[#E6DED1] px-1 text-[6px] font-bold">
         {scholar_indx}
         <Hash className="inline-block w-2 h-2 mr-0.5" />
@@ -37,7 +38,7 @@ export const NarratorCard = ({
         <h2 className="text-[10px] font-bold text-[#1B2B3B] leading-tight">
           {cleanName(name)}
         </h2>
-        <div className="text-[6px] text-[#C49B66] font-arabic">{grade}</div>
+        <div className="text-[6px] text-[#C49B66] font-arabic">{getArabicGrade(grade)}</div>
       </div>
       {parents !== "NA" && (
         <div className="mb-1">

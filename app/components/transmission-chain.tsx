@@ -168,7 +168,7 @@ export default function HadithTransmissionChain({
     node: {
       size: {
         width: 1200,
-        height: 1000,
+        height: 1400,
       },
       viewGenerator,
       renderLabel: false,
