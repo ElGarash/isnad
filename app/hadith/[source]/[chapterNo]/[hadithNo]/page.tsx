@@ -1,8 +1,8 @@
-import { ErrorBoundary } from "@/app/components/error-boundary";
-import HadithExplanationCard from "@/app/components/hadith-explanation-card";
-import HadithTextCard from "@/app/components/hadith-text-card";
-import { LoadingSpinner } from "@/app/components/loading-spinner";
-import HadithTransmissionChain from "@/app/components/transmission-chain";
+import { ErrorBoundary } from "@/components/error-boundary";
+import HadithExplanationCard from "@/components/hadith-explanation-card";
+import HadithTextCard from "@/components/hadith-text-card";
+import { LoadingSpinner } from "@/components/loading-spinner";
+import HadithTransmissionChain from "@/components/transmission-chain";
 import { getChainForHadith, getHadithById } from "@/lib/sqlite";
 import { Suspense } from "react";
 

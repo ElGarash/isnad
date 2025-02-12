@@ -1,5 +1,5 @@
 import "./globals.css";
-import Navbar from "@/app/components/navbar";
+import Navbar from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Noto_Naskh_Arabic } from "next/font/google";
 import Footer from '@/components/Footer'
