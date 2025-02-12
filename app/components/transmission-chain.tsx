@@ -3,7 +3,7 @@
 import NarratorCard from "./narrator-card";
 import type { HadithWithChain } from "@/lib/sqlite";
 import tailwindConfig from "@/tailwind.config";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Graph } from "react-d3-graph";
 
 interface HadithChainProps {
@@ -24,23 +24,28 @@ const viewGenerator = (nodeData: HadithWithChain | any) => {
 export default function HadithTransmissionChain({
   hadithData,
 }: HadithChainProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
   useEffect(() => {
-    setDimensions({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
-
-    const handleResize = () => {
-      setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const { width, height } = containerRef.current.getBoundingClientRect();
+        setDimensions({
+          width: width - 40, // Subtract padding
+          height: height - 40, // Subtract padding
+        });
+      }
     };
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    updateDimensions();
+    const resizeObserver = new ResizeObserver(updateDimensions);
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    return () => resizeObserver.disconnect();
   }, []);
 
   // Transform data for react-d3-graph
@@ -61,6 +66,7 @@ export default function HadithTransmissionChain({
       dimensions.height / (maxChainLength + 1),
       nodeHeight * 1.5,
     );
+    const topMargin = nodeHeight / 2; // Add top margin
     const horizontalOffset = Math.max(dimensions.width * 0.005, nodeWidth); // Reduced from 0.1 to 0.05
 
     const rootX = dimensions.width / 2; // Store root X position for centering
@@ -89,7 +95,8 @@ export default function HadithTransmissionChain({
       chain.narrators.forEach((narrator, index) => {
         if (!seenNodes.has(narrator.scholar_indx.toString())) {
           seenNodes.add(narrator.scholar_indx.toString());
-          const yPosition = (index + 1) * verticalSpacing;
+          // Invert the y-position calculation to start from top
+          const yPosition = topMargin + (index * verticalSpacing);
 
           const nodesAtLevel = levelNodes.get(index) || [];
           const position = nodesAtLevel.indexOf(
@@ -106,8 +113,8 @@ export default function HadithTransmissionChain({
             xPosition =
               parentX ??
               horizontalOffset +
-                (position * (dimensions.width - 2 * horizontalOffset)) /
-                  Math.max(totalNodesAtLevel - 1, 1);
+              (position * (dimensions.width - 2 * horizontalOffset)) /
+              Math.max(totalNodesAtLevel - 1, 1);
           }
 
           // Ensure xPosition stays within bounds
@@ -160,9 +167,8 @@ export default function HadithTransmissionChain({
     minZoom: 0.1,
     node: {
       size: {
-        // Match actual card size
         width: 1200,
-        height: 1600,
+        height: 1400,
       },
       viewGenerator,
       renderLabel: false,
@@ -171,10 +177,12 @@ export default function HadithTransmissionChain({
       strokeWidth: 2,
       // @ts-ignore
       highlightColor: tailwindConfig.theme!.extend!.colors!.navy,
+      type: "CURVE_SMOOTH",
+      strokeLinecap: "round",
     },
     d3: {
-      gravity: 0, // Disable gravity
-      linkLength: 30,
+      gravity: 0,
+      linkLength: 15, // Reduced from 30
       linkStrength: 1,
       alphaTarget: 0,
     },
@@ -183,7 +191,16 @@ export default function HadithTransmissionChain({
   };
 
   return (
-    <div className="fixed inset-0 bg-transparent">
+    <div
+      ref={containerRef}
+      className="w-full h-full relative"
+      style={{
+        backgroundImage: `
+        radial-gradient(circle at 1px 1px, #cbd5e1 1px, transparent 0),
+        radial-gradient(circle at 20px 20px, #94a3b8 0.5px, transparent 0)`,
+        backgroundSize: "20px 20px, 40px 40px",
+      }}
+    >
       {/* @ts-ignore */}
       <Graph id="hadith-graph" data={graphData} config={graphConfig} />
     </div>

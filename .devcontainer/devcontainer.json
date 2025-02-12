@@ -3,6 +3,7 @@
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
     "features": {
         "ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {},
         "ghcr.io/shyim/devcontainers-features/bun:0": {},
         "ghcr.io/devcontainers/features/python:1": {
             "version": "3.13",
@@ -11,7 +12,7 @@
         "ghcr.io/jsburckhardt/devcontainer-features/uv:1": {},
         "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
             "upgradePackages": true,
-            "packages": ["git-delta", "neovim"]
+            "packages": ["git-delta", "neovim", "sqlite3"]
         }
     },
     
