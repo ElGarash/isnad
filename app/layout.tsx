@@ -2,6 +2,7 @@ import "./globals.css";
 import Navbar from "@/app/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Noto_Naskh_Arabic } from "next/font/google";
+import Footer from '@/components/Footer'
 
 const notoNaskhArabic = Noto_Naskh_Arabic({
   subsets: ["arabic"],
@@ -28,8 +29,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
-          <main>{children}</main>
+          <div className="min-h-screen flex flex-col">
+            <Navbar />
+            <main className="flex-grow">
+              {children}
+            </main>
+            <Footer />
+          </div>
         </ThemeProvider>
       </body>
     </html>
