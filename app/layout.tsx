@@ -1,8 +1,8 @@
 import "./globals.css";
+import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Noto_Naskh_Arabic } from "next/font/google";
-import Footer from '@/components/Footer'
 
 const notoNaskhArabic = Noto_Naskh_Arabic({
   subsets: ["arabic"],
@@ -31,9 +31,7 @@ export default function RootLayout({
         >
           <div className="min-h-screen flex flex-col">
             <Navbar />
-            <main className="flex-grow">
-              {children}
-            </main>
+            <main className="flex-grow">{children}</main>
             <Footer />
           </div>
         </ThemeProvider>

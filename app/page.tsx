@@ -1,5 +1,6 @@
-import { redirect } from "next/navigation";
+import HadithList from "@/components/hadith-list";
+import { getHadiths } from "@/lib/sqlite";
 
 export default function Home() {
-  redirect("/hadith/Sahih Bukhari/84/6800");
+  return <HadithList hadiths={getHadiths(10)} />;
 }

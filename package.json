@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "fmt": "prettier --write app"
+    "fmt": "prettier --write app components"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
