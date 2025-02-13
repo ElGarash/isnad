@@ -15,7 +15,7 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const hadiths = getHadiths(4000);
+  const hadiths = getHadiths(1000);
   return hadiths.map((hadith) => ({
     source: encodeURIComponent(hadith.source),
     chapterNo: hadith.chapter_no.toString(),

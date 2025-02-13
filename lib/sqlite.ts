@@ -46,7 +46,7 @@ function getDb() {
     if (!db) {
         db = new Database('data/sqlite.db');
         // Prepare statements
-        statements.getHadiths = db.prepare('SELECT * FROM hadiths LIMIT $limit');
+        statements.getHadiths = db.prepare('SELECT * FROM hadiths ORDER BY id LIMIT $limit');
         statements.getAllHadiths = db.prepare(`
             SELECT DISTINCT source, chapter_no, hadith_no 
             FROM hadiths 

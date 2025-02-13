@@ -61,6 +61,28 @@ describe("SQLite Database Tests", () => {
         expect(chainItem).toHaveProperty('hadith_no');
         expect(chainItem).toHaveProperty('position');
     });
+
+    test("getHadiths returns consistent results", () => {
+        const firstRun = getHadiths(10);
+        const secondRun = getHadiths(10);
+
+        expect(firstRun).toHaveLength(10);
+        expect(secondRun).toHaveLength(10);
+
+        // Compare each hadith's ID to ensure exact same order
+        firstRun.forEach((hadith, index) => {
+            expect(hadith.id).toBe(secondRun[index].id);
+        });
+    });
+
+    test("getHadiths returns sorted results", () => {
+        const hadiths = getHadiths(10);
+
+        // Verify that IDs are in ascending order
+        for (let i = 1; i < hadiths.length; i++) {
+            expect(hadiths[i].id).toBeGreaterThan(hadiths[i - 1].id);
+        }
+    });
 });
 
 
