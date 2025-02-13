@@ -58,7 +58,7 @@ export default function HadithList({ hadiths }: HadithListProps) {
                     <div className="p-6 pt-10 pl-16">
                       <div className="text-right mb-4">
                         <h3 className="font-bold text-xl mb-1 inline-block bg-black text-white px-2 py-1 transform -skew-x-12">
-                          {}
+                          { }
                         </h3>
                         <div className="text-sm text-gray-600 mt-2">
                           <span className="inline-block bg-gray-200 px-2 py-1 ml-2 mb-2">
