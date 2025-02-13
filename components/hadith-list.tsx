@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Hadith } from "@/lib/sqlite";
-import Link from "next/link";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { Card } from "@/components/ui/card";
+import { Hadith } from "@/lib/sqlite";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import Link from "next/link";
 import { useRef } from "react";
 
 interface HadithListProps {
@@ -22,15 +22,12 @@ export default function HadithList({ hadiths }: HadithListProps) {
 
   return (
     <div className="container mx-auto py-8">
-      <div
-        ref={parentRef}
-        className="h-[800px] overflow-auto"
-      >
+      <div ref={parentRef} className="h-[800px] overflow-auto">
         <div
           style={{
             height: `${virtualizer.getTotalSize()}px`,
-            width: '100%',
-            position: 'relative',
+            width: "100%",
+            position: "relative",
           }}
         >
           {virtualizer.getVirtualItems().map((virtualRow) => {
@@ -39,18 +36,19 @@ export default function HadithList({ hadiths }: HadithListProps) {
               <div
                 key={virtualRow.index}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   top: 0,
                   left: 0,
-                  width: '100%',
+                  width: "100%",
                   height: `${virtualRow.size}px`,
                   transform: `translateY(${virtualRow.start}px)`,
                 }}
               >
-                <Link href={`/hadith/${encodeURIComponent(hadith.source)}/${hadith.chapter_no}/${hadith.hadith_no}`} hrefLang="ar">
-                  <Card
-                    className="relative border-4 border-black overflow-hidden m-2"
-                  >
+                <Link
+                  href={`/hadith/${encodeURIComponent(hadith.source)}/${hadith.chapter_no}/${hadith.hadith_no}`}
+                  hrefLang="ar"
+                >
+                  <Card className="relative border-4 border-black overflow-hidden m-2">
                     <div className="absolute top-0 left-0 w-24 h-24 bg-parchment transform -rotate-45 -translate-x-12 -translate-y-12 z-10"></div>
                     <div className="absolute top-2 left-2 z-20 transform rotate-45">
                       <div className="bg-black text-parchment  text-xl font-bold px-2 py-1 transform -rotate-90">
@@ -60,7 +58,7 @@ export default function HadithList({ hadiths }: HadithListProps) {
                     <div className="p-6 pt-10 pl-16">
                       <div className="text-right mb-4">
                         <h3 className="font-bold text-xl mb-1 inline-block bg-black text-white px-2 py-1 transform -skew-x-12">
-                          { }
+                          {}
                         </h3>
                         <div className="text-sm text-gray-600 mt-2">
                           <span className="inline-block bg-gray-200 px-2 py-1 ml-2 mb-2">
