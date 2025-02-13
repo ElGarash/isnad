@@ -65,7 +65,11 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
     hadiths = hadiths_df.select(
         [
             "hadith_id",
-            pl.col("source").str.strip_chars(),
+            pl.col("source")
+            .str.strip_chars()
+            .map_elements(
+                lambda x: "Bukhari" if x == "Sahih Bukhari" else x, return_dtype=pl.Utf8
+            ),
             "chapter_no",
             pl.col("hadith_no").str.strip_chars(),
             "chapter",
@@ -101,7 +105,12 @@ def insert_chains(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
     chains = (
         hadiths_df.with_columns(
             [
-                pl.col("source").str.strip_chars(),
+                pl.col("source")
+                .str.strip_chars()
+                .map_elements(
+                    lambda x: "Bukhari" if x == "Sahih Bukhari" else x,
+                    return_dtype=pl.Utf8,
+                ),
                 pl.col("hadith_no").str.strip_chars(),
                 pl.col("chain_indx")
                 .str.strip_chars()

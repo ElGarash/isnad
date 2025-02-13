@@ -31,21 +31,27 @@ export interface Chain {
     position: number;
 }
 
-export type HadithWithChain = Hadith & Chain;
+export type HadithWithChain = Hadith & Chain & Narrator;
 
 let db: Database | null = null;
 let statements: {
     getHadiths?: ReturnType<Database['prepare']>,
+    getAllHadiths?: ReturnType<Database['prepare']>,
     getNarrators?: ReturnType<Database['prepare']>,
     getHadithById?: ReturnType<Database['prepare']>,
     getChainForHadith?: ReturnType<Database['prepare']>,
+    getHadithsBySource?: ReturnType<Database['prepare']>,
 } = {};
 
 function getDb() {
     if (!db) {
         db = new Database('data/sqlite.db');
         // Prepare statements
-        statements.getHadiths = db.prepare('SELECT * FROM hadiths LIMIT $limit');
+        statements.getHadiths = db.prepare('SELECT * FROM hadiths ORDER BY id LIMIT $limit');
+        statements.getAllHadiths = db.prepare(`
+            SELECT DISTINCT source, chapter_no, hadith_no 
+            FROM hadiths 
+            ORDER BY source, chapter_no, hadith_no`);
         statements.getNarrators = db.prepare('SELECT * FROM rawis');
         statements.getHadithById = db.prepare(`
             SELECT * FROM hadiths 
@@ -56,6 +62,7 @@ function getDb() {
             JOIN rawis r ON c.scholar_indx = r.scholar_indx
             WHERE c.source = $source AND c.chapter_no = $chapter_no AND c.hadith_no = $hadith_no
             ORDER BY c.position`);
+        statements.getHadithsBySource = db.prepare('SELECT * FROM hadiths WHERE source = $source ORDER BY chapter_no, hadith_no LIMIT $limit');
     }
     return db;
 }
@@ -86,6 +93,16 @@ export function getChainForHadith(source: string, chapterNo: number, hadithNo: s
         $chapter_no: chapterNo,
         $hadith_no: hadithNo
     }) as (HadithWithChain)[];
+}
+
+export function getAllHadiths(): Hadith[] {
+    getDb();
+    return statements.getAllHadiths!.all() as Hadith[];
+}
+
+export function getHadithsBySource(source: string, limit: number): Hadith[] {
+    getDb();
+    return statements.getHadithsBySource!.all({ $source: source, $limit: limit }) as Hadith[];
 }
 
 export function close() {

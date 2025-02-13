@@ -38,7 +38,9 @@ export const NarratorCard = ({
         <h2 className="text-[10px] font-bold text-[#1B2B3B] leading-tight">
           {cleanName(name)}
         </h2>
-        <div className="text-[6px] text-[#C49B66] font-arabic">{getArabicGrade(grade)}</div>
+        <div className="text-[6px] text-[#C49B66] font-arabic">
+          {getArabicGrade(grade)}
+        </div>
       </div>
       {parents !== "NA" && (
         <div className="mb-1">

@@ -7,6 +7,8 @@
         "**/.ruff_cache": true,
         "**/htmlcov": true,
         ".coverage": true,
+        "**/node_modules": true,
+        "**/.next": true,
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter",

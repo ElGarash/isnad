@@ -96,7 +96,7 @@ export default function HadithTransmissionChain({
         if (!seenNodes.has(narrator.scholar_indx.toString())) {
           seenNodes.add(narrator.scholar_indx.toString());
           // Invert the y-position calculation to start from top
-          const yPosition = topMargin + (index * verticalSpacing);
+          const yPosition = topMargin + index * verticalSpacing;
 
           const nodesAtLevel = levelNodes.get(index) || [];
           const position = nodesAtLevel.indexOf(
@@ -113,8 +113,8 @@ export default function HadithTransmissionChain({
             xPosition =
               parentX ??
               horizontalOffset +
-              (position * (dimensions.width - 2 * horizontalOffset)) /
-              Math.max(totalNodesAtLevel - 1, 1);
+                (position * (dimensions.width - 2 * horizontalOffset)) /
+                  Math.max(totalNodesAtLevel - 1, 1);
           }
 
           // Ensure xPosition stays within bounds
@@ -202,7 +202,9 @@ export default function HadithTransmissionChain({
       }}
     >
       {/* @ts-ignore */}
-      <Graph id="hadith-graph" data={graphData} config={graphConfig} />
+      {graphData.nodes.length > 0 && (
+        <Graph id="hadith-graph" data={graphData} config={graphConfig} />
+      )}
     </div>
   );
 }

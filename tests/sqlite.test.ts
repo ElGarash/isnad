@@ -61,16 +61,38 @@ describe("SQLite Database Tests", () => {
         expect(chainItem).toHaveProperty('hadith_no');
         expect(chainItem).toHaveProperty('position');
     });
+
+    test("getHadiths returns consistent results", () => {
+        const firstRun = getHadiths(10);
+        const secondRun = getHadiths(10);
+
+        expect(firstRun).toHaveLength(10);
+        expect(secondRun).toHaveLength(10);
+
+        // Compare each hadith's ID to ensure exact same order
+        firstRun.forEach((hadith, index) => {
+            expect(hadith.id).toBe(secondRun[index].id);
+        });
+    });
+
+    test("getHadiths returns sorted results", () => {
+        const hadiths = getHadiths(10);
+
+        // Verify that IDs are in ascending order
+        for (let i = 1; i < hadiths.length; i++) {
+            expect(hadiths[i].id).toBeGreaterThan(hadiths[i - 1].id);
+        }
+    });
 });
 
 
 describe("Hadith 6800 retrieval", () => {
     test("should find Sahih Bukhari 84:6800", () => {
-        const hadith = getHadithById("Sahih Bukhari", 84, "6800");
+        const hadith = getHadithById("Bukhari", 84, "6800");
         expect(hadith).not.toBeNull();
         expect(hadith).toMatchObject({
             hadith_id: 84,
-            source: "Sahih Bukhari",
+            source: "Bukhari",
             chapter_no: 84,
             hadith_no: "6800",
             chapter: "Expiation for Unfulfilled Oaths - كتاب كفارات الأيمان"
@@ -79,7 +101,7 @@ describe("Hadith 6800 retrieval", () => {
     });
 
     test("should have correct chain for 84:6800", () => {
-        const chain = getChainForHadith("Sahih Bukhari", 84, "6800");
+        const chain = getChainForHadith("Bukhari", 84, "6800");
         expect(chain).toHaveLength(8);
 
         // Verify specific narrators
