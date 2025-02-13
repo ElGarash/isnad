@@ -53,9 +53,9 @@ jobs:
 
       - name: Generate Database
         run: uv run poe gen-db
-      
+
       - run: bun install
-      
+
       - run: bun run build
 
       - name: Deploy to Cloudflare Pages

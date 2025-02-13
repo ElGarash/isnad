@@ -1,15 +1,15 @@
-import neo4j from 'neo4j-driver'
-import { parseHadithRecords } from './schemas'
+import { parseHadithRecords } from "./schemas";
+import neo4j from "neo4j-driver";
 
 const driver = neo4j.driver(
-    'bolt://localhost:7687',
-    neo4j.auth.basic('neo4j', 'your_password')
-)
+  "bolt://localhost:7687",
+  neo4j.auth.basic("neo4j", "your_password"),
+);
 
 export async function getPeopleAndLinks() {
-    const session = driver.session()
-    try {
-        const result = await session.run(`
+  const session = driver.session();
+  try {
+    const result = await session.run(`
             MATCH (n)-[r]->()
             WHERE r.HadithNo IS NOT NULL
             WITH r.HadithNo AS HadithNo, r.SanadNo AS SanadNo,
@@ -18,18 +18,19 @@ export async function getPeopleAndLinks() {
             WITH HadithNo, collect({SanadNo: SanadNo, Narrators: Narrators}) AS TransmissionChains
             RETURN HadithNo, TransmissionChains
             LIMIT 10
-        `)
+        `);
 
-        return parseHadithRecords(result.records.map(r => JSON.stringify(r)))
-    } finally {
-        await session.close()
-    }
+    return parseHadithRecords(result.records.map((r) => JSON.stringify(r)));
+  } finally {
+    await session.close();
+  }
 }
 
 export async function getIsnadByHadithId(hadithId: string) {
-    const session = driver.session()
-    try {
-        const result = await session.run(`
+  const session = driver.session();
+  try {
+    const result = await session.run(
+      `
             MATCH (n)-[r]->()
             WHERE r.HadithNo = $hadithId
             WITH r.HadithNo AS HadithNo, r.SanadNo AS SanadNo,
@@ -37,10 +38,12 @@ export async function getIsnadByHadithId(hadithId: string) {
             ORDER BY HadithNo, SanadNo
             WITH HadithNo, collect({SanadNo: SanadNo, Narrators: Narrators}) AS TransmissionChains
             RETURN HadithNo, TransmissionChains
-        `, { hadithId })
+        `,
+      { hadithId },
+    );
 
-        return parseHadithRecords([JSON.stringify(result.records[0])])
-    } finally {
-        await session.close()
-    }
+    return parseHadithRecords([JSON.stringify(result.records[0])]);
+  } finally {
+    await session.close();
+  }
 }

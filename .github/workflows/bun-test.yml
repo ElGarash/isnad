@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
@@ -27,7 +27,7 @@ jobs:
 
       - name: Generate Database
         run: uv run poe gen-db
-      
+
       - name: Setup Bun Runtime
         uses: oven-sh/setup-bun@v1
         with:
@@ -35,6 +35,9 @@ jobs:
 
       - name: Install bun dependencies
         run: bun install
+
+      - name: Typecheck
+        run: bun type-check
 
       - name: Run tests
         run: bun test
