@@ -1,10 +1,10 @@
 import HadithList from "@/components/hadith-list";
-import { getHadiths } from "@/lib/sqlite";
+import { getHadithsBySource } from "@/lib/sqlite";
 
 export const dynamic = "force-static";
 
 async function getInitialHadiths() {
-  return getHadiths(1000);
+  return getHadithsBySource("Bukhari", 1000);
 }
 
 export default async function Home() {

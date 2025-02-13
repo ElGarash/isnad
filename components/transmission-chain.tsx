@@ -202,7 +202,9 @@ export default function HadithTransmissionChain({
       }}
     >
       {/* @ts-ignore */}
-      <Graph id="hadith-graph" data={graphData} config={graphConfig} />
+      {graphData.nodes.length > 0 && (
+        <Graph id="hadith-graph" data={graphData} config={graphConfig} />
+      )}
     </div>
   );
 }

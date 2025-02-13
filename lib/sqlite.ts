@@ -40,6 +40,7 @@ let statements: {
     getNarrators?: ReturnType<Database['prepare']>,
     getHadithById?: ReturnType<Database['prepare']>,
     getChainForHadith?: ReturnType<Database['prepare']>,
+    getHadithsBySource?: ReturnType<Database['prepare']>,
 } = {};
 
 function getDb() {
@@ -61,6 +62,7 @@ function getDb() {
             JOIN rawis r ON c.scholar_indx = r.scholar_indx
             WHERE c.source = $source AND c.chapter_no = $chapter_no AND c.hadith_no = $hadith_no
             ORDER BY c.position`);
+        statements.getHadithsBySource = db.prepare('SELECT * FROM hadiths WHERE source = $source ORDER BY chapter_no, hadith_no LIMIT $limit');
     }
     return db;
 }
@@ -96,6 +98,11 @@ export function getChainForHadith(source: string, chapterNo: number, hadithNo: s
 export function getAllHadiths(): Hadith[] {
     getDb();
     return statements.getAllHadiths!.all() as Hadith[];
+}
+
+export function getHadithsBySource(source: string, limit: number): Hadith[] {
+    getDb();
+    return statements.getHadithsBySource!.all({ $source: source, $limit: limit }) as Hadith[];
 }
 
 export function close() {

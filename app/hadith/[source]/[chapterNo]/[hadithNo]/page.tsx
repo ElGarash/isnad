@@ -3,7 +3,11 @@ import HadithExplanationCard from "@/components/hadith-explanation-card";
 import HadithTextCard from "@/components/hadith-text-card";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import HadithTransmissionChain from "@/components/transmission-chain";
-import { getChainForHadith, getHadithById, getHadiths } from "@/lib/sqlite";
+import {
+  getChainForHadith,
+  getHadithById,
+  getHadithsBySource,
+} from "@/lib/sqlite";
 import { Suspense } from "react";
 
 interface PageProps {
@@ -15,7 +19,7 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const hadiths = getHadiths(1000);
+  const hadiths = getHadithsBySource("Bukhari", 1000);
   return hadiths.map((hadith) => ({
     source: encodeURIComponent(hadith.source),
     chapterNo: hadith.chapter_no.toString(),
