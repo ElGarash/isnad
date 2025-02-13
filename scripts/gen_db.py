@@ -46,12 +46,12 @@ def create_tables(conn: sqlite3.Connection) -> None:
     CREATE INDEX idx_hadiths_source_chapter ON hadiths(source, chapter_no);  -- For chapter browsing
     CREATE INDEX idx_hadiths_text_ar ON hadiths(text_ar);  -- For Arabic text search
     CREATE INDEX idx_hadiths_text_en ON hadiths(text_en);  -- For English text search
-    
+
     -- Indexes for rawis table (read-heavy optimization)
     CREATE INDEX idx_rawis_name ON rawis(name);
     CREATE INDEX idx_rawis_grade ON rawis(grade);  -- For filtering by scholar grade
     CREATE INDEX idx_rawis_death_date ON rawis(death_date_hijri, death_date_gregorian);  -- For timeline queries
-    
+
     -- Indexes for hadith_chains table (read-heavy optimization)
     CREATE INDEX idx_chains_scholar_pos ON hadith_chains(scholar_indx, position);  -- Combined index for chain analysis
     CREATE INDEX idx_chains_source_scholar ON hadith_chains(source, scholar_indx);  -- For finding scholar's hadiths

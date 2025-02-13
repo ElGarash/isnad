@@ -1,40 +1,40 @@
 {
-    "name": "Isnad-Dev",
-    "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
-    "features": {
-        "ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {},
-        "ghcr.io/devcontainers/features/github-cli:1": {},
-        "ghcr.io/shyim/devcontainers-features/bun:0": {},
-        "ghcr.io/devcontainers/features/python:1": {
-            "version": "3.13",
-            "installTools": false
-        },
-        "ghcr.io/jsburckhardt/devcontainer-features/uv:1": {},
-        "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
-            "upgradePackages": true,
-            "packages": ["git-delta", "neovim", "sqlite3", "xdg-utils"]
-        }
+  "name": "Isnad-Dev",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/shyim/devcontainers-features/bun:0": {},
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.13",
+      "installTools": false
     },
-    
-    "postCreateCommand": "uv sync && bun install  && mkdir -p ~/.oh-my-zsh/completions && uv run poe _zsh_completion > ~/.oh-my-zsh/completions/_poe",
-    "remoteEnv": {
-        "DEVCONTAINER": "true",
-        "UV_LINK_MODE": "copy"
-    },
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "ms-python.python",
-                "ms-python.black-formatter",
-                "ms-vscode.live-server",
-                "tamasfe.even-better-toml",
-                "qwtel.sqlite-viewer",
-                "ms-python.mypy-type-checker",
-                "ms-azuretools.vscode-docker",
-                "github.vscode-github-actions",
-                "bradlc.vscode-tailwindcss",
-                "streetsidesoftware.code-spell-checker-cspell-bundled-dictionaries"
-            ]
-        }
+    "ghcr.io/jsburckhardt/devcontainer-features/uv:1": {},
+    "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
+      "upgradePackages": true,
+      "packages": ["git-delta", "neovim", "sqlite3", "xdg-utils"]
     }
+  },
+
+  "postCreateCommand": "uv sync && bun install  && mkdir -p ~/.oh-my-zsh/completions && uv run poe _zsh_completion > ~/.oh-my-zsh/completions/_poe",
+  "remoteEnv": {
+    "DEVCONTAINER": "true",
+    "UV_LINK_MODE": "copy"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-vscode.live-server",
+        "tamasfe.even-better-toml",
+        "qwtel.sqlite-viewer",
+        "ms-python.mypy-type-checker",
+        "ms-azuretools.vscode-docker",
+        "github.vscode-github-actions",
+        "bradlc.vscode-tailwindcss",
+        "streetsidesoftware.code-spell-checker-cspell-bundled-dictionaries"
+      ]
+    }
+  }
 }

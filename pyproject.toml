@@ -9,8 +9,10 @@ dependencies = [
     "pandas>=2.2.3",
     "poethepoet>=0.32.2",
     "polars>=1.21.0",
+    "pre-commit>=4.1.0",
     "pyarrow>=19.0.0",
 ]
 
 [tool.poe.tasks]
 gen-db = { script = "scripts.gen_db:main", help = "Generate database from CSV files" }
+pre-commit = { shell = "pre-commit run", help = "Run pre-commit checks" }

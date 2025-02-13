@@ -1,34 +1,27 @@
 {
-    "files.exclude": {
-        "**/__pycache__": true,
-        "**/.mypy_cache": true,
-        "**/.pytest_cache": true,
-        "**/.venv": true,
-        "**/.ruff_cache": true,
-        "**/htmlcov": true,
-        ".coverage": true,
-        "**/node_modules": true,
-        "**/.next": true,
-    },
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter",
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": "explicit"
-        }
-    },
-    "npm.packageManager": "bun",
-    "python.terminal.activateEnvironment": true,
-    "python.defaultInterpreterPath": ".venv/bin/python3",
-    "python.testing.pytestArgs": ["tests"],
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "cSpell.words": [
-        "hadiths",
-        "Isnad",
-        "Sahih",
-        "Sanad",
-        "Tabi",
-        "الرواة"
-    ]
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.mypy_cache": true,
+    "**/.pytest_cache": true,
+    "**/.venv": true,
+    "**/.ruff_cache": true,
+    "**/htmlcov": true,
+    ".coverage": true,
+    "**/node_modules": true,
+    "**/.next": true
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  "npm.packageManager": "bun",
+  "python.terminal.activateEnvironment": true,
+  "python.defaultInterpreterPath": ".venv/bin/python3",
+  "python.testing.pytestArgs": ["tests"],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "cSpell.words": ["hadiths", "Isnad", "Sahih", "Sanad", "Tabi", "الرواة"]
 }

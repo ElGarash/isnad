@@ -1994,9 +1994,7 @@
         "name": "GitHubCopilot",
         "fullName": "GitHub Copilot",
         "isDefault": true,
-        "locations": [
-          "editing-session"
-        ],
+        "locations": ["editing-session"],
         "slashCommands": [],
         "disambiguation": []
       },
@@ -4001,9 +3999,7 @@
         "name": "GitHubCopilot",
         "fullName": "GitHub Copilot",
         "isDefault": true,
-        "locations": [
-          "editing-session"
-        ],
+        "locations": ["editing-session"],
         "slashCommands": [],
         "disambiguation": []
       },
@@ -6129,9 +6125,7 @@
         "name": "GitHubCopilot",
         "fullName": "GitHub Copilot",
         "isDefault": true,
-        "locations": [
-          "editing-session"
-        ],
+        "locations": ["editing-session"],
         "slashCommands": [],
         "disambiguation": []
       },
@@ -8257,9 +8251,7 @@
         "name": "GitHubCopilot",
         "fullName": "GitHub Copilot",
         "isDefault": true,
-        "locations": [
-          "editing-session"
-        ],
+        "locations": ["editing-session"],
         "slashCommands": [],
         "disambiguation": []
       },
@@ -10385,9 +10377,7 @@
         "name": "GitHubCopilot",
         "fullName": "GitHub Copilot",
         "isDefault": true,
-        "locations": [
-          "editing-session"
-        ],
+        "locations": ["editing-session"],
         "slashCommands": [],
         "disambiguation": []
       },
@@ -12535,9 +12525,7 @@
         "name": "GitHubCopilot",
         "fullName": "GitHub Copilot",
         "isDefault": true,
-        "locations": [
-          "editing-session"
-        ],
+        "locations": ["editing-session"],
         "slashCommands": [],
         "disambiguation": []
       },

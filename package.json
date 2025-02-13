@@ -10,7 +10,8 @@
     "fmt": "prettier --write app components",
     "type-check": "tsc --noEmit",
     "wrangler:login": "wrangler login",
-    "wrangler:deploy": "wrangler pages deploy out"
+    "wrangler:deploy": "wrangler pages deploy out",
+    "pre-commit": "bash ./scripts/run-pre-commit.sh"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
@@ -83,5 +84,10 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5",
     "wrangler": "^3.108.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run pre-commit"
+    }
   }
 }
