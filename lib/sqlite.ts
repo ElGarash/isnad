@@ -32,6 +32,7 @@ export interface Chain {
 }
 
 export type HadithWithChain = Hadith & Chain & Narrator;
+export type HadithWithFirstNarrator = Hadith & { narrator_name?: string };
 
 let db: Database | null = null;
 let statements: {
@@ -64,9 +65,17 @@ function getDb() {
             JOIN rawis r ON c.scholar_indx = r.scholar_indx
             WHERE c.source = $source AND c.chapter_no = $chapter_no AND c.hadith_no = $hadith_no
             ORDER BY c.position`);
-    statements.getHadithsBySource = db.prepare(
-      "SELECT * FROM hadiths WHERE source = $source ORDER BY chapter_no, hadith_no LIMIT $limit",
-    );
+    statements.getHadithsBySource = db.prepare(`
+      SELECT h.*, r.name as narrator_name
+      FROM hadiths h
+      LEFT JOIN hadith_chains c ON h.source = c.source
+          AND h.chapter_no = c.chapter_no
+          AND h.hadith_no = c.hadith_no
+          AND c.position = 1
+      LEFT JOIN rawis r ON c.scholar_indx = r.scholar_indx
+      WHERE h.source = $source
+      ORDER BY h.chapter_no, h.hadith_no
+      LIMIT $limit`);
   }
   return db;
 }
@@ -112,12 +121,15 @@ export function getAllHadiths(): Hadith[] {
   return statements.getAllHadiths!.all() as Hadith[];
 }
 
-export function getHadithsBySource(source: string, limit: number): Hadith[] {
+export function getHadithsBySource(
+  source: string,
+  limit: number,
+): HadithWithFirstNarrator[] {
   getDb();
   return statements.getHadithsBySource!.all({
     $source: source,
     $limit: limit,
-  }) as Hadith[];
+  }) as HadithWithFirstNarrator[];
 }
 
 export function close() {
