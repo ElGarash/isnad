@@ -31,11 +31,12 @@ export interface Chain {
     position: number;
 }
 
-export type HadithWithChain = Hadith & Chain;
+export type HadithWithChain = Hadith & Chain & Narrator;
 
 let db: Database | null = null;
 let statements: {
     getHadiths?: ReturnType<Database['prepare']>,
+    getAllHadiths?: ReturnType<Database['prepare']>,
     getNarrators?: ReturnType<Database['prepare']>,
     getHadithById?: ReturnType<Database['prepare']>,
     getChainForHadith?: ReturnType<Database['prepare']>,
@@ -46,6 +47,10 @@ function getDb() {
         db = new Database('data/sqlite.db');
         // Prepare statements
         statements.getHadiths = db.prepare('SELECT * FROM hadiths LIMIT $limit');
+        statements.getAllHadiths = db.prepare(`
+            SELECT DISTINCT source, chapter_no, hadith_no 
+            FROM hadiths 
+            ORDER BY source, chapter_no, hadith_no`);
         statements.getNarrators = db.prepare('SELECT * FROM rawis');
         statements.getHadithById = db.prepare(`
             SELECT * FROM hadiths 
@@ -86,6 +91,11 @@ export function getChainForHadith(source: string, chapterNo: number, hadithNo: s
         $chapter_no: chapterNo,
         $hadith_no: hadithNo
     }) as (HadithWithChain)[];
+}
+
+export function getAllHadiths(): Hadith[] {
+    getDb();
+    return statements.getAllHadiths!.all() as Hadith[];
 }
 
 export function close() {

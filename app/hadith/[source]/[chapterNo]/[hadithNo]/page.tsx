@@ -3,7 +3,7 @@ import HadithExplanationCard from "@/components/hadith-explanation-card";
 import HadithTextCard from "@/components/hadith-text-card";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import HadithTransmissionChain from "@/components/transmission-chain";
-import { getChainForHadith, getHadithById } from "@/lib/sqlite";
+import { getChainForHadith, getHadithById, getAllHadiths } from "@/lib/sqlite";
 import { Suspense } from "react";
 
 interface PageProps {
@@ -14,7 +14,16 @@ interface PageProps {
   };
 }
 
-export default function HadithPage({ params }: PageProps) {
+export async function generateStaticParams() {
+  const hadiths = getAllHadiths();
+  return hadiths.map((hadith) => ({
+    source: encodeURIComponent(hadith.source),
+    chapterNo: hadith.chapter_no.toString(),
+    hadithNo: hadith.hadith_no.toString(),
+  }));
+}
+
+export default async function HadithPage({ params }: PageProps) {
   const hadith = getHadithById(
     decodeURIComponent(params.source),
     params.chapterNo,
