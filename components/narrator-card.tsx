@@ -1,19 +1,12 @@
 import { Card } from "@/components/ui/card";
 import { getArabicGrade } from "@/lib/grade-mapping";
 import type { Narrator } from "@/lib/sqlite";
+import { cleanName } from "@/lib/utils";
 import { Calendar, Hash, MapPin, Users } from "lucide-react";
 
 const formatDate = (date: string, type: "hijri" | "gregorian") => {
   const calendar = type === "hijri" ? "هجريا" : "ميلاديا";
   return (date === "NA" ? "غير معلوم" : `${date}`) + ` (${calendar})`;
-};
-
-const cleanName = (text: string) => {
-  return text
-    .replace(/[a-zA-Z\-',()]/g, "") // remove English letters and specific punctuation
-    .replace(/رضي الله عنه/g, "") // remove the phrase
-    .replace(/\s+/g, " ") // replace multiple spaces with single space
-    .trim();
 };
 
 export const NarratorCard = ({

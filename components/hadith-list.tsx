@@ -1,22 +1,26 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { Hadith } from "@/lib/sqlite";
+import { getArabicBook } from "@/lib/book-maping";
+import { HadithWithFirstNarrator } from "@/lib/sqlite";
+import { cleanName } from "@/lib/utils";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import Link from "next/link";
 import { useRef } from "react";
 
 interface HadithListProps {
-  hadiths: Hadith[];
+  hadiths: HadithWithFirstNarrator[];
 }
 
 export default function HadithList({ hadiths }: HadithListProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
+  const ROW_HEIGHT = 300;
+
   const virtualizer = useVirtualizer({
     count: hadiths.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 300,
+    estimateSize: () => ROW_HEIGHT,
     overscan: 5,
   });
 
@@ -58,20 +62,28 @@ export default function HadithList({ hadiths }: HadithListProps) {
                     <div className="p-6 pt-10 pl-16">
                       <div className="text-right mb-4">
                         <h3 className="font-bold text-xl mb-1 inline-block bg-black text-white px-2 py-1 transform -skew-x-12">
-                          {}
+                          {cleanName(hadith.narrator_name!)}
                         </h3>
                         <div className="text-sm text-gray-600 mt-2">
                           <span className="inline-block bg-gray-200 px-2 py-1 ml-2 mb-2">
-                            {hadith.source}
+                            {getArabicBook(hadith.source)}
                           </span>
                           <span className="inline-block bg-gray-200 px-2 py-1">
-                            {hadith.chapter}
+                            {cleanName(hadith.chapter)}
                           </span>
                         </div>
                       </div>
                       <div className="relative">
                         <div className="absolute right-0 top-0 bottom-0 w-1 bg-black"></div>
-                        <p className="text-right leading-relaxed whitespace-pre-wrap break-words pr-4">
+                        <p
+                          className="text-right leading-relaxed whitespace-pre-wrap break-words pr-4 overflow-hidden"
+                          style={{
+                            maxHeight: `${ROW_HEIGHT - 140}px`, // Account for padding and header
+                            display: "-webkit-box",
+                            WebkitLineClamp: "3",
+                            WebkitBoxOrient: "vertical",
+                          }}
+                        >
                           {hadith.text_ar}
                         </p>
                       </div>
