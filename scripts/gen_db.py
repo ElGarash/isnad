@@ -1,3 +1,4 @@
+import json
 import polars as pl
 import sqlite3
 from pathlib import Path
@@ -41,6 +42,14 @@ def create_tables(conn: sqlite3.Connection) -> None:
         PRIMARY KEY(source, chapter_no, hadith_no, scholar_indx)
     );
 
+    CREATE TABLE sources (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        scholar_indx INTEGER,
+        book_source TEXT,
+        content TEXT,
+        FOREIGN KEY(scholar_indx) REFERENCES rawis(scholar_indx)
+    );
+
     -- Indexes for hadiths table (read-heavy optimization)
     CREATE INDEX idx_hadiths_hadith_id ON hadiths(hadith_id);
     CREATE INDEX idx_hadiths_source_chapter ON hadiths(source, chapter_no);  -- For chapter browsing
@@ -55,9 +64,29 @@ def create_tables(conn: sqlite3.Connection) -> None:
     -- Indexes for hadith_chains table (read-heavy optimization)
     CREATE INDEX idx_chains_scholar_pos ON hadith_chains(scholar_indx, position);  -- Combined index for chain analysis
     CREATE INDEX idx_chains_source_scholar ON hadith_chains(source, scholar_indx);  -- For finding scholar's hadiths
+
+    -- Index for sources table
+    CREATE INDEX idx_sources_scholar ON sources(scholar_indx);
     """
     )
 
+
+def insert_sources(conn: sqlite3.Connection) -> None:
+    """Insert sources data from JSON file"""
+    with open(Path("data/scholars_sources.json")) as f:
+        sources_data = json.load(f)
+
+    # Flatten the data structure for SQL insertion
+    values = [
+        (entry["scholar_id"], source["book_source"], source["content"])
+        for entry in sources_data
+        for source in entry["sources"]
+    ]
+
+    conn.executemany(
+        "INSERT INTO sources (scholar_indx, book_source, content) VALUES (?, ?, ?)",
+        values
+    )
 
 def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
     """Insert hadiths data"""
@@ -169,6 +198,7 @@ def main() -> None:
         insert_hadiths(conn, unique_hadiths)
         insert_rawis(conn, rawis_df)
         insert_chains(conn, unique_hadiths)
+        insert_sources(conn)
         conn.commit()
 
     except Exception as e:
