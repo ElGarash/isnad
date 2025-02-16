@@ -103,12 +103,14 @@ def insert_sources(conn: sqlite3.Connection) -> None:
     )
 
 
-def clean_arabic_text(text: str) -> str:
-    return (
-        (text or "")
+def clean_arabic_text(original: str) -> str:
+    clean = (
+        (original or "")
         .translate(
             str.maketrans(
-                "", "", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-'(),"
+                "",
+                "",
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-'(),.‘`/#1234567890",
             )
         )
         # It has to be done in this order, because the second replace is a subset of the first.
@@ -116,6 +118,12 @@ def clean_arabic_text(text: str) -> str:
         .replace("رضي الله عنه", "")
         .strip()
     )
+
+    if clean == "":
+        # Should get rid of this after fixing https://github.com/ElGarash/isnad/issues/18
+        return original
+
+    return clean
 
 
 def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
