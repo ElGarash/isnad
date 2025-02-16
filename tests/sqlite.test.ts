@@ -119,18 +119,17 @@ describe("Hadith 6800 retrieval", () => {
 
     // Verify specific narrators
     const expectedNarrators = [
-      "Abu Hurairah",
-      "Ali bin al-Husain bin 'Ali",
-      "Zayd bin Aslam",
-      "Sa'id bin Marjana",
-      "Muhammad bin Matraf",
-      "al-Walid bin Muslim al-Quraishi",
-      "Da'ud bin Rshyd",
-      "Muhammad bin 'Abdul Rahim bin Abi Zuhayr",
+      "أبو هريرة  عبد الرحمن بن صخر الدوسي",
+      "علي بن الحسين بن علي  زين العابدين",
+      "زيد بن أسلم",
+      "سعيد بن مرجانة",
+      "محمد بن مطرف",
+      "الوليد بن مسلم القرشي",
+      "داود بن رشيد",
+      "محمد بن عبد الرحيم بن أبي زهير البزاز",
     ];
-
     chain.forEach((narrator, idx) => {
-      expect(narrator.name).toContain(expectedNarrators[idx]);
+      expect(narrator.name).toStrictEqual(expectedNarrators[idx]);
       expect(narrator.position).toBe(idx + 1);
     });
   });
