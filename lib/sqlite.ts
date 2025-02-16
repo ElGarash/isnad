@@ -45,6 +45,7 @@ let statements: {
   getNarratorByName?: ReturnType<Database["prepare"]>;
   getSuccessors?: ReturnType<Database["prepare"]>;
   getPredecessors?: ReturnType<Database["prepare"]>;
+  getAllNarratorNames?: ReturnType<Database["prepare"]>;
 } = {};
 
 function getDb() {
@@ -107,6 +108,9 @@ function getDb() {
       JOIN rawis r ON c2.scholar_indx = r.scholar_indx
       WHERE c1.scholar_indx = $scholar_indx
       ORDER BY r.name
+    `);
+    statements.getAllNarratorNames = db.prepare(`
+      SELECT DISTINCT name FROM rawis ORDER BY name
     `);
   }
   return db;
@@ -183,6 +187,15 @@ export function getPredecessors(scholarIndex: number): Narrator[] {
   return statements.getPredecessors!.all({
     $scholar_indx: scholarIndex,
   }) as Narrator[];
+}
+
+interface NarratorNameRow {
+  name: string;
+}
+
+export function getAllNarratorNames(): string[] {
+  getDb();
+  return (statements.getAllNarratorNames!.all() as NarratorNameRow[]).map(row => row.name);
 }
 
 export function close() {

@@ -1,5 +1,5 @@
 import { NarratorCard } from "@/components/narrator-card";
-import { getNarrator, getSuccessors } from "@/lib/sqlite";
+import { getNarrator, getSuccessors, getAllNarratorNames } from "@/lib/sqlite";
 import { notFound } from "next/navigation";
 
 export default async function NarratorPage({
@@ -32,4 +32,11 @@ export default async function NarratorPage({
       </div>
     </main>
   );
+}
+
+export async function generateStaticParams() {
+  const names = getAllNarratorNames();
+  return names.map((name) => ({
+    name: encodeURIComponent(name),
+  }));
 }
