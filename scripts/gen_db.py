@@ -22,6 +22,7 @@ def create_tables(conn: sqlite3.Connection) -> None:
     CREATE TABLE rawis (
         scholar_indx INTEGER PRIMARY KEY,
         name TEXT,
+        full_name TEXT,
         grade TEXT,
         parents TEXT,
         birth_date_hijri TEXT,
@@ -58,6 +59,7 @@ def create_tables(conn: sqlite3.Connection) -> None:
 
     -- Indexes for rawis table (read-heavy optimization)
     CREATE INDEX idx_rawis_name ON rawis(name);
+    CREATE INDEX idx_rawis_full_name ON rawis(full_name);
     CREATE INDEX idx_rawis_grade ON rawis(grade);  -- For filtering by scholar grade
     CREATE INDEX idx_rawis_death_date ON rawis(death_date_hijri, death_date_gregorian);  -- For timeline queries
 
@@ -117,6 +119,7 @@ def insert_rawis(conn: sqlite3.Connection, rawis_df: pl.DataFrame) -> None:
         [
             "scholar_indx",
             "name",
+            "full_name",
             "grade",
             "parents",
             "birth_date_hijri",
