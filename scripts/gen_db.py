@@ -103,10 +103,23 @@ def insert_sources(conn: sqlite3.Connection) -> None:
     )
 
 
-def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
-    """Insert hadiths data"""
+def clean_arabic_text(text: str) -> str:
+    return (
+        (text or "")
+        .translate(
+            str.maketrans(
+                "", "", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-'(),"
+            )
+        )
+        # It has to be done in this order, because the second replace is a subset of the first.
+        .replace("رضي الله عنها", "")
+        .replace("رضي الله عنه", "")
+        .strip()
+    )
 
-    hadiths = hadiths_df.select(
+
+def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
+    hadiths_df.select(
         [
             "hadith_id",
             pl.col("source")
@@ -120,18 +133,14 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
             "text_ar",
             "text_en",
         ]
-    ).to_pandas()
-
-    hadiths.to_sql("hadiths", conn, if_exists="append", index=False)
+    ).to_pandas().to_sql("hadiths", conn, if_exists="append", index=False)
 
 
 def insert_rawis(conn: sqlite3.Connection, rawis_df: pl.DataFrame) -> None:
-    """Insert rawis data"""
-
-    rawis = rawis_df.select(
+    rawis_df.select(
         [
             "scholar_indx",
-            "name",
+            pl.col("name").map_elements(clean_arabic_text, return_dtype=pl.Utf8),
             "full_name",
             "grade",
             "parents",
@@ -141,9 +150,7 @@ def insert_rawis(conn: sqlite3.Connection, rawis_df: pl.DataFrame) -> None:
             "death_date_gregorian",
             "death_place",
         ]
-    ).to_pandas()
-
-    rawis.to_sql("rawis", conn, if_exists="append", index=False)
+    ).to_pandas().to_sql("rawis", conn, if_exists="append", index=False)
 
 
 def insert_chains(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:

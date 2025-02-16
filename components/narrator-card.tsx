@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { getArabicGrade } from "@/lib/grade-mapping";
 import type { Narrator } from "@/lib/sqlite";
-import { cleanName } from "@/lib/utils";
 import { Calendar, Hash, MapPin, Users } from "lucide-react";
 
 const formatDate = (date: string, type: "hijri" | "gregorian") => {
@@ -29,7 +28,7 @@ export const NarratorCard = ({
       </div>
       <div className=" mb-1 mt-3">
         <h2 className="text-[10px] font-bold text-[#1B2B3B] leading-tight">
-          {cleanName(name)}
+          {name}
         </h2>
         <div className="text-[6px] text-[#C49B66] font-arabic">
           {getArabicGrade(grade)}
