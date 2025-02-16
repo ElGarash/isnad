@@ -23,7 +23,7 @@ export interface Narrator {
   death_place: string;
 }
 
-export type Source = "Bukhari"
+export type Source = "Bukhari";
 
 export interface Chain {
   source: string;
@@ -197,9 +197,11 @@ export function getPredecessors(scholarIndex: number): Narrator[] {
 
 export function getNarratorsInSource(source: Source): string[] {
   getDb();
-  return (statements.getNarratorsInSource!.all({ $source: source }) as { name: string }[]).map(
-    (row) => row.name,
-  );
+  return (
+    statements.getNarratorsInSource!.all({ $source: source }) as {
+      name: string;
+    }[]
+  ).map((row) => row.name);
 }
 
 export function close() {
