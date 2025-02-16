@@ -42,6 +42,9 @@ let statements: {
   getHadithById?: ReturnType<Database["prepare"]>;
   getChainForHadith?: ReturnType<Database["prepare"]>;
   getHadithsBySource?: ReturnType<Database["prepare"]>;
+  getNarratorByName?: ReturnType<Database["prepare"]>;
+  getSuccessors?: ReturnType<Database["prepare"]>;
+  getPredecessors?: ReturnType<Database["prepare"]>;
 } = {};
 
 function getDb() {
@@ -76,6 +79,35 @@ function getDb() {
       WHERE h.source = $source
       ORDER BY h.chapter_no, h.hadith_no
       LIMIT $limit`);
+    statements.getNarratorByName = db.prepare(`
+      SELECT * FROM rawis
+      WHERE name = $name
+    `);
+    statements.getSuccessors = db.prepare(`
+      SELECT DISTINCT r.*
+      FROM hadith_chains c1
+      JOIN hadith_chains c2 ON
+        c1.source = c2.source AND
+        c1.chapter_no = c2.chapter_no AND
+        c1.hadith_no = c2.hadith_no AND
+        c1.position = c2.position - 1
+      JOIN rawis r ON c2.scholar_indx = r.scholar_indx
+      WHERE c1.scholar_indx = $scholar_indx
+      ORDER BY r.name
+    `);
+
+    statements.getPredecessors = db.prepare(`
+      SELECT DISTINCT r.*
+      FROM hadith_chains c1
+      JOIN hadith_chains c2 ON
+        c1.source = c2.source AND
+        c1.chapter_no = c2.chapter_no AND
+        c1.hadith_no = c2.hadith_no AND
+        c1.position = c2.position + 1
+      JOIN rawis r ON c2.scholar_indx = r.scholar_indx
+      WHERE c1.scholar_indx = $scholar_indx
+      ORDER BY r.name
+    `);
   }
   return db;
 }
@@ -130,6 +162,27 @@ export function getHadithsBySource(
     $source: source,
     $limit: limit,
   }) as HadithWithFirstNarrator[];
+}
+
+export function getNarrator(name: string): Narrator | undefined {
+  getDb();
+  return statements.getNarratorByName!.get({
+    $name: name,
+  }) as Narrator | undefined;
+}
+
+export function getSuccessors(scholarIndex: number): Narrator[] {
+  getDb();
+  return statements.getSuccessors!.all({
+    $scholar_indx: scholarIndex,
+  }) as Narrator[];
+}
+
+export function getPredecessors(scholarIndex: number): Narrator[] {
+  getDb();
+  return statements.getPredecessors!.all({
+    $scholar_indx: scholarIndex,
+  }) as Narrator[];
 }
 
 export function close() {
