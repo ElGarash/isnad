@@ -201,8 +201,8 @@ export default function HadithTransmissionChain({
         backgroundSize: "20px 20px, 40px 40px",
       }}
     >
-      {/* @ts-ignore */}
       {graphData.nodes.length > 0 && (
+        /* @ts-ignore */
         <Graph id="hadith-graph" data={graphData} config={graphConfig} />
       )}
     </div>

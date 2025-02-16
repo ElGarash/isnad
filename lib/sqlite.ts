@@ -195,7 +195,9 @@ interface NarratorNameRow {
 
 export function getAllNarratorNames(): string[] {
   getDb();
-  return (statements.getAllNarratorNames!.all() as NarratorNameRow[]).map(row => row.name);
+  return (statements.getAllNarratorNames!.all() as NarratorNameRow[]).map(
+    (row) => row.name,
+  );
 }
 
 export function close() {

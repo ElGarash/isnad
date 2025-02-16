@@ -1,5 +1,5 @@
 import { NarratorCard } from "@/components/narrator-card";
-import { getNarrator, getSuccessors, getAllNarratorNames } from "@/lib/sqlite";
+import { getAllNarratorNames, getNarrator, getSuccessors } from "@/lib/sqlite";
 import { notFound } from "next/navigation";
 
 export default async function NarratorPage({
