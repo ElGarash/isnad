@@ -79,11 +79,18 @@ def insert_sources(conn: sqlite3.Connection) -> None:
         sources_data = json.load(f)
 
     # Flatten the data structure for SQL insertion
-    values = [
-        (entry["scholar_id"], source["book_source"], source["content"])
-        for entry in sources_data
-        for source in entry["sources"]
-    ]
+    # Convert nested JSON to DataFrame
+    sources_df = pl.DataFrame({
+        'scholar_id': [entry['scholar_id'] for entry in sources_data],
+        'sources': [entry['sources'] for entry in sources_data]
+    }).explode('sources').select(
+        pl.col('scholar_id'),
+        pl.col('sources').struct.field('book_source'),
+        pl.col('sources').struct.field('content')
+    )
+
+    # Convert to list of tuples for executemany
+    values = list(sources_df.iter_rows())
 
     conn.executemany(
         "INSERT INTO sources (scholar_indx, book_source, content) VALUES (?, ?, ?)",
