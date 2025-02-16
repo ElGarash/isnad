@@ -23,6 +23,8 @@ export interface Narrator {
   death_place: string;
 }
 
+export type Source = "Bukhari"
+
 export interface Chain {
   source: string;
   chapter_no: number;
@@ -45,7 +47,7 @@ let statements: {
   getNarratorByName?: ReturnType<Database["prepare"]>;
   getSuccessors?: ReturnType<Database["prepare"]>;
   getPredecessors?: ReturnType<Database["prepare"]>;
-  getAllNarratorNames?: ReturnType<Database["prepare"]>;
+  getNarratorsInSource?: ReturnType<Database["prepare"]>;
 } = {};
 
 function getDb() {
@@ -109,8 +111,12 @@ function getDb() {
       WHERE c1.scholar_indx = $scholar_indx
       ORDER BY r.name
     `);
-    statements.getAllNarratorNames = db.prepare(`
-      SELECT DISTINCT name FROM rawis ORDER BY name
+    statements.getNarratorsInSource = db.prepare(`
+      SELECT DISTINCT r.name
+      FROM rawis r
+      JOIN hadith_chains c ON r.scholar_indx = c.scholar_indx
+      WHERE c.source = $source
+      ORDER BY r.name
     `);
   }
   return db;
@@ -189,13 +195,9 @@ export function getPredecessors(scholarIndex: number): Narrator[] {
   }) as Narrator[];
 }
 
-interface NarratorNameRow {
-  name: string;
-}
-
-export function getAllNarratorNames(): string[] {
+export function getNarratorsInSource(source: Source): string[] {
   getDb();
-  return (statements.getAllNarratorNames!.all() as NarratorNameRow[]).map(
+  return (statements.getNarratorsInSource!.all({ $source: source }) as { name: string }[]).map(
     (row) => row.name,
   );
 }
