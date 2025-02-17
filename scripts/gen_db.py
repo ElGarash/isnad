@@ -1,3 +1,4 @@
+import json
 import polars as pl
 import sqlite3
 from pathlib import Path
@@ -21,6 +22,7 @@ def create_tables(conn: sqlite3.Connection) -> None:
     CREATE TABLE rawis (
         scholar_indx INTEGER PRIMARY KEY,
         name TEXT,
+        full_name TEXT,
         grade TEXT,
         parents TEXT,
         birth_date_hijri TEXT,
@@ -41,6 +43,14 @@ def create_tables(conn: sqlite3.Connection) -> None:
         PRIMARY KEY(source, chapter_no, hadith_no, scholar_indx)
     );
 
+    CREATE TABLE sources (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        scholar_indx INTEGER,
+        book_source TEXT,
+        content TEXT,
+        FOREIGN KEY(scholar_indx) REFERENCES rawis(scholar_indx)
+    );
+
     -- Indexes for hadiths table (read-heavy optimization)
     CREATE INDEX idx_hadiths_hadith_id ON hadiths(hadith_id);
     CREATE INDEX idx_hadiths_source_chapter ON hadiths(source, chapter_no);  -- For chapter browsing
@@ -49,13 +59,48 @@ def create_tables(conn: sqlite3.Connection) -> None:
 
     -- Indexes for rawis table (read-heavy optimization)
     CREATE INDEX idx_rawis_name ON rawis(name);
+    CREATE INDEX idx_rawis_full_name ON rawis(full_name);
     CREATE INDEX idx_rawis_grade ON rawis(grade);  -- For filtering by scholar grade
     CREATE INDEX idx_rawis_death_date ON rawis(death_date_hijri, death_date_gregorian);  -- For timeline queries
 
     -- Indexes for hadith_chains table (read-heavy optimization)
     CREATE INDEX idx_chains_scholar_pos ON hadith_chains(scholar_indx, position);  -- Combined index for chain analysis
     CREATE INDEX idx_chains_source_scholar ON hadith_chains(source, scholar_indx);  -- For finding scholar's hadiths
+
+    -- Index for sources table
+    CREATE INDEX idx_sources_scholar ON sources(scholar_indx);
     """
+    )
+
+
+def insert_sources(conn: sqlite3.Connection) -> None:
+    """Insert sources data from JSON file"""
+    with open(Path("data/scholars_sources.json")) as f:
+        sources_data = json.load(f)
+
+    # Flatten the data structure for SQL insertion
+    # Convert nested JSON to DataFrame
+    sources_df = (
+        pl.DataFrame(
+            {
+                "scholar_id": [entry["scholar_id"] for entry in sources_data],
+                "sources": [entry["sources"] for entry in sources_data],
+            }
+        )
+        .explode("sources")
+        .select(
+            pl.col("scholar_id"),
+            pl.col("sources").struct.field("book_source"),
+            pl.col("sources").struct.field("content"),
+        )
+    )
+
+    # Convert to list of tuples for executemany
+    values = list(sources_df.iter_rows())
+
+    conn.executemany(
+        "INSERT INTO sources (scholar_indx, book_source, content) VALUES (?, ?, ?)",
+        values,
     )
 
 
@@ -88,6 +133,7 @@ def insert_rawis(conn: sqlite3.Connection, rawis_df: pl.DataFrame) -> None:
         [
             "scholar_indx",
             "name",
+            "full_name",
             "grade",
             "parents",
             "birth_date_hijri",
@@ -169,6 +215,7 @@ def main() -> None:
         insert_hadiths(conn, unique_hadiths)
         insert_rawis(conn, rawis_df)
         insert_chains(conn, unique_hadiths)
+        insert_sources(conn)
         conn.commit()
 
     except Exception as e:
