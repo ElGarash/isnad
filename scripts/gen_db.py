@@ -78,7 +78,6 @@ def insert_sources(conn: sqlite3.Connection) -> None:
     with open(Path("data/scholars_sources.json")) as f:
         sources_data = json.load(f)
 
-    # Flatten the data structure for SQL insertion
     # Convert nested JSON to DataFrame
     sources_df = (
         pl.DataFrame(
