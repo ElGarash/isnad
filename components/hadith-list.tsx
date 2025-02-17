@@ -1,7 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { getArabicBook } from "@/lib/book-maping";
+import { getArabicBook } from "@/lib/book-mapping";
 import { HadithWithFirstNarrator } from "@/lib/sqlite";
 import { cleanName } from "@/lib/utils";
 import { useVirtualizer } from "@tanstack/react-virtual";
