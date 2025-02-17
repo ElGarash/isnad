@@ -22,9 +22,18 @@ export default function TeacherStudentChain({
     const links: any[] = [];
     const { central, teachers, students } = chainData;
 
-    teachers.forEach((teacher) => {
+    const nodeWidth = 120;
+    const nodeHeight = 140;
+    const verticalSpacing = nodeHeight * 1.5;
+    const topMargin = nodeHeight / 2;
+    const horizontalOffset = nodeWidth;
+
+    const rootX = 800 / 2; // Default value; will be overridden by dimensions later
+
+    teachers.forEach((teacher, index) => {
       const id = teacher.scholar_indx.toString();
-      nodes.push({ ...teacher, id });
+      const xPosition = horizontalOffset + index * 200;
+      nodes.push({ ...teacher, id, x: xPosition, y: topMargin });
       links.push({
         source: id,
         target: central.scholar_indx.toString(),
@@ -32,11 +41,22 @@ export default function TeacherStudentChain({
       });
     });
 
-    nodes.push({ ...central, id: central.scholar_indx.toString() });
+    nodes.push({
+      ...central,
+      id: central.scholar_indx.toString(),
+      x: rootX,
+      y: topMargin + verticalSpacing,
+    });
 
-    students.forEach((student) => {
+    students.forEach((student, index) => {
       const id = student.scholar_indx.toString();
-      nodes.push({ ...student, id });
+      const xPosition = horizontalOffset + index * 200;
+      nodes.push({
+        ...student,
+        id,
+        x: xPosition,
+        y: topMargin + 2 * verticalSpacing,
+      });
       links.push({
         source: central.scholar_indx.toString(),
         target: id,
