@@ -8,9 +8,9 @@ import { Graph } from "react-d3-graph";
 
 interface TeacherStudentChainProps {
   chainData: {
-    central: Narrator;
-    teachers: Narrator[];
-    students: Narrator[];
+    narrator: Narrator;
+    predecessors: Narrator[];
+    successors: Narrator[];
   };
 }
 
@@ -20,9 +20,8 @@ function calculateGraphData(
 ) {
   const nodes: any[] = [];
   const links: any[] = [];
-  const { central, teachers, students } = chainData;
+  const { narrator, predecessors, successors } = chainData;
 
-  const nodeWidth = 120;
   const nodeHeight = 140;
   const verticalSpacing = nodeHeight * 1.5;
   const topMargin = nodeHeight / 2;
@@ -31,35 +30,35 @@ function calculateGraphData(
   const rootX = width / 2;
 
   // Position teachers
-  teachers.forEach((teacher, index) => {
+  predecessors.forEach((teacher, index) => {
     const id = teacher.scholar_indx.toString();
     const offset =
-      teachers.length % 2 === 0
-        ? (index - teachers.length / 2 + 0.5) * horizontalSpacing
-        : (index - Math.floor(teachers.length / 2)) * horizontalSpacing;
+      predecessors.length % 2 === 0
+        ? (index - predecessors.length / 2 + 0.5) * horizontalSpacing
+        : (index - Math.floor(predecessors.length / 2)) * horizontalSpacing;
     nodes.push({ ...teacher, id, x: rootX + offset, y: topMargin });
     links.push({
       source: id,
-      target: central.scholar_indx.toString(),
+      target: narrator.scholar_indx.toString(),
       type: "STRAIGHT",
     });
   });
 
   // Position central node
   nodes.push({
-    ...central,
-    id: central.scholar_indx.toString(),
+    ...narrator,
+    id: narrator.scholar_indx.toString(),
     x: rootX,
     y: topMargin + verticalSpacing,
   });
 
   // Position students
-  students.forEach((student, index) => {
+  successors.forEach((student, index) => {
     const id = student.scholar_indx.toString();
     const offset =
-      students.length % 2 === 0
-        ? (index - students.length / 2 + 0.5) * horizontalSpacing
-        : (index - Math.floor(students.length / 2)) * horizontalSpacing;
+      successors.length % 2 === 0
+        ? (index - successors.length / 2 + 0.5) * horizontalSpacing
+        : (index - Math.floor(successors.length / 2)) * horizontalSpacing;
     nodes.push({
       ...student,
       id,
@@ -67,7 +66,7 @@ function calculateGraphData(
       y: topMargin + 2 * verticalSpacing,
     });
     links.push({
-      source: central.scholar_indx.toString(),
+      source: narrator.scholar_indx.toString(),
       target: id,
       type: "STRAIGHT",
     });

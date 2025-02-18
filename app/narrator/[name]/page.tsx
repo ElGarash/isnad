@@ -8,6 +8,13 @@ import {
 } from "@/lib/sqlite";
 import { notFound } from "next/navigation";
 
+export async function generateStaticParams() {
+  const names = getNarratorsInSource("Bukhari");
+  return names.map((name) => ({
+    name,
+  }));
+}
+
 export default async function NarratorPage({
   params,
 }: {
@@ -29,20 +36,13 @@ export default async function NarratorPage({
         <div className="flex justify-center mb-8">
           <TeacherStudentChain
             chainData={{
-              central: narrator,
-              teachers: predecessors,
-              students: successors,
+              narrator,
+              predecessors,
+              successors,
             }}
           />
         </div>
       </div>
     </main>
   );
-}
-
-export async function generateStaticParams() {
-  const names = getNarratorsInSource("Bukhari");
-  return names.map((name) => ({
-    name,
-  }));
 }
