@@ -5,7 +5,7 @@ import { Calendar, Hash, MapPin, Users } from "lucide-react";
 
 const formatDate = (date: string, type: "hijri" | "gregorian") => {
   const calendar = type === "hijri" ? "هجريا" : "ميلاديا";
-  return (date === "NA" ? "غير معلوم" : `${date}`) + ` (${calendar})`;
+  return (date === null ? "غير معلوم" : `${date}`) + ` (${calendar})`;
 };
 
 export const NarratorCard = ({
@@ -19,7 +19,7 @@ export const NarratorCard = ({
   death_date_gregorian,
   death_place,
 }: Narrator) => {
-  death_date_hijri === "NA" ? "غير معلوم" : `${death_date_hijri} `;
+  death_date_hijri === null ? "غير معلوم" : `${death_date_hijri} `;
   return (
     <Card className="w-[120px] h-[140px] border-2 border-[#1B2B3B] shadow-[2px_2px_0px_0px_rgba(27,43,59,1)] hover:shadow-[4px_4px_0px_0px_rgba(27,43,59,1)] transition-all duration-300 overflow-hidden bg-[#E6DED1] relative p-2 text-[8px]">
       <div className="absolute top-1 left-1 bg-[#1B2B3B] text-[#E6DED1] px-1 text-[6px] font-bold">
@@ -34,7 +34,7 @@ export const NarratorCard = ({
           {getArabicGrade(grade)}
         </div>
       </div>
-      {parents !== "NA" && (
+      {parents !== null && (
         <div className="mb-1">
           <div className="text-[6px] font-bold text-[#1B2B3B] flex items-center justify-start">
             <Users className="w-2 h-2" />
