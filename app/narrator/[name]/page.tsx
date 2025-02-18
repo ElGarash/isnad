@@ -5,6 +5,7 @@ import TeacherStudentChain from "@/components/predecessors-successors-chain";
 import VirtualizedNarratorList from "@/components/virtualized-narrator-list";
 import {
   getNarrator,
+  getNarratorInfo,
   getNarratorsInSource,
   getPredecessors,
   getSuccessors,
@@ -32,9 +33,10 @@ export default async function NarratorPage({
 
   const successors = getSuccessors(narrator.scholar_indx);
   const predecessors = getPredecessors(narrator.scholar_indx);
+  const info = getNarratorInfo(narrator.scholar_indx);
 
   return (
-    <div className="flex items-center justify-center">
+    <main className="flex items-center justify-center">
       <div className="container flex flex-col gap-12 my-12 min-h-screen">
         <div className="w-fit">
           <h1 className="text-4xl font-bold inline-block relative">
@@ -76,7 +78,33 @@ export default async function NarratorPage({
             </ErrorBoundary>
           </BrutalistCard>
         </div>
+
+        {/* Info Section */}
+        {info && info.length > 0 && (
+          <>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t-4 border-black"></div>
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-parchment px-4 text-2xl font-bold">
+                  ذُكر عنه
+                </span>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {info.map((entry, index) => (
+                <BrutalistCard key={index}>
+                  <h2 className="text-xl font-bold mb-3">
+                    {entry.book_source}
+                  </h2>
+                  <p className="text-lg whitespace-pre-wrap">{entry.content}</p>
+                </BrutalistCard>
+              ))}
+            </div>
+          </>
+        )}
       </div>
-    </div>
+    </main>
   );
 }
