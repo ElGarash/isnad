@@ -1,7 +1,7 @@
 import BrutalistCard from "@/components/brutalist-card";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import TeacherStudentChain from "@/components/teacher-student-chain";
+import TeacherStudentChain from "@/components/predecessors-successors-chain";
 import VirtualizedNarratorList from "@/components/virtualized-narrator-list";
 import {
   getNarrator,
