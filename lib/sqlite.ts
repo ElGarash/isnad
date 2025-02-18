@@ -129,7 +129,8 @@ function getDb() {
     statements.getNarratorSources = db.prepare(`
       SELECT * FROM sources
       WHERE scholar_indx = $scholar_indx
-      ORDER BY book_source
+      ORDER BY LENGTH(content) DESC
+      LIMIT 20
     `);
   }
   return db;

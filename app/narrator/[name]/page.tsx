@@ -92,15 +92,24 @@ export default async function NarratorPage({
                 </span>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {info.map((entry, index) => (
-                <BrutalistCard key={index}>
-                  <h2 className="text-xl font-bold mb-3">
-                    {entry.book_source}
-                  </h2>
-                  <p className="text-lg whitespace-pre-wrap">{entry.content}</p>
-                </BrutalistCard>
-              ))}
+            <div className="grid auto-rows-[200px] grid-cols-3 gap-6">
+              {info.map((entry, index) => {
+                const rowSpan =
+                  entry.content.length > 300 ? "row-span-2" : "row-span-1";
+                return (
+                  <BrutalistCard
+                    key={index}
+                    className={`${rowSpan} overflow-y-auto`}
+                  >
+                    <h2 className="text-xl font-bold mb-3">
+                      {entry.book_source}
+                    </h2>
+                    <p className="text-lg whitespace-pre-wrap">
+                      {entry.content}
+                    </p>
+                  </BrutalistCard>
+                );
+              })}
             </div>
           </>
         )}
