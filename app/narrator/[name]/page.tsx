@@ -1,7 +1,7 @@
 import BrutalistCard from "@/components/brutalist-card";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import PredecessorSuccessorChain from "@/components/predecessors-successors-chain";
+import TeacherStudentChain from "@/components/predecessors-successors-chain";
 import VirtualizedNarratorList from "@/components/virtualized-narrator-list";
 import {
   InfoSource,
@@ -47,7 +47,7 @@ function RelationshipsSection({
       <BrutalistCard className="col-span-9 p-1 h-full">
         <ErrorBoundary>
           <Suspense fallback={<LoadingSpinner />}>
-            <PredecessorSuccessorChain
+            <TeacherStudentChain
               chainData={{
                 narrator,
                 predecessors,
@@ -114,7 +114,9 @@ function InfoSection({ info }: { info: InfoSource[] }) {
               {mapBookSourceToReadableName(entry.book_source)}
               <div className="absolute bottom-0 left-0 right-0 h-3 bg-parchment -z-10 translate-y-1"></div>
             </h2>
-            <div className="max-h-0 group-hover:max-h-[30vh] overflow-hidden transition-[max-height] duration-500 ease-in-out">
+            <div
+              className="max-h-0 group-hover:max-h-[30vh] overflow-hidden transition-[max-height] duration-500 ease-in-out"
+            >
               <p className="overflow-y-auto text-lg whitespace-pre-wrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-200 max-h-[30vh] pl-5">
                 {entry.content}
               </p>

@@ -8,10 +8,7 @@ interface NetworkWorkspaceProps {
 
 export default function NetworkWorkspace({ children }: NetworkWorkspaceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = useState({
-    width: 800,
-    height: 600,
-  });
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
   useEffect(() => {
     const updateDimensions = () => {

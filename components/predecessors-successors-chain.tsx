@@ -14,19 +14,6 @@ interface TeacherStudentChainProps {
   };
 }
 
-function calculateInitialZoom(graphHeight: number, nodeCount: number) {
-  // Base scale that works well for a single node
-  const baseScale = 0.8;
-
-  // Adjust scale based on node count and container width
-  const scaleFactor = Math.max(1, Math.sqrt(nodeCount) / 2);
-  // FIXME
-  const windowHeight = 600;
-  const heightAdjustment = Math.min(1, graphHeight / windowHeight);
-
-  return (baseScale * heightAdjustment) / scaleFactor;
-}
-
 function calculateGraphData(
   chainData: TeacherStudentChainProps["chainData"],
   width: number,
@@ -99,22 +86,11 @@ export default function TeacherStudentChain({
   return (
     <NetworkWorkspace>
       {(dimensions) => {
-        const { nodes, links, initialZoom } = React.useMemo(() => {
-          const totalNodes =
-            Math.max(
-              chainData.predecessors.length,
-              chainData.successors.length,
-            ) + 1;
-          const initialZoom = calculateInitialZoom(
-            dimensions.height,
-            totalNodes,
-          );
+        const graphData = React.useMemo(
+          () => calculateGraphData(chainData, dimensions.width),
+          [chainData, dimensions.width],
+        );
 
-          return {
-            ...calculateGraphData(chainData, dimensions.width),
-            initialZoom,
-          };
-        }, [chainData, dimensions.width]);
         const graphConfig = {
           directed: true,
           nodeHighlightBehavior: true,
@@ -122,8 +98,7 @@ export default function TeacherStudentChain({
           highlightDegree: 1,
           highlightOpacity: 0.2,
           maxZoom: 8,
-          minZoom: initialZoom * 0.5,
-          initialZoom,
+          minZoom: 0.1,
           node: {
             size: {
               width: 1200,
@@ -138,11 +113,11 @@ export default function TeacherStudentChain({
 
         return (
           <>
-            {nodes.length > 0 && (
+            {graphData.nodes.length > 0 && (
               /* @ts-ignore */
               <Graph
                 id="teacher-student-graph"
-                data={{ nodes, links }}
+                data={graphData}
                 config={graphConfig}
               />
             )}
