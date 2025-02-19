@@ -61,6 +61,32 @@ function RelationshipsSection({
   );
 }
 
+function mapBookSourceToReadableName(bookSource: string) {
+  if (bookSource.includes("ميزان الاعتدال")) {
+    return "ميزان الاعتدال للذهبى";
+  } else if (bookSource.includes("التاريخ الكبير")) {
+    return "التاريخ الكبير للبخارى";
+  } else if (bookSource.includes("سير أعلام النبلاء")) {
+    return "سير أعلام النبلاء للذهبى";
+  } else if (bookSource.includes("الإصابة")) {
+    return "الإصابة في تمييز الصحابة لابن حجر";
+  } else if (bookSource.includes("لسان الميزان")) {
+    return "لسان الميزان لابن حجر";
+  } else if (bookSource.includes("تقريب التهذيب")) {
+    return "تقريب التهذيب لابن حجر العسقلانى";
+  } else if (bookSource.includes("تهذيب التهذيب")) {
+    return "تهذيب التهذيب لابن حجر العسقلانى";
+  } else if (bookSource.includes("الطبقات الكبرى")) {
+    return "الطبقات الكبرى لابن سعد";
+  } else if (bookSource.includes("ثقات ابن حبان")) {
+    return "ثقات ابن حبان";
+  } else if (bookSource.includes("Names used in Hadith Literature")) {
+    return "ورد بهذه الأسماء فى كتب الحديث";
+  } else {
+    throw new Error(`Unknown book source: ${bookSource}`);
+  }
+}
+
 function InfoSection({ info }: { info: InfoSource[] }) {
   if (!info || info.length === 0) return null;
 
@@ -74,17 +100,25 @@ function InfoSection({ info }: { info: InfoSource[] }) {
           <span className="bg-parchment px-4 text-2xl font-bold">ذُكر عنه</span>
         </div>
       </div>
-      <div className="grid auto-rows-[200px] grid-cols-3 gap-6">
-        {info.map((entry, index) => {
-          const rowSpan =
-            entry.content.length > 300 ? "row-span-2" : "row-span-1";
-          return (
-            <BrutalistCard key={index} className={`${rowSpan} overflow-y-auto`}>
-              <h2 className="text-xl font-bold mb-3">{entry.book_source}</h2>
-              <p className="text-lg whitespace-pre-wrap">{entry.content}</p>
-            </BrutalistCard>
-          );
-        })}
+      <div className="grid grid-cols-3 gap-6">
+        {info.map((entry, index) => (
+          <BrutalistCard
+            key={index}
+            className="group transition-all duration-500 ease-in-out hover:scale-105"
+          >
+            <h2 className="text-xl font-bold my-6 inline-block relative">
+              {mapBookSourceToReadableName(entry.book_source)}
+              <div className="absolute bottom-0 left-0 right-0 h-3 bg-parchment -z-10 translate-y-1"></div>
+            </h2>
+            <div
+              className="max-h-0 group-hover:max-h-[30vh] overflow-hidden transition-[max-height] duration-500 ease-in-out"
+            >
+              <p className="overflow-y-auto text-lg whitespace-pre-wrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-200 max-h-[30vh] pl-5">
+                {entry.content}
+              </p>
+            </div>
+          </BrutalistCard>
+        ))}
       </div>
     </>
   );
