@@ -62,6 +62,10 @@ function RelationshipsSection({
 }
 
 function mapBookSourceToReadableName(bookSource: string) {
+  /*
+  FIXME
+  The values are based on the results from the query at @scripts/get_book_titles.sql
+  */
   if (bookSource.includes("ميزان الاعتدال")) {
     return "ميزان الاعتدال للذهبى";
   } else if (bookSource.includes("التاريخ الكبير")) {
@@ -81,7 +85,7 @@ function mapBookSourceToReadableName(bookSource: string) {
   } else if (bookSource.includes("ثقات ابن حبان")) {
     return "ثقات ابن حبان";
   } else if (bookSource.includes("Names used in Hadith Literature")) {
-    return "ورد بهذه الأسماء فى كتب الحديث";
+    return "ورد في هذه السياقات فى كتب الحديث";
   } else {
     throw new Error(`Unknown book source: ${bookSource}`);
   }
