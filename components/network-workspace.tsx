@@ -14,7 +14,7 @@ export default function NetworkWorkspace({ children }: NetworkWorkspaceProps) {
     const updateDimensions = () => {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
-        setDimensions({ width: width - 40, height: height - 40 });
+        setDimensions({ width, height });
       }
     };
 
@@ -34,7 +34,7 @@ export default function NetworkWorkspace({ children }: NetworkWorkspaceProps) {
           radial-gradient(circle at 20px 20px, #94a3b8 0.5px, transparent 0)
         `,
         backgroundSize: "20px 20px, 40px 40px",
-        height: "calc(100vh - 64px)",
+        height: "100%",
       }}
     >
       {children(dimensions)}
