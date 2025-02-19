@@ -4,6 +4,8 @@ import { LoadingSpinner } from "@/components/loading-spinner";
 import TeacherStudentChain from "@/components/predecessors-successors-chain";
 import VirtualizedNarratorList from "@/components/virtualized-narrator-list";
 import {
+  InfoSource,
+  Narrator,
   getNarrator,
   getNarratorInfo,
   getNarratorsInSource,
@@ -12,6 +14,81 @@ import {
 } from "@/lib/sqlite";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+
+function RelationshipsSection({
+  narrator,
+  predecessors,
+  successors,
+}: {
+  narrator: Narrator;
+  predecessors: Narrator[];
+  successors: Narrator[];
+}) {
+  return (
+    <div className="grid grid-cols-12 gap-6 h-full">
+      <section className="col-span-3 flex flex-col gap-6">
+        {predecessors.length !== 0 && (
+          <BrutalistCard>
+            <h2 className="text-xl font-bold mb-3">
+              روى عن ({predecessors.length})
+            </h2>
+            <VirtualizedNarratorList items={predecessors} />
+          </BrutalistCard>
+        )}
+        {successors.length !== 0 && (
+          <BrutalistCard>
+            <h2 className="text-xl font-bold mb-3">
+              روى عنه ({successors.length})
+            </h2>
+            <VirtualizedNarratorList items={successors} />
+          </BrutalistCard>
+        )}
+      </section>
+      <BrutalistCard className="col-span-9 p-1 h-full">
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingSpinner />}>
+            <TeacherStudentChain
+              chainData={{
+                narrator,
+                predecessors,
+                successors,
+              }}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      </BrutalistCard>
+    </div>
+  );
+}
+
+function InfoSection({ info }: { info: InfoSource[] }) {
+  if (!info || info.length === 0) return null;
+
+  return (
+    <>
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t-4 border-black"></div>
+        </div>
+        <div className="relative flex justify-center">
+          <span className="bg-parchment px-4 text-2xl font-bold">ذُكر عنه</span>
+        </div>
+      </div>
+      <div className="grid auto-rows-[200px] grid-cols-3 gap-6">
+        {info.map((entry, index) => {
+          const rowSpan =
+            entry.content.length > 300 ? "row-span-2" : "row-span-1";
+          return (
+            <BrutalistCard key={index} className={`${rowSpan} overflow-y-auto`}>
+              <h2 className="text-xl font-bold mb-3">{entry.book_source}</h2>
+              <p className="text-lg whitespace-pre-wrap">{entry.content}</p>
+            </BrutalistCard>
+          );
+        })}
+      </div>
+    </>
+  );
+}
 
 export async function generateStaticParams() {
   const names = getNarratorsInSource("Bukhari");
@@ -44,75 +121,14 @@ export default async function NarratorPage({
             <div className="absolute bottom-0 left-0 right-0 h-4 bg-parchment -z-10 translate-y-2"></div>
           </h1>
         </div>
-        <div className="grid grid-cols-12 gap-6 h-full">
-          <section className="col-span-3 flex flex-col gap-6">
-            {predecessors.length !== 0 && (
-              <BrutalistCard>
-                <h2 className="text-xl font-bold mb-3">
-                  روى عن ({predecessors.length})
-                </h2>
-                <VirtualizedNarratorList items={predecessors} />
-              </BrutalistCard>
-            )}
-            {successors.length !== 0 && (
-              <BrutalistCard>
-                <h2 className="text-xl font-bold mb-3">
-                  روى عنه ({successors.length})
-                </h2>
-                <VirtualizedNarratorList items={successors} />
-              </BrutalistCard>
-            )}
-          </section>
-          {/* Network Visualization */}
-          <BrutalistCard className="col-span-9 p-1 h-full">
-            <ErrorBoundary>
-              <Suspense fallback={<LoadingSpinner />}>
-                <TeacherStudentChain
-                  chainData={{
-                    narrator,
-                    predecessors,
-                    successors,
-                  }}
-                />
-              </Suspense>
-            </ErrorBoundary>
-          </BrutalistCard>
-        </div>
 
-        {/* Info Section */}
-        {info && info.length > 0 && (
-          <>
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t-4 border-black"></div>
-              </div>
-              <div className="relative flex justify-center">
-                <span className="bg-parchment px-4 text-2xl font-bold">
-                  ذُكر عنه
-                </span>
-              </div>
-            </div>
-            <div className="grid auto-rows-[200px] grid-cols-3 gap-6">
-              {info.map((entry, index) => {
-                const rowSpan =
-                  entry.content.length > 300 ? "row-span-2" : "row-span-1";
-                return (
-                  <BrutalistCard
-                    key={index}
-                    className={`${rowSpan} overflow-y-auto`}
-                  >
-                    <h2 className="text-xl font-bold mb-3">
-                      {entry.book_source}
-                    </h2>
-                    <p className="text-lg whitespace-pre-wrap">
-                      {entry.content}
-                    </p>
-                  </BrutalistCard>
-                );
-              })}
-            </div>
-          </>
-        )}
+        <RelationshipsSection
+          narrator={narrator}
+          predecessors={predecessors}
+          successors={successors}
+        />
+
+        <InfoSection info={info} />
       </div>
     </main>
   );
