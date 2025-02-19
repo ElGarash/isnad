@@ -114,9 +114,7 @@ function InfoSection({ info }: { info: InfoSource[] }) {
               {mapBookSourceToReadableName(entry.book_source)}
               <div className="absolute bottom-0 left-0 right-0 h-3 bg-parchment -z-10 translate-y-1"></div>
             </h2>
-            <div
-              className="max-h-0 group-hover:max-h-[30vh] overflow-hidden transition-[max-height] duration-500 ease-in-out"
-            >
+            <div className="max-h-0 group-hover:max-h-[30vh] overflow-hidden transition-[max-height] duration-500 ease-in-out">
               <p className="overflow-y-auto text-lg whitespace-pre-wrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-200 max-h-[30vh] pl-5">
                 {entry.content}
               </p>

@@ -98,7 +98,7 @@ export default function TeacherStudentChain({
           highlightDegree: 1,
           highlightOpacity: 0.2,
           maxZoom: 8,
-          minZoom: 0.1,
+          minZoom: 0.01,
           node: {
             size: {
               width: 1200,
