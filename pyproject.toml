@@ -12,6 +12,7 @@ dependencies = [
     "polars>=1.21.0",
     "pre-commit>=4.1.0",
     "pyarrow>=19.0.0",
+    "rapidfuzz>=3.12.1",
     "requests>=2.32.3",
 ]
 
