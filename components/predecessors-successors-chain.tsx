@@ -115,11 +115,7 @@ export default function TeacherStudentChain({
           <>
             {graphData.nodes.length > 0 && (
               /* @ts-ignore */
-              <Graph
-                id="teacher-student-graph"
-                data={graphData}
-                config={graphConfig}
-              />
+              <Graph id="isnad" data={graphData} config={graphConfig} />
             )}
           </>
         );

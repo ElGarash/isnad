@@ -1,5 +1,6 @@
 "use client";
 
+import "./network-workspace.css";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 
 interface NetworkWorkspaceProps {
