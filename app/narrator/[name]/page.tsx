@@ -2,8 +2,10 @@ import BrutalistCard from "@/components/brutalist-card";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import TeacherStudentChain from "@/components/predecessors-successors-chain";
+import VirtualizedChapterList from "@/components/virtualized-chapter-list";
 import VirtualizedNarratorList from "@/components/virtualized-narrator-list";
 import {
+  ChapterCount,
   InfoSource,
   Narrator,
   getNarrator,
@@ -11,6 +13,7 @@ import {
   getNarratorsInSource,
   getPredecessors,
   getSuccessors,
+  narratedAbout,
 } from "@/lib/sqlite";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -19,10 +22,12 @@ function RelationshipsSection({
   narrator,
   predecessors,
   successors,
+  chapters,
 }: {
   narrator: Narrator;
   predecessors: Narrator[];
   successors: Narrator[];
+  chapters: ChapterCount[];
 }) {
   return (
     <div className="grid grid-cols-12 gap-6 h-full">
@@ -41,6 +46,14 @@ function RelationshipsSection({
               روى عنه ({successors.length})
             </h2>
             <VirtualizedNarratorList items={successors} />
+          </BrutalistCard>
+        )}
+        {chapters.length !== 0 && (
+          <BrutalistCard>
+            <h2 className="text-xl font-bold mb-3">
+              روى في ({chapters.length} باب)
+            </h2>
+            <VirtualizedChapterList items={chapters} />
           </BrutalistCard>
         )}
       </section>
@@ -127,7 +140,7 @@ function InfoSection({ info }: { info: InfoSource[] }) {
 }
 
 export async function generateStaticParams() {
-  const names = getNarratorsInSource("Bukhari");
+  const names = getNarratorsInSource("Sahih Bukhari");
   return names.map((name) => ({
     name,
   }));
@@ -144,8 +157,11 @@ export default async function NarratorPage({
     notFound();
   }
 
-  const successors = getSuccessors(narrator.scholar_indx);
-  const predecessors = getPredecessors(narrator.scholar_indx);
+  // FIXME: This is hardcoded for now until we decide on hosting
+  const BOOK = "Sahih Bukhari";
+  const successors = getSuccessors(narrator.scholar_indx, BOOK);
+  const predecessors = getPredecessors(narrator.scholar_indx, BOOK);
+  const chapters = narratedAbout(narrator.scholar_indx, BOOK);
   const info = getNarratorInfo(narrator.scholar_indx);
 
   return (
@@ -162,6 +178,7 @@ export default async function NarratorPage({
           narrator={narrator}
           predecessors={predecessors}
           successors={successors}
+          chapters={chapters}
         />
 
         <InfoSection info={info} />

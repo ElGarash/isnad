@@ -64,6 +64,12 @@ const config: Config = {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        isnad: {
+          primary: "#1B2B3B",
+          "primary-hover": "#2d4459",
+          secondary: "#C49B66",
+          background: "#E6DED1",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -95,5 +101,6 @@ const config: Config = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-};
+} satisfies Config;
+
 export default config;

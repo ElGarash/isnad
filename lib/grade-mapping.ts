@@ -23,33 +23,25 @@ const gradeMap: Record<string, string> = {
   "Succ. (Taba' Tabi')": "من تابعي التابعين",
   "Succ. (Taba' Tabi') [6th generation]": "من تابعي التابعين",
   "Succ. (Taba' Tabi') [7th generation]": "من تابعي التابعين",
-  "Succ. (Taba' Tabi') [7th generation] [Maliki]": "من تابعي التابعين (مالكي)",
+  "Succ. (Taba' Tabi') [7th generation] [Maliki]": "من تابعي التابعين",
   "Succ. (Taba' Tabi') [8th generation]": "من تابعي التابعين",
   "Succ. (Taba' Tabi') [9th generation]": "من تابعي التابعين",
-  "Succ. (Taba' Tabi') [9th generation] [Shafi'ee]":
-    "من تابعي التابعين (شافعي)",
+  "Succ. (Taba' Tabi') [9th generation] [Shafi'ee]": "من تابعي التابعين",
   "Succ. (Taba' Tabi') [10th generation]": "من تابعي التابعين",
-  "Succ. (Taba' Tabi') [Hanafi]": "من تابعي التابعين (حنفي)",
+  "Succ. (Taba' Tabi') [Hanafi]": "من تابعي التابعين",
   "3rd Century AH": "من علماء القرن الثالث الهجري",
-  "3rd Century AH [10th generation]":
-    "من علماء القرن الثالث الهجري (الجيل العاشر)",
-  "3rd Century AH [10th generation] [Hanafi]":
-    "من علماء القرن الثالث الهجري (الجيل العاشر) (حنفي)",
-  "3rd Century AH [10th generation] [Hanbali]":
-    "من علماء القرن الثالث الهجري (الجيل العاشر) (حنبلي)",
-  "3rd Century AH [11th generation]":
-    "من علماء القرن الثالث الهجري (الجيل الحادي عشر)",
-  "3rd Century AH [11th generation] [Hanafi]":
-    "من علماء القرن الثالث الهجري (الجيل الحادي عشر) (حنفي)",
-  "3rd Century AH [11th generation] [Shafi'ee]":
-    "من علماء القرن الثالث الهجري (الجيل الحادي عشر) (شافعي)",
-  "3rd Century AH [12th generation]":
-    "من علماء القرن الثالث الهجري (الجيل الثاني عشر)",
-  "3rd Century AH [Shafi'ee]": "من علماء القرن الثالث الهجري (شافعي)",
+  "3rd Century AH [10th generation]": "من علماء القرن الثالث الهجري",
+  "3rd Century AH [10th generation] [Hanafi]": "من علماء القرن الثالث الهجري",
+  "3rd Century AH [10th generation] [Hanbali]": "من علماء القرن الثالث الهجري",
+  "3rd Century AH [11th generation]": "من علماء القرن الثالث الهجري",
+  "3rd Century AH [11th generation] [Hanafi]": "من علماء القرن الثالث الهجري",
+  "3rd Century AH [11th generation] [Shafi'ee]": "من علماء القرن الثالث الهجري",
+  "3rd Century AH [12th generation]": "من علماء القرن الثالث الهجري",
+  "3rd Century AH [Shafi'ee]": "من علماء القرن الثالث الهجري",
   "4th Century AH": "من علماء القرن الرابع الهجري",
-  "4th Century AH [Hanbali]": "من علماء القرن الرابع الهجري (حنبلي)",
-  "4th Century AH [Shafi'ee]": "من علماء القرن الرابع الهجري (شافعي)",
-  "4th Century AH [Other]": "من علماء القرن الرابع الهجري (آخر)",
+  "4th Century AH [Hanbali]": "من علماء القرن الرابع الهجري",
+  "4th Century AH [Shafi'ee]": "من علماء القرن الرابع الهجري",
+  "4th Century AH [Other]": "من علماء القرن الرابع الهجري",
 };
 
 export const getArabicGrade = (grade: string): string => {
