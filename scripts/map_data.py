@@ -15,18 +15,29 @@ def read_hadiths(file_path):
         hadiths = [row for row in reader]
     return hadiths
 
+# Function to read and parse open_hadith_explanations.csv
+def read_open_hadith_explanations(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        reader = csv.reader(file)
+        open_hadith_explanations = {row[0]: row[2] for row in reader}  # Map ID to explanation
+    return open_hadith_explanations
+
 # Function to filter Hadiths by source (Sahih Bukhari)
 def filter_sahih_bukhari(hadiths):
     return [h for h in hadiths if h['source'] == ' Sahih Bukhari ']
 
 # Function to match Hadiths based on text similarity
-def match_hadiths(open_hadiths, hadiths):
+def match_hadiths(open_hadiths, hadiths, open_hadith_explanations):
     matched = []
     unmatched_hadiths = hadiths.copy()  # Start with all hadiths as unmatched
 
     for oh in open_hadiths:
         oh_id = oh[0]  # ID from open_hadith.csv
         oh_text = oh[1]  # Text from open_hadith.csv
+
+        # Skip if explanation is empty
+        if oh_id not in open_hadith_explanations or not open_hadith_explanations[oh_id].strip():
+            continue
 
         # Find the best match in hadiths.csv
         best_match = None
@@ -66,11 +77,12 @@ def write_unmatched(unmatched, file_path):
 def main():
     open_hadiths = read_open_hadith('data/open_hadith.csv')
     hadiths = read_hadiths('data/hadiths.csv')
+    open_hadith_explanations = read_open_hadith_explanations('data/open_hadith_explanations.csv')
 
     # Filter Hadiths to only include Sahih Bukhari
     sahih_bukhari_hadiths = filter_sahih_bukhari(hadiths)
 
-    matched, unmatched = match_hadiths(open_hadiths, sahih_bukhari_hadiths)
+    matched, unmatched = match_hadiths(open_hadiths, sahih_bukhari_hadiths, open_hadith_explanations)
 
     write_matched(matched, 'data/matched_hadiths.csv')
     write_unmatched(unmatched, 'data/unmatched_hadiths.csv')
