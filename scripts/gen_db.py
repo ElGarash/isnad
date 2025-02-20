@@ -74,12 +74,13 @@ def create_tables(conn: sqlite3.Connection) -> None:
     """
     )
 
+
 def load_explanations() -> Dict[str, str]:
     """Load hadith explanations from CSV file"""
     explanations_df = pl.read_csv(
         "data/open_hadith_explanations.csv",
         has_header=False,
-        new_columns=["hadith_id", "hadith_text", "explanation"]
+        new_columns=["hadith_id", "hadith_text", "explanation"],
     )
 
     # Create mapping from matched_hadiths.csv
@@ -87,14 +88,12 @@ def load_explanations() -> Dict[str, str]:
 
     # Join the dataframes to get hadith_no -> explanation mapping
     final_df = matches_df.join(
-        explanations_df,
-        left_on="open_hadith_id",
-        right_on="hadith_id",
-        how="left"
+        explanations_df, left_on="open_hadith_id", right_on="hadith_id", how="left"
     )
 
     # Convert to dictionary
     return dict(zip(final_df["hadith_no"], final_df["explanation"]))
+
 
 def insert_sources(conn: sqlite3.Connection) -> None:
     """Insert sources data from JSON file"""
@@ -154,16 +153,21 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
     explanations = load_explanations()
 
     # Add explanations column, but only for Sahih Bukhari hadiths
-    hadiths_df = hadiths_df.with_columns([
-        pl.Series(
-            name="explanation",
-            values=[
-                explanations.get(str(h_no), None)
-                if source == " Sahih Bukhari " else None
-                for h_no, source in zip(hadiths_df["hadith_no"], hadiths_df["source"])
-            ]
-        )
-    ])
+    hadiths_df = hadiths_df.with_columns(
+        [
+            pl.Series(
+                name="explanation",
+                values=[
+                    explanations.get(str(h_no), None)
+                    if source == " Sahih Bukhari "
+                    else None
+                    for h_no, source in zip(
+                        hadiths_df["hadith_no"], hadiths_df["source"]
+                    )
+                ],
+            )
+        ]
+    )
 
     hadiths_df.select(
         [
@@ -178,9 +182,10 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
             "chapter",
             "text_ar",
             "text_en",
-            "explanation"
+            "explanation",
         ]
     ).to_pandas().to_sql("hadiths", conn, if_exists="append", index=False)
+
 
 def insert_rawis(conn: sqlite3.Connection, rawis_df: pl.DataFrame) -> None:
     rawis_df.select(
