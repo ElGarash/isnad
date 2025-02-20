@@ -157,10 +157,12 @@ export default async function NarratorPage({
     notFound();
   }
 
-  const successors = getSuccessors(narrator.scholar_indx);
-  const predecessors = getPredecessors(narrator.scholar_indx);
+  // FIXME: This is hardcoded for now until we decide on hosting
+  const BOOK = "Sahih Bukhari";
+  const successors = getSuccessors(narrator.scholar_indx, BOOK);
+  const predecessors = getPredecessors(narrator.scholar_indx, BOOK);
+  const chapters = narratedAbout(narrator.scholar_indx, BOOK);
   const info = getNarratorInfo(narrator.scholar_indx);
-  const chapters = narratedAbout(narrator.scholar_indx);
 
   return (
     <main className="flex items-center justify-center">

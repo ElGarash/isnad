@@ -111,6 +111,7 @@ function getDb() {
         c1.position = c2.position - 1
       JOIN rawis r ON c2.scholar_indx = r.scholar_indx
       WHERE c1.scholar_indx = $scholar_indx
+      AND c1.source = $source
       ORDER BY r.name
     `);
 
@@ -124,6 +125,7 @@ function getDb() {
         c1.position = c2.position + 1
       JOIN rawis r ON c2.scholar_indx = r.scholar_indx
       WHERE c1.scholar_indx = $scholar_indx
+      AND c1.source = $source
       ORDER BY r.name
     `);
     statements.getNarratorsInSource = db.prepare(`
@@ -146,6 +148,7 @@ function getDb() {
           AND c.chapter_no = h.chapter_no
           AND c.hadith_no = h.hadith_no
       WHERE c.scholar_indx = $scholar_indx
+      AND c.source = $source
       GROUP BY h.source, h.chapter, h.chapter_no
       ORDER BY h.source ASC, h.chapter_no ASC`);
   }
@@ -218,17 +221,25 @@ export function getNarratorInfo(scholarIndex: number): InfoSource[] {
   }) as InfoSource[];
 }
 
-export function getSuccessors(scholarIndex: number): Narrator[] {
+export function getSuccessors(
+  scholarIndex: number,
+  source: Source,
+): Narrator[] {
   getDb();
   return statements.getSuccessors!.all({
     $scholar_indx: scholarIndex,
+    $source: source,
   }) as Narrator[];
 }
 
-export function getPredecessors(scholarIndex: number): Narrator[] {
+export function getPredecessors(
+  scholarIndex: number,
+  source: Source,
+): Narrator[] {
   getDb();
   return statements.getPredecessors!.all({
     $scholar_indx: scholarIndex,
+    $source: source,
   }) as Narrator[];
 }
 
@@ -241,10 +252,14 @@ export function getNarratorsInSource(source: Source): string[] {
   ).map((row) => row.name);
 }
 
-export function narratedAbout(scholarIndex: number): ChapterCount[] {
+export function narratedAbout(
+  scholarIndex: number,
+  source: Source,
+): ChapterCount[] {
   getDb();
   return statements.getNarratorChapters!.all({
     $scholar_indx: scholarIndex,
+    $source: source,
   }) as ChapterCount[];
 }
 
