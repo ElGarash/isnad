@@ -1,7 +1,6 @@
 import json
 import polars as pl
 import sqlite3
-from typing import Dict
 from pathlib import Path
 
 
@@ -76,26 +75,6 @@ def create_tables(conn: sqlite3.Connection) -> None:
     )
 
 
-def load_explanations() -> Dict[str, str]:
-    """Load hadith explanations from CSV file"""
-    explanations_df = pl.read_csv(
-        "data/open_hadith_explanations.csv",
-        has_header=False,
-        new_columns=["hadith_id", "hadith_text", "explanation"],
-    )
-
-    # Create mapping from matched_hadiths.csv
-    matches_df = pl.read_csv("data/matched_hadiths.csv")
-
-    # Join the dataframes to get hadith_no -> explanation mapping
-    final_df = matches_df.join(
-        explanations_df, left_on="open_hadith_id", right_on="hadith_id", how="left"
-    )
-
-    # Convert to dictionary
-    return dict(zip(final_df["hadith_no"], final_df["explanation"]))
-
-
 def insert_sources(conn: sqlite3.Connection) -> None:
     """Insert sources data from JSON file"""
     with open(Path("data/scholars_sources.json")) as f:
@@ -149,34 +128,58 @@ def clean_arabic_text(original: str) -> str:
     return clean
 
 
-def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
-    # Load explanations
-    explanations = load_explanations()
+def load_explanations() -> pl.DataFrame:
+    """Load hadith explanations and join with mapped hadiths to create mapping of hadith_no -> explanation"""
+    explanations_df = pl.read_csv(
+        "data/open_hadith_explanations.csv",
+        has_header=False,
+        new_columns=["hadith_id", "hadith_text", "explanation"],
+    )
 
-    # Add explanations column, but only for Sahih Bukhari hadiths
-    hadiths_df = hadiths_df.with_columns(
-        [
-            pl.Series(
-                name="explanation",
-                values=[
-                    explanations.get(str(h_no), None)
-                    if source == " Sahih Bukhari "
-                    else None
-                    for h_no, source in zip(
-                        hadiths_df["hadith_no"], hadiths_df["source"]
-                    )
-                ],
-            )
-        ]
+    # Create mapping from matched_hadiths.csv and normalize hadith_no
+    matches_df = pl.read_csv("data/matched_hadiths.csv").with_columns(
+        pl.col("hadith_no").str.strip_chars().str.replace(r"\s+", " ")
+    )
+
+    # Join the dataframes to get hadith_no -> explanation mapping
+    return matches_df.join(
+        explanations_df, left_on="open_hadith_id", right_on="hadith_id", how="left"
+    ).select(["hadith_no", "explanation"])
+
+
+def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
+    """Insert hadiths into SQLite database"""
+    # Load explanations mapping
+    explanations_df = load_explanations()
+
+    hadiths_df = (
+        hadiths_df.with_columns(
+            [
+                pl.col("source").str.strip_chars(),
+                pl.col("hadith_no").str.strip_chars(),
+            ]
+        )
+        .join(explanations_df, on="hadith_no", how="left")
+        .with_columns(
+            [
+                # Only keep explanations for Bukhari hadiths
+                pl.when(pl.col("source") == "Sahih Bukhari")
+                .then(pl.col("explanation"))
+                .otherwise(None)
+                .alias("explanation")
+            ]
+        )
     )
 
     hadiths_df.select(
         [
             "hadith_id",
-            pl.col("source").str.strip_chars(),
+            pl.col("source").map_elements(
+                lambda x: "Bukhari" if x == "Sahih Bukhari" else x, return_dtype=pl.Utf8
+            ),
             "chapter_no",
-            pl.col("hadith_no").str.strip_chars(),
-            pl.col("chapter").map_elements(clean_arabic_text, return_dtype=pl.Utf8),
+            "hadith_no",
+            "chapter",
             "text_ar",
             "text_en",
             "explanation",
