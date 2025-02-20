@@ -1,6 +1,7 @@
 import json
 import polars as pl
 import sqlite3
+from typing import Dict
 from pathlib import Path
 
 
@@ -16,6 +17,7 @@ def create_tables(conn: sqlite3.Connection) -> None:
         chapter TEXT,
         text_ar TEXT,
         text_en TEXT,
+        explanation TEXT,
         UNIQUE(source, chapter_no, hadith_no)
     );
 
@@ -73,6 +75,27 @@ def create_tables(conn: sqlite3.Connection) -> None:
     """
     )
 
+def load_explanations() -> Dict[str, str]:
+    """Load hadith explanations from CSV file"""
+    explanations_df = pl.read_csv(
+        "data/open_hadith_explanations.csv",
+        has_header=False,
+        new_columns=["hadith_id", "hadith_text", "explanation"]
+    )
+
+    # Create mapping from matched_hadiths.csv
+    matches_df = pl.read_csv("data/matched_hadiths.csv")
+
+    # Join the dataframes to get hadith_no -> explanation mapping
+    final_df = matches_df.join(
+        explanations_df,
+        left_on="open_hadith_id",
+        right_on="hadith_id",
+        how="left"
+    )
+
+    # Convert to dictionary
+    return dict(zip(final_df["hadith_no"], final_df["explanation"]))
 
 def insert_sources(conn: sqlite3.Connection) -> None:
     """Insert sources data from JSON file"""
@@ -128,6 +151,21 @@ def clean_arabic_text(original: str) -> str:
 
 
 def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
+    # Load explanations
+    explanations = load_explanations()
+
+    # Add explanations column, but only for Sahih Bukhari hadiths
+    hadiths_df = hadiths_df.with_columns([
+        pl.Series(
+            name="explanation",
+            values=[
+                explanations.get(str(h_no), None)
+                if source == " Sahih Bukhari " else None
+                for h_no, source in zip(hadiths_df["hadith_no"], hadiths_df["source"])
+            ]
+        )
+    ])
+
     hadiths_df.select(
         [
             "hadith_id",
@@ -137,9 +175,9 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
             pl.col("chapter").map_elements(clean_arabic_text, return_dtype=pl.Utf8),
             "text_ar",
             "text_en",
+            "explanation"
         ]
     ).to_pandas().to_sql("hadiths", conn, if_exists="append", index=False)
-
 
 def insert_rawis(conn: sqlite3.Connection, rawis_df: pl.DataFrame) -> None:
     rawis_df.select(
