@@ -23,6 +23,15 @@ export interface Narrator {
   death_place: string;
 }
 
+export interface InfoSource {
+  id: number;
+  scholar_indx: number;
+  book_source: string;
+  content: string;
+}
+
+export type Source = "Bukhari";
+
 export interface Chain {
   source: string;
   chapter_no: number;
@@ -42,6 +51,11 @@ let statements: {
   getHadithById?: ReturnType<Database["prepare"]>;
   getChainForHadith?: ReturnType<Database["prepare"]>;
   getHadithsBySource?: ReturnType<Database["prepare"]>;
+  getNarratorByName?: ReturnType<Database["prepare"]>;
+  getSuccessors?: ReturnType<Database["prepare"]>;
+  getPredecessors?: ReturnType<Database["prepare"]>;
+  getNarratorsInSource?: ReturnType<Database["prepare"]>;
+  getNarratorSources?: ReturnType<Database["prepare"]>;
 } = {};
 
 function getDb() {
@@ -76,6 +90,48 @@ function getDb() {
       WHERE h.source = $source
       ORDER BY h.chapter_no, h.hadith_no
       LIMIT $limit`);
+    statements.getNarratorByName = db.prepare(`
+      SELECT * FROM rawis
+      WHERE name = $name
+    `);
+    statements.getSuccessors = db.prepare(`
+      SELECT DISTINCT r.*
+      FROM hadith_chains c1
+      JOIN hadith_chains c2 ON
+        c1.source = c2.source AND
+        c1.chapter_no = c2.chapter_no AND
+        c1.hadith_no = c2.hadith_no AND
+        c1.position = c2.position - 1
+      JOIN rawis r ON c2.scholar_indx = r.scholar_indx
+      WHERE c1.scholar_indx = $scholar_indx
+      ORDER BY r.name
+    `);
+
+    statements.getPredecessors = db.prepare(`
+      SELECT DISTINCT r.*
+      FROM hadith_chains c1
+      JOIN hadith_chains c2 ON
+        c1.source = c2.source AND
+        c1.chapter_no = c2.chapter_no AND
+        c1.hadith_no = c2.hadith_no AND
+        c1.position = c2.position + 1
+      JOIN rawis r ON c2.scholar_indx = r.scholar_indx
+      WHERE c1.scholar_indx = $scholar_indx
+      ORDER BY r.name
+    `);
+    statements.getNarratorsInSource = db.prepare(`
+      SELECT DISTINCT r.name
+      FROM rawis r
+      JOIN hadith_chains c ON r.scholar_indx = c.scholar_indx
+      WHERE c.source = $source
+      ORDER BY r.name
+    `);
+    statements.getNarratorSources = db.prepare(`
+      SELECT * FROM sources
+      WHERE scholar_indx = $scholar_indx
+      ORDER BY LENGTH(content) DESC
+      LIMIT 20
+    `);
   }
   return db;
 }
@@ -130,6 +186,43 @@ export function getHadithsBySource(
     $source: source,
     $limit: limit,
   }) as HadithWithFirstNarrator[];
+}
+
+export function getNarrator(name: string): Narrator | undefined {
+  getDb();
+  return statements.getNarratorByName!.get({
+    $name: name,
+  }) as Narrator | undefined;
+}
+
+export function getNarratorInfo(scholarIndex: number): InfoSource[] {
+  getDb();
+  return statements.getNarratorSources!.all({
+    $scholar_indx: scholarIndex,
+  }) as InfoSource[];
+}
+
+export function getSuccessors(scholarIndex: number): Narrator[] {
+  getDb();
+  return statements.getSuccessors!.all({
+    $scholar_indx: scholarIndex,
+  }) as Narrator[];
+}
+
+export function getPredecessors(scholarIndex: number): Narrator[] {
+  getDb();
+  return statements.getPredecessors!.all({
+    $scholar_indx: scholarIndex,
+  }) as Narrator[];
+}
+
+export function getNarratorsInSource(source: Source): string[] {
+  getDb();
+  return (
+    statements.getNarratorsInSource!.all({ $source: source }) as {
+      name: string;
+    }[]
+  ).map((row) => row.name);
 }
 
 export function close() {

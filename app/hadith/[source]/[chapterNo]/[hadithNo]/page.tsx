@@ -54,7 +54,7 @@ export default async function HadithPage({ params }: PageProps) {
   };
 
   return (
-    <div className="flex items-center justify-center">
+    <main className="flex items-center justify-center">
       <div className="container grid grid-cols-12 gap-6 h-full my-12 min-h-screen">
         {/* Hadith Content and Explanation */}
         <section className="col-span-3">
@@ -70,6 +70,6 @@ export default async function HadithPage({ params }: PageProps) {
           </ErrorBoundary>
         </section>
       </div>
-    </div>
+    </main>
   );
 }

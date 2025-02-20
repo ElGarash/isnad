@@ -31,7 +31,7 @@ function Navbar() {
               <span className="absolute bottom-0 left-0 w-full h-1 bg-parchment transform origin-left scale-x-0 transition-transform group-hover:scale-x-100"></span>
             </Link>
             <Link
-              href="/narrators"
+              href="/narrator"
               className="relative overflow-hidden group flex items-center gap-1"
             >
               <Users className="w-4 h-4" />
