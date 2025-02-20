@@ -16,8 +16,9 @@ export default function VirtualizedNarratorList({
         <Link
           href={`/narrator/${encodeURIComponent(item.name)}`}
           className="block p-2 border-2 border-black hover:bg-parchment hover:text-navy transition-colors"
+          title={item.name}
         >
-          {item.name}
+          <div className="truncate">{item.name}</div>
         </Link>
       )}
     />

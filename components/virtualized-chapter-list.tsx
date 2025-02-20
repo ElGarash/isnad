@@ -14,14 +14,18 @@ export default function VirtualizedChapterList({
     <VirtualizedList
       items={items}
       maxHeight={300}
-      renderItem={(item) => (
-        <Link
-          href={`/hadith/${encodeURIComponent(item.source)}/${item.chapter}`}
-          className="block p-2 border-2 border-black hover:bg-parchment hover:text-navy transition-colors"
-        >
-          {getArabicBook(item.source)} — {item.chapter} ({item.count})
-        </Link>
-      )}
+      renderItem={(item) => {
+        const fullText = `${getArabicBook(item.source)} — ${item.chapter} (${item.count})`;
+        return (
+          <Link
+            href={`/hadith/${encodeURIComponent(item.source)}/${item.chapter}`}
+            className="block p-2 border-2 border-black hover:bg-parchment hover:text-navy transition-colors"
+            title={fullText}
+          >
+            <div className="truncate">{fullText}</div>
+          </Link>
+        );
+      }}
     />
   );
 }
