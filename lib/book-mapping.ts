@@ -1,5 +1,6 @@
 export const bookMap: Record<string, string> = {
-  Bukhari: "صحيح البخاري",
+  "Sahih Bukhari": "صحيح البخاري",
+  "Sahih Muslim": "صحيح مسلم",
 } as const;
 
 export const getArabicBook = (book: string): string => {

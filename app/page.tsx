@@ -4,7 +4,7 @@ import { getHadithsBySource } from "@/lib/sqlite";
 export const dynamic = "force-static";
 
 async function getInitialHadiths() {
-  return getHadithsBySource("Bukhari", 1000);
+  return getHadithsBySource("Sahih Bukhari", 1000);
 }
 
 export default async function Home() {

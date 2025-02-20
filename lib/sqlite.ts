@@ -30,7 +30,7 @@ export interface InfoSource {
   content: string;
 }
 
-export type Source = "Bukhari";
+export type Source = "Sahih Bukhari";
 
 export interface Chain {
   source: string;
@@ -42,6 +42,12 @@ export interface Chain {
 
 export type HadithWithChain = Hadith & Chain & Narrator;
 export type HadithWithFirstNarrator = Hadith & { narrator_name?: string };
+
+export interface ChapterCount {
+  source: string;
+  chapter: string;
+  count: number;
+}
 
 let db: Database | null = null;
 let statements: {
@@ -56,6 +62,7 @@ let statements: {
   getPredecessors?: ReturnType<Database["prepare"]>;
   getNarratorsInSource?: ReturnType<Database["prepare"]>;
   getNarratorSources?: ReturnType<Database["prepare"]>;
+  getNarratorChapters?: ReturnType<Database["prepare"]>;
 } = {};
 
 function getDb() {
@@ -132,6 +139,15 @@ function getDb() {
       ORDER BY LENGTH(content) DESC
       LIMIT 20
     `);
+    statements.getNarratorChapters = db.prepare(`
+      SELECT h.source, h.chapter, COUNT(DISTINCT h.hadith_no) as count
+      FROM hadith_chains c
+      JOIN hadiths h ON c.source = h.source
+          AND c.chapter_no = h.chapter_no
+          AND c.hadith_no = h.hadith_no
+      WHERE c.scholar_indx = $scholar_indx
+      GROUP BY h.source, h.chapter, h.chapter_no
+      ORDER BY h.source ASC, h.chapter_no ASC`);
   }
   return db;
 }
@@ -178,7 +194,7 @@ export function getAllHadiths(): Hadith[] {
 }
 
 export function getHadithsBySource(
-  source: string,
+  source: Source,
   limit: number,
 ): HadithWithFirstNarrator[] {
   getDb();
@@ -223,6 +239,13 @@ export function getNarratorsInSource(source: Source): string[] {
       name: string;
     }[]
   ).map((row) => row.name);
+}
+
+export function narratedAbout(scholarIndex: number): ChapterCount[] {
+  getDb();
+  return statements.getNarratorChapters!.all({
+    $scholar_indx: scholarIndex,
+  }) as ChapterCount[];
 }
 
 export function close() {

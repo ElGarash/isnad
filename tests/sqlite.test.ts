@@ -101,20 +101,20 @@ describe("SQLite Database Tests", () => {
 
 describe("Hadith 6800 retrieval", () => {
   test("should find Sahih Bukhari 84:6800", () => {
-    const hadith = getHadithById("Bukhari", 84, "6800");
+    const hadith = getHadithById("Sahih Bukhari", 84, "6800");
     expect(hadith).not.toBeNull();
     expect(hadith).toMatchObject({
       hadith_id: 84,
-      source: "Bukhari",
+      source: "Sahih Bukhari",
       chapter_no: 84,
       hadith_no: "6800",
-      chapter: "Expiation for Unfulfilled Oaths - كتاب كفارات الأيمان",
+      chapter: "كتاب كفارات الأيمان",
     });
     expect(hadith?.text_en).toContain("Narrated Abu Huraira");
   });
 
   test("should have correct chain for 84:6800", () => {
-    const chain = getChainForHadith("Bukhari", 84, "6800");
+    const chain = getChainForHadith("Sahih Bukhari", 84, "6800");
     expect(chain).toHaveLength(8);
 
     // Verify specific narrators

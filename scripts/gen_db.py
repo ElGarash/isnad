@@ -66,6 +66,7 @@ def create_tables(conn: sqlite3.Connection) -> None:
     -- Indexes for hadith_chains table (read-heavy optimization)
     CREATE INDEX idx_chains_scholar_pos ON hadith_chains(scholar_indx, position);  -- Combined index for chain analysis
     CREATE INDEX idx_chains_source_scholar ON hadith_chains(source, scholar_indx);  -- For finding scholar's hadiths
+    CREATE INDEX idx_chains_scholar_chapter ON hadith_chains(scholar_indx, chapter_no);  -- For chapter counting queries
 
     -- Index for sources table
     CREATE INDEX idx_sources_scholar ON sources(scholar_indx);
@@ -110,7 +111,7 @@ def clean_arabic_text(original: str) -> str:
             str.maketrans(
                 "",
                 "",
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-'(),.‘`/#1234567890",
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-'(),.‘;`/#1234567890",
             )
         )
         # It has to be done in this order, because the second replace is a subset of the first.
@@ -130,14 +131,10 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
     hadiths_df.select(
         [
             "hadith_id",
-            pl.col("source")
-            .str.strip_chars()
-            .map_elements(
-                lambda x: "Bukhari" if x == "Sahih Bukhari" else x, return_dtype=pl.Utf8
-            ),
+            pl.col("source").str.strip_chars(),
             "chapter_no",
             pl.col("hadith_no").str.strip_chars(),
-            "chapter",
+            pl.col("chapter").map_elements(clean_arabic_text, return_dtype=pl.Utf8),
             "text_ar",
             "text_en",
         ]
@@ -165,12 +162,7 @@ def insert_chains(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
     chains = (
         hadiths_df.with_columns(
             [
-                pl.col("source")
-                .str.strip_chars()
-                .map_elements(
-                    lambda x: "Bukhari" if x == "Sahih Bukhari" else x,
-                    return_dtype=pl.Utf8,
-                ),
+                pl.col("source").str.strip_chars(),
                 pl.col("hadith_no").str.strip_chars(),
                 pl.col("chain_indx")
                 .str.strip_chars()
