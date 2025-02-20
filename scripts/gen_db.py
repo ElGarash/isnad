@@ -111,7 +111,7 @@ def clean_arabic_text(original: str) -> str:
             str.maketrans(
                 "",
                 "",
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-'(),.‘;`/#1234567890",
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-'()[],.‘;`/#1234567890",
             )
         )
         # It has to be done in this order, because the second replace is a subset of the first.
