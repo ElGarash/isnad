@@ -148,43 +148,47 @@ def load_explanations() -> pl.DataFrame:
 
 
 def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
-    """Insert hadiths into SQLite database"""
-    # Load explanations mapping
-    explanations_df = load_explanations()
-
-    hadiths_df = (
-        hadiths_df.with_columns(
-            [
-                pl.col("source").str.strip_chars(),
-                pl.col("hadith_no").str.strip_chars(),
-            ]
-        )
-        .join(explanations_df, on="hadith_no", how="left")
-        .with_columns(
-            [
-                # Only keep explanations for Bukhari hadiths
-                pl.when(pl.col("source") == "Sahih Bukhari")
-                .then(pl.col("explanation"))
-                .otherwise(None)
-                .alias("explanation")
-            ]
-        )
-    )
-
-    hadiths_df.select(
+    """Insert hadiths into SQLite database with explanations for Bukhari hadiths"""
+    processed_hadiths = hadiths_df.select(
         [
             "hadith_id",
-            pl.col("source").map_elements(
-                lambda x: "Bukhari" if x == "Sahih Bukhari" else x, return_dtype=pl.Utf8
-            ),
+            pl.col("source").str.strip_chars(),
             "chapter_no",
-            "hadith_no",
-            "chapter",
+            pl.col("hadith_no").str.strip_chars(),
+            pl.col("chapter").map_elements(clean_arabic_text, return_dtype=pl.Utf8),
             "text_ar",
             "text_en",
-            "explanation",
         ]
-    ).to_pandas().to_sql("hadiths", conn, if_exists="append", index=False)
+    )
+
+    bukhari_hadiths = processed_hadiths.filter(pl.col("source") == "Sahih Bukhari")
+    other_hadiths = processed_hadiths.filter(pl.col("source") != "Sahih Bukhari")
+
+    explanations = load_explanations()
+    print(f"Loaded {explanations.height} explanations")
+
+    bukhari_hadiths = (
+        bukhari_hadiths.with_columns(
+            pl.col("hadith_no").str.strip_chars().alias("normalized_id")
+        )
+        .join(
+            explanations.with_columns(pl.col("hadith_no")),
+            left_on="normalized_id",
+            right_on="hadith_no",
+            how="left",
+        )
+        .drop("normalized_id")
+        .unique(["hadith_id"])
+    )
+    print(
+        f"Matched {bukhari_hadiths.filter(pl.col('explanation').is_not_null()).height} explanations"
+    )
+
+    other_hadiths = other_hadiths.with_columns(pl.lit(None).alias("explanation"))
+
+    pl.concat([bukhari_hadiths, other_hadiths], how="vertical").to_pandas().to_sql(
+        "hadiths", conn, if_exists="append", index=False
+    )
 
 
 def insert_rawis(conn: sqlite3.Connection, rawis_df: pl.DataFrame) -> None:
