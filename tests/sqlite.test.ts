@@ -101,16 +101,19 @@ describe("SQLite Database Tests", () => {
 
 describe("Hadith 6800 retrieval", () => {
   test("should find Sahih Bukhari 84:6800", () => {
-    const hadith = getHadithById("Sahih Bukhari", 84, "6800");
+    const hadith = getHadithById("Sahih Bukhari", 1, "3");
     expect(hadith).not.toBeNull();
     expect(hadith).toMatchObject({
-      hadith_id: 84,
+      hadith_id: 3,
       source: "Sahih Bukhari",
-      chapter_no: 84,
-      hadith_no: "6800",
-      chapter: "كتاب كفارات الأيمان",
+      chapter_no: 1,
+      hadith_no: "3",
+      chapter: "كتاب بدء الوحى",
     });
-    expect(hadith?.text_en).toContain("Narrated Abu Huraira");
+    expect(hadith?.text_en).toContain(
+      "The commencement of the Divine Inspiration",
+    );
+    expect(hadith?.explanation).not.toBeNull();
   });
 
   test("should have correct chain for 84:6800", () => {
