@@ -57,12 +57,12 @@ export default async function HadithPage({ params }: PageProps) {
     <main className="flex items-center justify-center">
       <div className="container grid grid-cols-12 gap-6 h-full my-12 min-h-screen">
         {/* Hadith Content and Explanation */}
-        <section className="col-span-3">
+        <section className="col-span-3 h-screen grid grid-rows-2 gap-6">
           <HadithTextCard text={hadith.text_ar} />
-          <HadithExplanationCard explanation="..." />
+          <HadithExplanationCard explanation={hadith.explanation} />
         </section>
         {/* Network Visualization */}
-        <section className="col-span-9 relative border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-1 h-full">
+        <section className="col-span-9 relative border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-1 h-screen">
           <ErrorBoundary>
             <Suspense fallback={<LoadingSpinner />}>
               <HadithTransmissionChain hadithData={transformedData} />

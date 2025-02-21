@@ -110,7 +110,9 @@ describe("Hadith 6800 retrieval", () => {
       hadith_no: "3",
       chapter: "كتاب بدء الوحى",
     });
-    expect(hadith?.text_en).toContain("The commencement of the Divine Inspiration");
+    expect(hadith?.text_en).toContain(
+      "The commencement of the Divine Inspiration",
+    );
     expect(hadith?.explanation).not.toBeNull();
   });
 

@@ -9,6 +9,7 @@ export interface Hadith {
   chapter: string;
   text_ar: string;
   text_en: string;
+  explanation: string;
 }
 
 export interface Narrator {
