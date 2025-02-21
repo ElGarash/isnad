@@ -158,6 +158,7 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
             pl.col("chapter").map_elements(clean_arabic_text, return_dtype=pl.Utf8),
             "text_ar",
             "text_en",
+            "explanation",
         ]
     )
 
