@@ -3,8 +3,11 @@
 import NarratorCard from "./narrator-card";
 import NetworkWorkspace from "./network-workspace";
 import { Narrator } from "@/lib/sqlite";
-import { GraphLink, NarratorGraphNode } from "@/types/graph";
-import type { CustomGraphProps, GraphViewConfig } from "@/types/graph-config";
+import { GraphLink, NarratorGraphNode } from "@/lib/types/graph";
+import type {
+  CustomGraphProps,
+  GraphViewConfig,
+} from "@/lib/types/graph-config";
 import React from "react";
 import { Graph } from "react-d3-graph";
 

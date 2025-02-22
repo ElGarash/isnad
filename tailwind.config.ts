@@ -98,6 +98,15 @@ const config: Config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      backgroundImage: {
+        "grid-pattern": `
+          radial-gradient(circle at 1px 1px, #cbd5e1 1px, transparent 0),
+          radial-gradient(circle at 20px 20px, #94a3b8 0.5px, transparent 0)
+        `,
+      },
+      backgroundSize: {
+        "grid-pattern": "20px 20px, 40px 40px",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

@@ -3,9 +3,12 @@
 import NarratorCard from "./narrator-card";
 import NetworkWorkspace from "./network-workspace";
 import type { HadithWithChain } from "@/lib/sqlite";
+import { GraphLink, HadithGraphNode } from "@/lib/types/graph";
+import type {
+  CustomGraphProps,
+  GraphViewConfig,
+} from "@/lib/types/graph-config";
 import tailwindConfig from "@/tailwind.config";
-import { GraphLink, HadithGraphNode } from "@/types/graph";
-import type { CustomGraphProps, GraphViewConfig } from "@/types/graph-config";
 import React from "react";
 import { Graph } from "react-d3-graph";
 
@@ -75,8 +78,8 @@ export default function HadithTransmissionChain({
             xPosition =
               parentX ??
               horizontalOffset +
-              (position * (800 - 2 * horizontalOffset)) /
-              Math.max(totalNodesAtLevel - 1, 1);
+                (position * (800 - 2 * horizontalOffset)) /
+                  Math.max(totalNodesAtLevel - 1, 1);
           }
 
           xPosition = Math.max(
