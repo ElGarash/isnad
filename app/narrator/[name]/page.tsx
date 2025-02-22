@@ -149,9 +149,10 @@ export async function generateStaticParams() {
 export default async function NarratorPage({
   params,
 }: {
-  params: { name: string };
+  params: Promise<{ name: string }>;
 }) {
-  const narrator = getNarrator(decodeURIComponent(params.name));
+  const { name } = await params;
+  const narrator = getNarrator(decodeURIComponent(name));
 
   if (!narrator) {
     notFound();
