@@ -67,7 +67,7 @@ def match_hadiths(open_hadiths, hadiths, explanations):
                 best_match = h
 
         # If a match is found, add it to the matched list and remove from unmatched
-        if best_match and best_score > 80:  # Adjust similarity threshold as needed
+        if best_match and best_score > 65:  # Adjust similarity threshold as needed
             matched.append((oh_id, best_match["hadith_no"]))
             if best_match in unmatched_hadiths:
                 unmatched_hadiths.remove(best_match)
