@@ -128,16 +128,16 @@ def clean_arabic_text(original: str) -> str:
     return clean
 
 
-def load_explanations() -> pl.DataFrame:
+def load_explanations(source: str) -> pl.DataFrame:
     """Load hadith explanations and join with mapped hadiths to create mapping of hadith_no -> explanation"""
     explanations_df = pl.read_csv(
-        "data/open_hadith_explanations.csv",
+        f"data/{source}/explanations.csv",
         has_header=False,
         new_columns=["hadith_id", "hadith_text", "explanation"],
     )
 
     # Create mapping from matched_hadiths.csv and normalize hadith_no
-    matches_df = pl.read_csv("data/matched_hadiths.csv").with_columns(
+    matches_df = pl.read_csv(f"data/{source}/matched_hadiths.csv").with_columns(
         pl.col("hadith_no").str.strip_chars().str.replace(r"\s+", " ")
     )
 
@@ -148,7 +148,7 @@ def load_explanations() -> pl.DataFrame:
 
 
 def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
-    """Insert hadiths into SQLite database with explanations for Bukhari hadiths"""
+    """Insert hadiths into SQLite database with explanations for Bukhari and Muslim hadiths"""
     processed_hadiths = hadiths_df.select(
         [
             "hadith_id",
@@ -162,17 +162,23 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
     )
 
     bukhari_hadiths = processed_hadiths.filter(pl.col("source") == "Sahih Bukhari")
-    other_hadiths = processed_hadiths.filter(pl.col("source") != "Sahih Bukhari")
+    muslim_hadiths = processed_hadiths.filter(pl.col("source") == "Sahih Muslim")
+    other_hadiths = processed_hadiths.filter(
+        (pl.col("source") != "Sahih Bukhari") & (pl.col("source") != "Sahih Muslim")
+    )
 
-    explanations = load_explanations()
-    print(f"Loaded {explanations.height} explanations")
+    bukhari_explanations = load_explanations("bukhari")
+    muslim_explanations = load_explanations("muslim")
+
+    print(f"Loaded {bukhari_explanations.height} Bukhari explanations")
+    print(f"Loaded {muslim_explanations.height} Muslim explanations")
 
     bukhari_hadiths = (
         bukhari_hadiths.with_columns(
             pl.col("hadith_no").str.strip_chars().alias("normalized_id")
         )
         .join(
-            explanations.with_columns(pl.col("hadith_no")),
+            bukhari_explanations.with_columns(pl.col("hadith_no")),
             left_on="normalized_id",
             right_on="hadith_no",
             how="left",
@@ -180,15 +186,33 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
         .drop("normalized_id")
         .unique(["hadith_id"])
     )
+
+    muslim_hadiths = (
+        muslim_hadiths.with_columns(
+            pl.col("hadith_no").str.strip_chars().alias("normalized_id")
+        )
+        .join(
+            muslim_explanations.with_columns(pl.col("hadith_no")),
+            left_on="normalized_id",
+            right_on="hadith_no",
+            how="left",
+        )
+        .drop("normalized_id")
+        .unique(["hadith_id"])
+    )
+
     print(
-        f"Matched {bukhari_hadiths.filter(pl.col('explanation').is_not_null()).height} explanations"
+        f"Matched {bukhari_hadiths.filter(pl.col('explanation').is_not_null()).height} Bukhari explanations"
+    )
+    print(
+        f"Matched {muslim_hadiths.filter(pl.col('explanation').is_not_null()).height} Muslim explanations"
     )
 
     other_hadiths = other_hadiths.with_columns(pl.lit(None).alias("explanation"))
 
-    pl.concat([bukhari_hadiths, other_hadiths], how="vertical").to_pandas().to_sql(
-        "hadiths", conn, if_exists="append", index=False
-    )
+    pl.concat(
+        [bukhari_hadiths, muslim_hadiths, other_hadiths], how="vertical"
+    ).to_pandas().to_sql("hadiths", conn, if_exists="append", index=False)
 
 
 def insert_rawis(conn: sqlite3.Connection, rawis_df: pl.DataFrame) -> None:
@@ -251,7 +275,7 @@ def insert_chains(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
 
 
 def main() -> None:
-    hadiths_df = pl.read_csv(Path("data/hadiths.csv"))
+    hadiths_df = pl.read_csv(Path("data/hadiths_dataset.csv"))
     rawis_df = pl.read_csv(Path("data/rawis.csv"))
 
     # FIXME: these aren't actually duplicates, but something is wrong with the data.
