@@ -3,8 +3,17 @@
 import NarratorCard from "./narrator-card";
 import NetworkWorkspace from "./network-workspace";
 import { Narrator } from "@/lib/sqlite";
+import { GraphLink, NarratorGraphNode } from "@/lib/types/graph";
+import type {
+  CustomGraphProps,
+  GraphViewConfig,
+} from "@/lib/types/graph-config";
 import React from "react";
 import { Graph } from "react-d3-graph";
+
+const TypedGraph = Graph as unknown as React.ComponentType<
+  CustomGraphProps<NarratorGraphNode, GraphLink>
+>;
 
 interface TeacherStudentChainProps {
   chainData: {
@@ -17,9 +26,9 @@ interface TeacherStudentChainProps {
 function calculateGraphData(
   chainData: TeacherStudentChainProps["chainData"],
   width: number,
-) {
-  const nodes: any[] = [];
-  const links: any[] = [];
+): { nodes: NarratorGraphNode[]; links: GraphLink[] } {
+  const nodes: NarratorGraphNode[] = [];
+  const links: GraphLink[] = [];
   const { narrator, predecessors, successors } = chainData;
 
   const nodeWidth = 200;
@@ -86,12 +95,8 @@ export default function TeacherStudentChain({
   return (
     <NetworkWorkspace>
       {(dimensions) => {
-        const graphData = React.useMemo(
-          () => calculateGraphData(chainData, dimensions.width),
-          [chainData, dimensions.width],
-        );
-
-        const graphConfig = {
+        const graphData = calculateGraphData(chainData, dimensions.width);
+        const graphConfig: GraphViewConfig = {
           directed: true,
           nodeHighlightBehavior: true,
           linkHighlightBehavior: true,
@@ -104,7 +109,9 @@ export default function TeacherStudentChain({
               width: 1200,
               height: 1400,
             },
-            viewGenerator: (nodeData: any) => <NarratorCard {...nodeData} />,
+            viewGenerator: (nodeData: NarratorGraphNode) => (
+              <NarratorCard {...nodeData} />
+            ),
             renderLabel: false,
           },
           width: dimensions.width,
@@ -114,8 +121,7 @@ export default function TeacherStudentChain({
         return (
           <>
             {graphData.nodes.length > 0 && (
-              /* @ts-ignore */
-              <Graph id="isnad" data={graphData} config={graphConfig} />
+              <TypedGraph id="isnad" data={graphData} config={graphConfig} />
             )}
           </>
         );

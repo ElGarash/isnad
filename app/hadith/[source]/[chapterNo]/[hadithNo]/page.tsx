@@ -11,11 +11,11 @@ import {
 import { Suspense } from "react";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     source: string;
     chapterNo: number;
     hadithNo: string;
-  };
+  }>;
 }
 
 export async function generateStaticParams() {
@@ -28,23 +28,20 @@ export async function generateStaticParams() {
 }
 
 export default async function HadithPage({ params }: PageProps) {
-  const hadith = getHadithById(
-    decodeURIComponent(params.source),
-    params.chapterNo,
-    params.hadithNo,
-  );
+  const { source, chapterNo, hadithNo } = await params;
+  const hadith = getHadithById(decodeURIComponent(source), chapterNo, hadithNo);
   if (!hadith) {
     // FIXME: make me pretty
     return <div>Hadith not found</div>;
   }
 
   const chainNarrators = getChainForHadith(
-    decodeURIComponent(params.source),
-    params.chapterNo,
-    params.hadithNo,
+    decodeURIComponent(source),
+    chapterNo,
+    hadithNo,
   );
   const transformedData = {
-    hadithNo: params.hadithNo,
+    hadithNo: hadithNo,
     transmissionChains: [
       {
         sanadNo: 1,

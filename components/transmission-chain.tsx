@@ -3,9 +3,18 @@
 import NarratorCard from "./narrator-card";
 import NetworkWorkspace from "./network-workspace";
 import type { HadithWithChain } from "@/lib/sqlite";
+import { GraphLink, HadithGraphNode } from "@/lib/types/graph";
+import type {
+  CustomGraphProps,
+  GraphViewConfig,
+} from "@/lib/types/graph-config";
 import tailwindConfig from "@/tailwind.config";
 import React from "react";
 import { Graph } from "react-d3-graph";
+
+const TypedGraph = Graph as unknown as React.ComponentType<
+  CustomGraphProps<HadithGraphNode, GraphLink>
+>;
 
 interface HadithChainProps {
   hadithData: {
@@ -25,8 +34,8 @@ export default function HadithTransmissionChain({
   hadithData,
 }: HadithChainProps) {
   const graphData = React.useMemo(() => {
-    const nodes: any[] = [];
-    const links: any[] = [];
+    const nodes: HadithGraphNode[] = [];
+    const links: GraphLink[] = [];
     const seenNodes = new Set();
     const levelNodes = new Map<number, string[]>();
 
@@ -105,7 +114,7 @@ export default function HadithTransmissionChain({
   return (
     <NetworkWorkspace>
       {(dimensions) => {
-        const graphConfig = {
+        const graphConfig: GraphViewConfig<HadithGraphNode> = {
           directed: true,
           nodeHighlightBehavior: true,
           linkHighlightBehavior: true,
@@ -123,7 +132,7 @@ export default function HadithTransmissionChain({
           },
           link: {
             strokeWidth: 2,
-            // @ts-ignore
+            // @ts-expect-error color is defined in tailwind config
             highlightColor: tailwindConfig.theme!.extend!.colors!.navy,
             type: "CURVE_SMOOTH",
             strokeLinecap: "round",
@@ -141,8 +150,7 @@ export default function HadithTransmissionChain({
         return (
           <>
             {graphData.nodes.length > 0 && (
-              /* @ts-ignore */
-              <Graph id="isnad" data={graphData} config={graphConfig} />
+              <TypedGraph id="isnad" data={graphData} config={graphConfig} />
             )}
           </>
         );
