@@ -26,18 +26,7 @@ export default function NetworkWorkspace({ children }: NetworkWorkspaceProps) {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full"
-      style={{
-        backgroundImage: `
-          radial-gradient(circle at 1px 1px, #cbd5e1 1px, transparent 0),
-          radial-gradient(circle at 20px 20px, #94a3b8 0.5px, transparent 0)
-        `,
-        backgroundSize: "20px 20px, 40px 40px",
-        height: "100%",
-      }}
-    >
+    <div ref={containerRef} className="w-full h-full bg-grid-pattern">
       {children(dimensions)}
     </div>
   );

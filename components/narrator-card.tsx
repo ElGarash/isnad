@@ -18,7 +18,6 @@ export const NarratorCard = ({
   death_date_gregorian,
   death_place,
 }: Narrator) => {
-  death_date_hijri === null ? "غير معلوم" : `${death_date_hijri} `;
   return (
     <Card className="w-[120px] h-[140px] border-2 border-isnad-primary shadow-[2px_2px_0px_0px_theme(colors.isnad.primary)] hover:shadow-[4px_4px_0px_0px_theme(colors.isnad.primary)] transition-all duration-300 overflow-hidden bg-isnad-background relative p-2 text-[8px] cursor-grab active:cursor-grabbing">
       <div className=" mb-1">

@@ -94,7 +94,9 @@ describe("SQLite Database Tests", () => {
 
     // Verify that IDs are in ascending order
     for (let i = 1; i < hadiths.length; i++) {
-      expect(hadiths[i].id).toBeGreaterThan(hadiths[i - 1].id);
+      expect(parseInt(hadiths[i].id, 10)).toBeGreaterThan(
+        parseInt(hadiths[i - 1].id, 10),
+      );
     }
   });
 });

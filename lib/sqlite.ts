@@ -1,7 +1,7 @@
 import { Database } from "bun:sqlite";
 
 export interface Hadith {
-  id: number;
+  id: string;
   hadith_id: number;
   source: string;
   chapter_no: number;
