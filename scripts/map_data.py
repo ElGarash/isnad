@@ -1,16 +1,17 @@
 import csv
 from rapidfuzz import fuzz
+import os
 
 
-# Function to read and parse open_hadith.csv
-def read_open_hadith(file_path):
+# Function to read and parse open_hadiths.csv (no headers)
+def read_open_hadiths(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         reader = csv.reader(file)
         open_hadiths = [row for row in reader]
     return open_hadiths
 
 
-# Function to read and parse hadiths.csv
+# Function to read and parse hadiths.csv (with headers)
 def read_hadiths(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         reader = csv.DictReader(file)
@@ -18,23 +19,31 @@ def read_hadiths(file_path):
     return hadiths
 
 
-# Function to read and parse open_hadith_explanations.csv
-def read_open_hadith_explanations(file_path):
+# Function to read and parse explanations.csv (no headers)
+def read_explanations(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         reader = csv.reader(file)
-        open_hadith_explanations = {
-            row[0]: row[2] for row in reader
-        }  # Map ID to explanation
-    return open_hadith_explanations
+        explanations = {row[0]: row[2] for row in reader}  # Map ID to explanation
+    return explanations
 
 
-# Function to filter Hadiths by source (Sahih Bukhari)
-def filter_sahih_bukhari(hadiths):
-    return [h for h in hadiths if h["source"] == " Sahih Bukhari "]
+# Function to filter Hadiths by source
+def filter_hadiths_by_source(hadiths, source):
+    # Strip leading/trailing spaces from column names and values
+    filtered_hadiths = []
+    for h in hadiths:
+        # Ensure the 'source' column exists and strip spaces
+        if "source" in h:
+            h_source = h["source"].strip()
+            if h_source == source:
+                filtered_hadiths.append(h)
+        else:
+            raise KeyError("The 'source' column is missing in the Hadiths file.")
+    return filtered_hadiths
 
 
 # Function to match Hadiths based on text similarity
-def match_hadiths(open_hadiths, hadiths, open_hadith_explanations):
+def match_hadiths(open_hadiths, hadiths, explanations):
     matched = []
     unmatched_hadiths = hadiths.copy()  # Start with all hadiths as unmatched
 
@@ -43,10 +52,7 @@ def match_hadiths(open_hadiths, hadiths, open_hadith_explanations):
         oh_text = oh[1]  # Text from open_hadith.csv
 
         # Skip if explanation is empty
-        if (
-            oh_id not in open_hadith_explanations
-            or not open_hadith_explanations[oh_id].strip()
-        ):
+        if oh_id not in explanations or not explanations[oh_id].strip():
             continue
 
         # Find the best match in hadiths.csv
@@ -86,23 +92,47 @@ def write_unmatched(unmatched, file_path):
             writer.writerow([h["hadith_no"]])  # Write unmatched hadith_no
 
 
+# Function to process a single source
+def process_source(source, folder_name, data_dir):
+    # Define file paths
+    hadiths_dataset_path = os.path.join(data_dir, "hadiths_dataset.csv")
+    open_hadiths_path = os.path.join(data_dir, folder_name, "hadiths.csv")
+    explanations_path = os.path.join(data_dir, folder_name, "explanations.csv")
+    matched_path = os.path.join(data_dir, folder_name, "matched_hadiths.csv")
+    unmatched_path = os.path.join(data_dir, folder_name, "unmatched_hadiths.csv")
+
+    # Read data
+    open_hadiths = read_open_hadiths(open_hadiths_path)
+    explanations = read_explanations(explanations_path)
+    hadiths_dataset = read_hadiths(hadiths_dataset_path)
+
+    # Filter Hadiths by source
+    filtered_hadiths = filter_hadiths_by_source(hadiths_dataset, source)
+
+    # Match Hadiths
+    matched, unmatched = match_hadiths(open_hadiths, filtered_hadiths, explanations)
+
+    # Write results
+    write_matched(matched, matched_path)
+    write_unmatched(unmatched, unmatched_path)
+
+    print(f"Processed {source}: {len(matched)} matches, {len(unmatched)} unmatched")
+
+
 # Main function
 def main():
-    open_hadiths = read_open_hadith("data/open_hadith.csv")
-    hadiths = read_hadiths("data/hadiths.csv")
-    open_hadith_explanations = read_open_hadith_explanations(
-        "data/open_hadith_explanations.csv"
-    )
+    # Define folder names and their corresponding sources
+    source_mapping = {
+        "bukhari": "Sahih Bukhari",
+        "muslim": "Sahih Muslim",
+    }
 
-    # Filter Hadiths to only include Sahih Bukhari
-    sahih_bukhari_hadiths = filter_sahih_bukhari(hadiths)
+    # Define data directory
+    data_dir = "data"
 
-    matched, unmatched = match_hadiths(
-        open_hadiths, sahih_bukhari_hadiths, open_hadith_explanations
-    )
-
-    write_matched(matched, "data/matched_hadiths.csv")
-    write_unmatched(unmatched, "data/unmatched_hadiths.csv")
+    # Process each source
+    for folder_name, source in source_mapping.items():
+        process_source(source, folder_name, data_dir)
 
 
 if __name__ == "__main__":
