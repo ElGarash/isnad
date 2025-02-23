@@ -42,54 +42,48 @@ def filter_hadiths_by_source(hadiths, source):
     return filtered_hadiths
 
 
-# Function to match Hadiths based on text similarity
 def match_hadiths(open_hadiths, hadiths, explanations):
     matched = []
-    unmatched_hadiths = hadiths.copy()  # Start with all hadiths as unmatched
+    unmatched_hadiths = hadiths.copy()
 
     for oh in open_hadiths:
-        oh_id = oh[0]  # ID from open_hadith.csv
-        oh_text = oh[1]  # Text from open_hadith.csv
+        oh_id = oh[0]
+        oh_text = oh[1]
 
-        # Skip if explanation is empty
         if oh_id not in explanations or not explanations[oh_id].strip():
             continue
 
-        # Find the best match in hadiths.csv
         best_match = None
         best_score = 0
 
         for h in hadiths:
-            # Calculate text similarity using rapidfuzz
             score = fuzz.ratio(oh_text, h["text_ar"])
             if score > best_score:
                 best_score = score
                 best_match = h
 
-        # If a match is found, add it to the matched list and remove from unmatched
-        if best_match and best_score > 65:  # Adjust similarity threshold as needed
-            matched.append((oh_id, best_match["hadith_no"]))
+        if best_match and best_score > 65:
+            # Store both id and hadith_no
+            matched.append((oh_id, best_match["id"], best_match["hadith_no"]))
             if best_match in unmatched_hadiths:
                 unmatched_hadiths.remove(best_match)
 
     return matched, unmatched_hadiths
 
 
-# Function to write matched Hadiths to a CSV file
 def write_matched(matched, file_path):
     with open(file_path, "w", encoding="utf-8", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["open_hadith_id", "hadith_no"])  # Write header
-        writer.writerows(matched)  # Write matched rows
+        writer.writerow(["open_hadith_id", "id", "hadith_no"])
+        writer.writerows(matched)
 
 
-# Function to write unmatched Hadiths to a CSV file
 def write_unmatched(unmatched, file_path):
     with open(file_path, "w", encoding="utf-8", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["hadith_no"])  # Write header
+        writer.writerow(["id", "hadith_no"])
         for h in unmatched:
-            writer.writerow([h["hadith_no"]])  # Write unmatched hadith_no
+            writer.writerow([h["id"], h["hadith_no"]])
 
 
 # Function to process a single source
