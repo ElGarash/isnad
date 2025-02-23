@@ -144,7 +144,7 @@ def load_explanations(source: str) -> pl.DataFrame:
     # Join the dataframes to get hadith_no -> explanation mapping
     return matches_df.join(
         explanations_df, left_on="open_hadith_id", right_on="hadith_id", how="left"
-    ).select(["hadith_no", "explanation"])
+    ).select(["id", "hadith_no", "explanation"])
 
 
 def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
@@ -158,6 +158,7 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
             pl.col("chapter").map_elements(clean_arabic_text, return_dtype=pl.Utf8),
             "text_ar",
             "text_en",
+            "id",
         ]
     )
 
@@ -179,8 +180,8 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
         )
         .join(
             bukhari_explanations.with_columns(pl.col("hadith_no")),
-            left_on="normalized_id",
-            right_on="hadith_no",
+            left_on=["id", "normalized_id"],  # Join on both 'id' and 'hadith_no'
+            right_on=["id", "hadith_no"],
             how="left",
         )
         .drop("normalized_id")
@@ -193,8 +194,8 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
         )
         .join(
             muslim_explanations.with_columns(pl.col("hadith_no")),
-            left_on="normalized_id",
-            right_on="hadith_no",
+            left_on=["id", "normalized_id"],  # Join on both 'id' and 'hadith_no'
+            right_on=["id", "hadith_no"],
             how="left",
         )
         .drop("normalized_id")
@@ -210,8 +211,17 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
 
     other_hadiths = other_hadiths.with_columns(pl.lit(None).alias("explanation"))
 
-    pl.concat(
-        [bukhari_hadiths, muslim_hadiths, other_hadiths], how="vertical"
+    pl.concat([bukhari_hadiths, muslim_hadiths, other_hadiths], how="vertical").select(
+        [
+            "hadith_id",
+            "source",
+            "chapter_no",
+            "hadith_no",
+            "chapter",
+            "text_ar",
+            "text_en",
+            "explanation",
+        ]
     ).to_pandas().to_sql("hadiths", conn, if_exists="append", index=False)
 
 
