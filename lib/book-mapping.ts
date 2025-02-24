@@ -7,6 +7,6 @@ export const bookMap: Record<string, string> = {
   "Sunan an-Nasa'i": "سنن النسائي",
 } as const;
 
-export const getArabicBook = (book: string): string => {
+export const getArabicSource = (book: string): string => {
   return bookMap[book];
 };

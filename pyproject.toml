@@ -18,4 +18,4 @@ dependencies = [
 
 [tool.poe.tasks]
 gen-db = { script = "scripts.gen_db:main", help = "Generate database from CSV files" }
-pre-commit = { shell = "pre-commit run", help = "Run pre-commit checks" }
+pre-commit = { shell = "pre-commit run --all-files", help = "Run pre-commit checks" }

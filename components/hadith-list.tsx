@@ -1,7 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { getArabicBook } from "@/lib/book-mapping";
+import { getArabicSource } from "@/lib/book-mapping";
 import { HadithWithFirstNarrator } from "@/lib/sqlite";
 import { cleanName } from "@/lib/utils";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -28,28 +28,24 @@ export default function HadithList({ hadiths }: HadithListProps) {
     <div className="container mx-auto py-8">
       <div ref={parentRef} className="h-[800px] overflow-auto">
         <div
+          className="relative w-full"
           style={{
             height: `${virtualizer.getTotalSize()}px`,
-            width: "100%",
-            position: "relative",
           }}
         >
           {virtualizer.getVirtualItems().map((virtualRow) => {
             const hadith = hadiths[virtualRow.index];
             return (
               <div
+                className="absolute top-0 left-0 w-full pl-4"
                 key={virtualRow.index}
                 style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
                   height: `${virtualRow.size}px`,
                   transform: `translateY(${virtualRow.start}px)`,
                 }}
               >
                 <Link
-                  href={`/hadith/${encodeURIComponent(hadith.source)}/${hadith.chapter_no}/${hadith.hadith_no}`}
+                  href={`/hadith/${encodeURIComponent(hadith.source)}/${hadith.chapter}/${hadith.hadith_no}`}
                   hrefLang="ar"
                 >
                   <Card className="relative border-4 border-black overflow-hidden m-2">
@@ -66,7 +62,7 @@ export default function HadithList({ hadiths }: HadithListProps) {
                         </h3>
                         <div className="text-sm text-gray-600 mt-2">
                           <span className="inline-block bg-gray-200 px-2 py-1 ml-2 mb-2">
-                            {getArabicBook(hadith.source)}
+                            {getArabicSource(hadith.source)}
                           </span>
                           <span className="inline-block bg-gray-200 px-2 py-1">
                             {cleanName(hadith.chapter)}

@@ -13,7 +13,7 @@ import { Suspense } from "react";
 interface PageProps {
   params: Promise<{
     source: string;
-    chapterNo: number;
+    chapter: string;
     hadithNo: string;
   }>;
 }
@@ -22,14 +22,18 @@ export async function generateStaticParams() {
   const hadiths = getHadithsBySource("Sahih Bukhari", 1000);
   return hadiths.map((hadith) => ({
     source: hadith.source,
-    chapterNo: hadith.chapter_no.toString(),
+    chapter: hadith.chapter,
     hadithNo: hadith.hadith_no.toString(),
   }));
 }
 
 export default async function HadithPage({ params }: PageProps) {
-  const { source, chapterNo, hadithNo } = await params;
-  const hadith = getHadithById(decodeURIComponent(source), chapterNo, hadithNo);
+  const { source, chapter, hadithNo } = await params;
+  const hadith = getHadithById(
+    decodeURIComponent(source),
+    decodeURIComponent(chapter),
+    hadithNo,
+  );
   if (!hadith) {
     // FIXME: make me pretty
     return <div>Hadith not found</div>;
@@ -37,7 +41,7 @@ export default async function HadithPage({ params }: PageProps) {
 
   const chainNarrators = getChainForHadith(
     decodeURIComponent(source),
-    chapterNo,
+    decodeURIComponent(chapter),
     hadithNo,
   );
   const transformedData = {
