@@ -4,9 +4,12 @@ import type { Narrator } from "@/lib/sqlite";
 import { ArrowUpRight, Calendar, MapPin } from "lucide-react";
 import Link from "next/link";
 
-const formatDate = (date: string, type: "hijri" | "gregorian") => {
+const formatDate = (
+  date: string | number | null | undefined,
+  type: "hijri" | "gregorian",
+) => {
   const calendar = type === "hijri" ? "هجريا" : "ميلاديا";
-  return (date === null ? "غير معلوم" : `${date}`) + ` (${calendar})`;
+  return (date == null ? "غير معلوم" : `${date}`) + ` (${calendar})`;
 };
 
 export const NarratorCard = ({

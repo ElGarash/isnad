@@ -40,7 +40,7 @@ function calculateGraphData(
 
   // Position predecessors on the right
   predecessors.forEach((teacher, index) => {
-    const id = teacher.scholar_indx.toString();
+    const id = teacher.scholar_indx?.toString() || "";
     const offset =
       predecessors.length % 2 === 0
         ? (index - predecessors.length / 2 + 0.5) * verticalSpacing
@@ -52,8 +52,8 @@ function calculateGraphData(
       y: rootY + offset,
     });
     links.push({
-      source: teacher.scholar_indx.toString(),
-      target: narrator.scholar_indx.toString(),
+      source: teacher.scholar_indx?.toString() ?? "",
+      target: narrator.scholar_indx?.toString() || "",
       type: "STRAIGHT",
     });
   });
@@ -61,14 +61,14 @@ function calculateGraphData(
   // Position central node
   nodes.push({
     ...narrator,
-    id: narrator.scholar_indx.toString(),
+    id: narrator.scholar_indx?.toString() || "unknown",
     x: rightMargin - horizontalSpacing,
     y: rootY,
   });
 
   // Position successors  on the left
   successors.forEach((student, index) => {
-    const id = student.scholar_indx.toString();
+    const id = student.scholar_indx?.toString() || "unknown";
     const offset =
       successors.length % 2 === 0
         ? (index - successors.length / 2 + 0.5) * verticalSpacing
@@ -80,8 +80,8 @@ function calculateGraphData(
       y: rootY + offset,
     });
     links.push({
-      source: narrator.scholar_indx.toString(),
-      target: student.scholar_indx.toString(),
+      source: narrator.scholar_indx?.toString() || "unknown",
+      target: student.scholar_indx?.toString() ?? "unknown",
       type: "STRAIGHT",
     });
   });
@@ -109,8 +109,8 @@ export default function TeacherStudentChain({
               width: 1200,
               height: 1400,
             },
-            viewGenerator: (nodeData: NarratorGraphNode) => (
-              <NarratorCard {...nodeData} />
+            viewGenerator: (nodeData) => (
+              <NarratorCard {...(nodeData as NarratorGraphNode)} />
             ),
             renderLabel: false,
           },

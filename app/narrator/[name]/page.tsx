@@ -160,6 +160,10 @@ export default async function NarratorPage({
 
   // FIXME: This is hardcoded for now until we decide on hosting
   const BOOK = "Sahih Bukhari";
+  if (narrator.scholar_indx === undefined) {
+    notFound();
+  }
+
   const successors = getSuccessors(narrator.scholar_indx, BOOK);
   const predecessors = getPredecessors(narrator.scholar_indx, BOOK);
   const chapters = narratedAbout(narrator.scholar_indx, BOOK);
