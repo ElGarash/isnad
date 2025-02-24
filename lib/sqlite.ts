@@ -50,6 +50,13 @@ export interface ChapterCount {
   count: number;
 }
 
+export interface Chapter {
+  source: string;
+  chapter: string;
+  chapter_no: number;
+  count: number;
+}
+
 let db: Database | null = null;
 let statements: {
   getHadiths?: ReturnType<Database["prepare"]>;
@@ -64,6 +71,8 @@ let statements: {
   getNarratorsInSource?: ReturnType<Database["prepare"]>;
   getNarratorSources?: ReturnType<Database["prepare"]>;
   getNarratorChapters?: ReturnType<Database["prepare"]>;
+  getHadithsByChapter?: ReturnType<Database["prepare"]>;
+  getSourceChapters?: ReturnType<Database["prepare"]>;
 } = {};
 
 function getDb() {
@@ -80,12 +89,15 @@ function getDb() {
     statements.getNarrators = db.prepare("SELECT * FROM rawis");
     statements.getHadithById = db.prepare(`
             SELECT * FROM hadiths
-            WHERE source = $source AND chapter_no = $chapter_no AND hadith_no = $hadith_no`);
+            WHERE source = $source AND chapter = $chapter AND hadith_no = $hadith_no`);
     statements.getChainForHadith = db.prepare(`
             SELECT c.*, r.*
             FROM hadith_chains c
             JOIN rawis r ON c.scholar_indx = r.scholar_indx
-            WHERE c.source = $source AND c.chapter_no = $chapter_no AND c.hadith_no = $hadith_no
+            JOIN hadiths h ON c.source = h.source
+                AND c.chapter_no = h.chapter_no
+                AND c.hadith_no = h.hadith_no
+            WHERE c.source = $source AND h.chapter = $chapter AND c.hadith_no = $hadith_no
             ORDER BY c.position`);
     statements.getHadithsBySource = db.prepare(`
       SELECT h.*, r.name as narrator_name
@@ -152,6 +164,23 @@ function getDb() {
       AND c.source = $source
       GROUP BY h.source, h.chapter, h.chapter_no
       ORDER BY h.source ASC, h.chapter_no ASC`);
+    statements.getHadithsByChapter = db.prepare(`
+      SELECT h.*, r.name as narrator_name
+      FROM hadiths h
+      LEFT JOIN hadith_chains c ON h.source = c.source
+          AND h.chapter_no = c.chapter_no
+          AND h.hadith_no = c.hadith_no
+          AND c.position = 1
+      LEFT JOIN rawis r ON c.scholar_indx = r.scholar_indx
+      WHERE h.source = $source AND h.chapter = $chapter
+      ORDER BY h.chapter_no, h.hadith_no`);
+    statements.getSourceChapters = db.prepare(`
+      SELECT source, chapter, chapter_no, COUNT(*) as count
+      FROM hadiths
+      WHERE source = $source
+      GROUP BY source, chapter, chapter_no
+      ORDER BY chapter_no ASC
+    `);
   }
   return db;
 }
@@ -168,26 +197,26 @@ export function getNarrators(): Narrator[] {
 
 export function getHadithById(
   source: string,
-  chapterNo: number,
+  chapter: string,
   hadithNo: string,
 ): Hadith | null {
   getDb();
   return statements.getHadithById!.get({
     $source: source,
-    $chapter_no: chapterNo,
+    $chapter: chapter,
     $hadith_no: hadithNo,
   }) as Hadith | null;
 }
 
 export function getChainForHadith(
   source: string,
-  chapterNo: number,
+  chapter: string,
   hadithNo: string,
 ): HadithWithChain[] {
   getDb();
   return statements.getChainForHadith!.all({
     $source: source,
-    $chapter_no: chapterNo,
+    $chapter: chapter,
     $hadith_no: hadithNo,
   }) as HadithWithChain[];
 }
@@ -262,6 +291,24 @@ export function narratedAbout(
     $scholar_indx: scholarIndex,
     $source: source,
   }) as ChapterCount[];
+}
+
+export function getHadithsByChapterSource(
+  source: Source,
+  chapter: string,
+): HadithWithFirstNarrator[] {
+  getDb();
+  return statements.getHadithsByChapter!.all({
+    $source: source,
+    $chapter: chapter,
+  }) as HadithWithFirstNarrator[];
+}
+
+export function getSourceChapters(source: Source): Chapter[] {
+  getDb();
+  return statements.getSourceChapters!.all({
+    $source: source,
+  }) as Chapter[];
 }
 
 export function close() {

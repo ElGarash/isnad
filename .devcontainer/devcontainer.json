@@ -24,6 +24,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        "dbaeumer.vscode-eslint",
         "ms-python.python",
         "ms-python.black-formatter",
         "ms-vscode.live-server",
