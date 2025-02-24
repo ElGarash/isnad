@@ -8,12 +8,12 @@ def create_tables(conn: sqlite3.Connection) -> None:
     conn.executescript(
         """
     CREATE TABLE hadiths (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        hadith_id INTEGER,
-        source TEXT,
-        chapter_no INTEGER,
-        hadith_no TEXT,
-        chapter TEXT,
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        hadith_id INTEGER NOT NULL,
+        source TEXT NOT NULL,
+        chapter_no INTEGER NOT NULL,
+        hadith_no TEXT NOT NULL,
+        chapter TEXT NOT NULL,
         text_ar TEXT,
         text_en TEXT,
         explanation TEXT,
@@ -21,10 +21,10 @@ def create_tables(conn: sqlite3.Connection) -> None:
     );
 
     CREATE TABLE rawis (
-        scholar_indx INTEGER PRIMARY KEY,
-        name TEXT,
+        scholar_indx INTEGER PRIMARY KEY NOT NULL,
+        name TEXT NOT NULL,
         full_name TEXT,
-        grade TEXT,
+        grade TEXT NOT NULL,
         parents TEXT,
         birth_date_hijri INTEGER,
         birth_date_gregorian INTEGER,
@@ -34,9 +34,9 @@ def create_tables(conn: sqlite3.Connection) -> None:
     );
 
     CREATE TABLE hadith_chains (
-        source TEXT,
-        chapter_no INTEGER,
-        hadith_no TEXT,
+        source TEXT NOT NULL,
+        chapter_no INTEGER NOT NULL,
+        hadith_no TEXT NOT NULL,
         scholar_indx INTEGER,
         position INTEGER,
         FOREIGN KEY(source, chapter_no, hadith_no) REFERENCES hadiths(source, chapter_no, hadith_no),
@@ -45,10 +45,10 @@ def create_tables(conn: sqlite3.Connection) -> None:
     );
 
     CREATE TABLE sources (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        scholar_indx INTEGER,
-        book_source TEXT,
-        content TEXT,
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        scholar_indx INTEGER NOT NULL,
+        book_source TEXT NOT NULL,
+        content TEXT NOT NULL,
         FOREIGN KEY(scholar_indx) REFERENCES rawis(scholar_indx)
     );
 
