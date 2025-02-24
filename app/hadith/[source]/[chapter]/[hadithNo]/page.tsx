@@ -29,7 +29,6 @@ export async function generateStaticParams() {
 
 export default async function HadithPage({ params }: PageProps) {
   const { source, chapter, hadithNo } = await params;
-  console.log(source, chapter, hadithNo);
   const hadith = getHadithById(
     decodeURIComponent(source),
     decodeURIComponent(chapter),
