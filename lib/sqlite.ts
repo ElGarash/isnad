@@ -1,45 +1,12 @@
+import type { HadithChains, Hadiths, Rawis, Sources } from "../types/database";
 import { Database } from "bun:sqlite";
 
-export interface Hadith {
-  id: string;
-  hadith_id: number;
-  source: string;
-  chapter_no: number;
-  hadith_no: string;
-  chapter: string;
-  text_ar: string;
-  text_en: string;
-  explanation: string;
-}
-
-export interface Narrator {
-  scholar_indx: number;
-  name: string;
-  grade: string;
-  parents: string;
-  birth_date_hijri: string;
-  birth_date_gregorian: string;
-  death_date_hijri: string;
-  death_date_gregorian: string;
-  death_place: string;
-}
-
-export interface InfoSource {
-  id: number;
-  scholar_indx: number;
-  book_source: string;
-  content: string;
-}
+export interface Hadith extends Hadiths {}
+export interface Narrator extends Rawis {}
+export interface InfoSource extends Sources {}
+export interface Chain extends HadithChains {}
 
 export type Source = "Sahih Bukhari";
-
-export interface Chain {
-  source: string;
-  chapter_no: number;
-  hadith_no: string;
-  scholar_indx: number;
-  position: number;
-}
 
 export type HadithWithChain = Hadith & Chain & Narrator;
 export type HadithWithFirstNarrator = Hadith & { narrator_name?: string };
