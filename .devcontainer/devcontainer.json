@@ -34,7 +34,8 @@
         "ms-azuretools.vscode-docker",
         "github.vscode-github-actions",
         "bradlc.vscode-tailwindcss",
-        "streetsidesoftware.code-spell-checker-cspell-bundled-dictionaries"
+        "streetsidesoftware.code-spell-checker-cspell-bundled-dictionaries",
+        "redhat.vscode-yaml"
       ]
     }
   }
