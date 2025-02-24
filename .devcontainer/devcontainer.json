@@ -24,18 +24,18 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "dbaeumer.vscode-eslint",
-        "ms-python.python",
-        "ms-python.black-formatter",
-        "ms-vscode.live-server",
-        "tamasfe.even-better-toml",
-        "qwtel.sqlite-viewer",
-        "ms-python.mypy-type-checker",
-        "ms-azuretools.vscode-docker",
-        "github.vscode-github-actions",
         "bradlc.vscode-tailwindcss",
+        "dbaeumer.vscode-eslint",
+        "github.vscode-github-actions",
+        "ms-azuretools.vscode-docker",
+        "ms-python.black-formatter",
+        "ms-python.mypy-type-checker",
+        "ms-python.python",
+        "ms-vscode.live-server",
+        "qwtel.sqlite-viewer",
+        "redhat.vscode-yaml",
         "streetsidesoftware.code-spell-checker-cspell-bundled-dictionaries",
-        "redhat.vscode-yaml"
+        "tamasfe.even-better-toml"
       ]
     }
   }
