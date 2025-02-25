@@ -72,6 +72,18 @@ jobs:
 
       - run: bun run build
 
+      - name: Deploy to Cloudflare Pages
+        uses: andykenward/github-actions-cloudflare-pages@v2.3.2
+        id: pages
+        with:
+          cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          cloudflare-account-id: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          cloudflare-project-name: ${{ vars.CLOUDFLARE_PROJECT_NAME }}
+          directory: out
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
+
+
       - name: Restore lychee cache
         uses: actions/cache@v4
         with:
@@ -89,10 +101,10 @@ jobs:
             --max-cache-age 1d
             --accept 200
             --exclude-mail
-            --base out
-            'out/**/*.html'
+            --base ${{ steps.pages.outputs.url }}
+            '${{ steps.pages.outputs.url }}'
           output: ./lychee/out.md
-          fail: false  # Don't fail deployment if links are broken
+          fail: false
 
       - name: Create Issue From File
         if: steps.lychee.outputs.exit_code != 0
@@ -101,14 +113,3 @@ jobs:
           title: Link Checker Report
           content-filepath: ./lychee/out.md
           labels: report, automated issue
-
-      - name: Deploy to Cloudflare Pages
-        uses: andykenward/github-actions-cloudflare-pages@v2.3.2
-        id: pages
-        with:
-          cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          cloudflare-account-id: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-          cloudflare-project-name: ${{ vars.CLOUDFLARE_PROJECT_NAME }}
-          directory: out
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          github-environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
