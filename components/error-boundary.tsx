@@ -22,11 +22,11 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="p-4 bg-destructive/10 text-destructive rounded-md">
+        <div className="rounded-md bg-destructive/10 p-4 text-destructive">
           <h2>Error loading hadith data</h2>
           <button
             onClick={() => this.setState({ hasError: false })}
-            className="mt-2 px-4 py-2 bg-primary text-primary-foreground rounded-md"
+            className="mt-2 rounded-md bg-primary px-4 py-2 text-primary-foreground"
           >
             Try again
           </button>

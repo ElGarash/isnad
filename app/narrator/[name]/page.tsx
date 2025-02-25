@@ -30,11 +30,11 @@ function RelationshipsSection({
   chapters: ChapterCount[];
 }) {
   return (
-    <div className="grid grid-cols-12 gap-6 h-full">
+    <div className="grid h-full grid-cols-12 gap-6">
       <section className="col-span-3 flex flex-col gap-6">
         {predecessors.length !== 0 && (
           <BrutalistCard>
-            <h2 className="text-xl font-bold mb-3">
+            <h2 className="mb-3 text-xl font-bold">
               روى عن ({predecessors.length})
             </h2>
             <VirtualizedNarratorList items={predecessors} />
@@ -42,7 +42,7 @@ function RelationshipsSection({
         )}
         {successors.length !== 0 && (
           <BrutalistCard>
-            <h2 className="text-xl font-bold mb-3">
+            <h2 className="mb-3 text-xl font-bold">
               روى عنه ({successors.length})
             </h2>
             <VirtualizedNarratorList items={successors} />
@@ -50,14 +50,14 @@ function RelationshipsSection({
         )}
         {chapters.length !== 0 && (
           <BrutalistCard>
-            <h2 className="text-xl font-bold mb-3">
+            <h2 className="mb-3 text-xl font-bold">
               روى في ({chapters.length} باب)
             </h2>
             <VirtualizedChapterList items={chapters} />
           </BrutalistCard>
         )}
       </section>
-      <BrutalistCard className="col-span-9 p-1 h-full">
+      <BrutalistCard className="col-span-9 h-full p-1">
         <ErrorBoundary>
           <Suspense fallback={<LoadingSpinner />}>
             <TeacherStudentChain
@@ -123,12 +123,12 @@ function InfoSection({ info }: { info: InfoSource[] }) {
             key={index}
             className="group transition-all duration-500 ease-in-out hover:scale-105"
           >
-            <h2 className="text-xl font-bold my-6 inline-block relative">
+            <h2 className="relative my-6 inline-block text-xl font-bold">
               {mapBookSourceToReadableName(entry.book_source)}
-              <div className="absolute bottom-0 left-0 right-0 h-3 bg-parchment -z-10 translate-y-1"></div>
+              <div className="absolute bottom-0 left-0 right-0 -z-10 h-3 translate-y-1 bg-parchment"></div>
             </h2>
-            <div className="max-h-0 group-hover:max-h-[30vh] overflow-hidden transition-[max-height] duration-500 ease-in-out">
-              <p className="overflow-y-auto text-lg whitespace-pre-wrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-200 max-h-[30vh] pl-5">
+            <div className="max-h-0 overflow-hidden transition-[max-height] duration-500 ease-in-out group-hover:max-h-[30vh]">
+              <p className="max-h-[30vh] overflow-y-auto whitespace-pre-wrap pl-5 text-lg opacity-0 transition-opacity delay-200 duration-300 group-hover:opacity-100">
                 {entry.content}
               </p>
             </div>
@@ -167,11 +167,11 @@ export default async function NarratorPage({
 
   return (
     <main className="flex items-center justify-center">
-      <div className="container flex flex-col gap-12 my-12 min-h-screen">
+      <div className="container my-12 flex min-h-screen flex-col gap-12">
         <div className="w-fit">
-          <h1 className="text-4xl font-bold inline-block relative">
+          <h1 className="relative inline-block text-4xl font-bold">
             {narrator.name}
-            <div className="absolute bottom-0 left-0 right-0 h-4 bg-parchment -z-10 translate-y-2"></div>
+            <div className="absolute bottom-0 left-0 right-0 -z-10 h-4 translate-y-2 bg-parchment"></div>
           </h1>
         </div>
 

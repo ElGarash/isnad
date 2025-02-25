@@ -26,7 +26,7 @@ export default function NetworkWorkspace({ children }: NetworkWorkspaceProps) {
   }, []);
 
   return (
-    <div ref={containerRef} className="w-full h-full bg-grid-pattern">
+    <div ref={containerRef} className="h-full w-full bg-grid-pattern">
       {children(dimensions)}
     </div>
   );

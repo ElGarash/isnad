@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <body className={notoNaskhArabic.className}>
-        <div className="min-h-screen flex flex-col">
+        <div className="flex min-h-screen flex-col">
           <Navbar />
           <main className="flex-grow">{children}</main>
           <Footer />

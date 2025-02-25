@@ -12,43 +12,43 @@ function Navbar() {
             href="/"
             className="group flex items-center space-x-2 rtl:space-x-reverse"
           >
-            <div className="relative w-10 h-10 bg-parchment rotate-45 transform transition-transform group-hover:-skew-x-12 group-hover:rotate-0">
-              <LinkIcon className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -rotate-45 text-black w-6 h-6" />
+            <div className="relative h-10 w-10 rotate-45 transform bg-parchment transition-transform group-hover:rotate-0 group-hover:-skew-x-12">
+              <LinkIcon className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 -rotate-45 transform text-black" />
             </div>
-            <span className="inline-block text-xl font-bold bg-black text-white px-2 py-1 transform -skew-x-12 transition-transform">
+            <span className="inline-block -skew-x-12 transform bg-black px-2 py-1 text-xl font-bold text-white transition-transform">
               إسناد
             </span>
           </Link>
-          <nav className="flex items-center space-x-6 rtl:space-x-reverse text-sm">
+          <nav className="flex items-center space-x-6 text-sm rtl:space-x-reverse">
             <Link
               href="/search"
-              className="relative overflow-hidden group flex items-center gap-1"
+              className="group relative flex items-center gap-1 overflow-hidden"
             >
-              <Search className="w-4 h-4" />
-              <span className="relative z-10 transition-colors hover:text-foreground/80 mb-0.5">
+              <Search className="h-4 w-4" />
+              <span className="relative z-10 mb-0.5 transition-colors hover:text-foreground/80">
                 البحث
               </span>
-              <span className="absolute bottom-0 left-0 w-full h-1 bg-parchment transform origin-left scale-x-0 transition-transform group-hover:scale-x-100"></span>
+              <span className="absolute bottom-0 left-0 h-1 w-full origin-left scale-x-0 transform bg-parchment transition-transform group-hover:scale-x-100"></span>
             </Link>
             <Link
               href="/narrator"
-              className="relative overflow-hidden group flex items-center gap-1"
+              className="group relative flex items-center gap-1 overflow-hidden"
             >
-              <Users className="w-4 h-4" />
-              <span className="relative z-10 transition-colors hover:text-foreground/80 mb-0.5">
+              <Users className="h-4 w-4" />
+              <span className="relative z-10 mb-0.5 transition-colors hover:text-foreground/80">
                 الرواة
               </span>
-              <span className="absolute bottom-0 left-0 w-full h-1 bg-parchment transform origin-left scale-x-0 transition-transform group-hover:scale-x-100"></span>
+              <span className="absolute bottom-0 left-0 h-1 w-full origin-left scale-x-0 transform bg-parchment transition-transform group-hover:scale-x-100"></span>
             </Link>
             <Link
               href="/about"
-              className="relative overflow-hidden group flex items-center gap-1"
+              className="group relative flex items-center gap-1 overflow-hidden"
             >
-              <Info className="w-4 h-4" />
-              <span className="relative z-10 transition-colors hover:text-foreground/80 mb-0.5">
+              <Info className="h-4 w-4" />
+              <span className="relative z-10 mb-0.5 transition-colors hover:text-foreground/80">
                 عن المشروع
               </span>
-              <span className="absolute bottom-0 left-0 w-full h-1 bg-parchment transform origin-left scale-x-0 transition-transform group-hover:scale-x-100"></span>
+              <span className="absolute bottom-0 left-0 h-1 w-full origin-left scale-x-0 transform bg-parchment transition-transform group-hover:scale-x-100"></span>
             </Link>
           </nav>
         </div>
