@@ -72,6 +72,36 @@ jobs:
 
       - run: bun run build
 
+      - name: Restore lychee cache
+        uses: actions/cache@v4
+        with:
+          path: .lycheecache
+          key: cache-lychee-${{ github.sha }}
+          restore-keys: cache-lychee-
+
+
+      - name: Link Checker
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --cache
+            --max-cache-age 1d
+            --accept 200
+            --exclude-mail
+            --base out
+            'out/**/*.html'
+          output: ./lychee/out.md
+          fail: false  # Don't fail deployment if links are broken
+
+      - name: Create Issue From File
+        if: steps.lychee.outputs.exit_code != 0
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: Link Checker Report
+          content-filepath: ./lychee/out.md
+          labels: report, automated issue
+
       - name: Deploy to Cloudflare Pages
         uses: andykenward/github-actions-cloudflare-pages@v2.3.2
         id: pages
