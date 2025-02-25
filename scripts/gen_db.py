@@ -29,7 +29,7 @@ def create_tables(conn: sqlite3.Connection) -> None:
         birth_date_hijri INTEGER,
         birth_date_gregorian INTEGER,
         death_date_hijri INTEGER,
-        death_date_gregorian TEXT,
+        death_date_gregorian INTEGER,
         death_place TEXT
     );
 
@@ -233,10 +233,10 @@ def insert_rawis(conn: sqlite3.Connection, rawis_df: pl.DataFrame) -> None:
             "full_name",
             "grade",
             "parents",
-            "birth_date_hijri",
-            "birth_date_gregorian",
-            pl.col("death_date_hijri").cast(pl.Int16),
-            pl.col("death_date_gregorian").cast(pl.Int16),
+            pl.col("birth_date_hijri").round(0).cast(pl.Int16, wrap_numerical=True),
+            pl.col("birth_date_gregorian").round(0).cast(pl.Int16, wrap_numerical=True),
+            pl.col("death_date_hijri").round(0).cast(pl.Int16, wrap_numerical=True),
+            pl.col("death_date_gregorian").round(0).cast(pl.Int16, wrap_numerical=True),
             "death_place",
         ]
     ).to_pandas().to_sql("rawis", conn, if_exists="append", index=False)
