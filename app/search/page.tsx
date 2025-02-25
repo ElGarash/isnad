@@ -1,7 +1,7 @@
 export default function SearchPage() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-6">بحث</h1>
+    <div className="container mx-auto max-w-3xl px-4 py-8">
+      <h1 className="mb-6 text-3xl font-bold">بحث</h1>
     </div>
   );
 }

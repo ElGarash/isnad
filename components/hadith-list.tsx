@@ -37,7 +37,7 @@ export default function HadithList({ hadiths }: HadithListProps) {
             const hadith = hadiths[virtualRow.index];
             return (
               <div
-                className="absolute top-0 left-0 w-full pl-4"
+                className="absolute left-0 top-0 w-full pl-4"
                 key={virtualRow.index}
                 style={{
                   height: `${virtualRow.size}px`,
@@ -48,20 +48,20 @@ export default function HadithList({ hadiths }: HadithListProps) {
                   href={`/hadith/${encodeURIComponent(hadith.source)}/${hadith.chapter}/${hadith.hadith_no}`}
                   hrefLang="ar"
                 >
-                  <Card className="relative border-4 border-black overflow-hidden m-2">
-                    <div className="absolute top-0 left-0 w-24 h-24 bg-parchment transform -rotate-45 -translate-x-12 -translate-y-12 z-10"></div>
-                    <div className="absolute top-2 left-2 z-20 transform rotate-45">
-                      <div className="bg-black text-parchment  text-xl font-bold px-2 py-1 transform -rotate-90">
+                  <Card className="relative m-2 overflow-hidden border-4 border-black">
+                    <div className="absolute left-0 top-0 z-10 h-24 w-24 -translate-x-12 -translate-y-12 -rotate-45 transform bg-parchment"></div>
+                    <div className="absolute left-2 top-2 z-20 rotate-45 transform">
+                      <div className="-rotate-90 transform bg-black px-2 py-1 text-xl font-bold text-parchment">
                         {hadith.id}
                       </div>
                     </div>
-                    <div className="p-6 pt-10 pl-16">
-                      <div className="text-right mb-4">
-                        <h3 className="font-bold text-xl mb-1 inline-block bg-black text-white px-2 py-1 transform -skew-x-12">
+                    <div className="p-6 pl-16 pt-10">
+                      <div className="mb-4 text-right">
+                        <h3 className="mb-1 inline-block -skew-x-12 transform bg-black px-2 py-1 text-xl font-bold text-white">
                           {hadith.narrator_name!}
                         </h3>
-                        <div className="text-sm text-gray-600 mt-2">
-                          <span className="inline-block bg-gray-200 px-2 py-1 ml-2 mb-2">
+                        <div className="mt-2 text-sm text-gray-600">
+                          <span className="mb-2 ml-2 inline-block bg-gray-200 px-2 py-1">
                             {getArabicSource(hadith.source)}
                           </span>
                           <span className="inline-block bg-gray-200 px-2 py-1">
@@ -70,9 +70,9 @@ export default function HadithList({ hadiths }: HadithListProps) {
                         </div>
                       </div>
                       <div className="relative">
-                        <div className="absolute right-0 top-0 bottom-0 w-1 bg-black"></div>
+                        <div className="absolute bottom-0 right-0 top-0 w-1 bg-black"></div>
                         <p
-                          className="text-right leading-relaxed whitespace-pre-wrap break-words pr-4 overflow-hidden"
+                          className="overflow-hidden whitespace-pre-wrap break-words pr-4 text-right leading-relaxed"
                           style={{
                             maxHeight: `${ROW_HEIGHT - 140}px`, // Account for padding and header
                             display: "-webkit-box",
@@ -84,8 +84,8 @@ export default function HadithList({ hadiths }: HadithListProps) {
                         </p>
                       </div>
                     </div>
-                    <div className="absolute bottom-0 left-0 w-full h-1 bg-black"></div>
-                    <div className="absolute bottom-0 right-0 w-1 h-full bg-black"></div>
+                    <div className="absolute bottom-0 left-0 h-1 w-full bg-black"></div>
+                    <div className="absolute bottom-0 right-0 h-full w-1 bg-black"></div>
                   </Card>
                 </Link>
               </div>

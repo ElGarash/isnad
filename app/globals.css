@@ -13,7 +13,7 @@ body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
   @apply bg-dot-pattern;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .bg-dot-pattern {
