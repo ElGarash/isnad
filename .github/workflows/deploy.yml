@@ -103,10 +103,8 @@ jobs:
             --base ${{ steps.pages.outputs.url }}
             --exclude './out/_next/*'
             './out/**/*.html'
-            './out/**/*.css'
-            './out/**/*.js'
           output: ./lychee/out.md
-          fail: false
+          fail: true
 
       - name: Create Issue From File
         if: steps.lychee.outputs.exit_code != 0
