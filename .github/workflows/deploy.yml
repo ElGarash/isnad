@@ -19,6 +19,7 @@ jobs:
       contents: read
       deployments: write
       pull-requests: write
+      issues: write
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -95,6 +96,7 @@ jobs:
       - name: Link Checker
         id: lychee
         uses: lycheeverse/lychee-action@v2
+        continue-on-error: true
         with:
           args: >-
             --cache
@@ -111,6 +113,7 @@ jobs:
         uses: peter-evans/create-issue-from-file@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
           title: Link Checker Report
           content-filepath: ./lychee/out.md
           labels: report, automated issue
