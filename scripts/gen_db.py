@@ -37,7 +37,7 @@ def create_tables(conn: sqlite3.Connection) -> None:
         source TEXT NOT NULL,
         chapter_no INTEGER NOT NULL,
         hadith_no TEXT NOT NULL,
-        scholar_indx INTEGER,
+        scholar_indx INTEGER NOT NULL,
         position INTEGER,
         FOREIGN KEY(source, chapter_no, hadith_no) REFERENCES hadiths(source, chapter_no, hadith_no),
         FOREIGN KEY(scholar_indx) REFERENCES rawis(scholar_indx),
@@ -257,6 +257,7 @@ def insert_chains(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
             ]
         )
         .explode("scholar_indices")
+        .filter(pl.col("scholar_indices").is_not_null())
         .unique(
             subset=["source", "chapter_no", "hadith_no", "scholar_indices"],
             keep="first",

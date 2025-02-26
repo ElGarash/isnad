@@ -6,7 +6,7 @@ export interface HadithChains {
   chapter_no?: number;
   hadith_no?: string;
   position?: number | null;
-  scholar_indx?: number | null;
+  scholar_indx?: number;
   source?: string;
 }
 export interface Hadiths {
