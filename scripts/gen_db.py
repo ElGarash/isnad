@@ -144,11 +144,12 @@ def load_explanations(source: str) -> pl.DataFrame:
     # Join the dataframes to get hadith_no -> explanation mapping
     return matches_df.join(
         explanations_df, left_on="open_hadith_id", right_on="hadith_id", how="left"
-    ).select(["id", "hadith_no", "explanation"])
+    ).select(["id", "hadith_no", "explanation", "hadith_text"])
 
 
+# TODO: Add Diacritics for hadiths with no explanations as well
 def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
-    """Insert hadiths into SQLite database with explanations for Bukhari and Muslim hadiths"""
+    """Insert hadiths into SQLite database with explanations and diacritical text for Bukhari and Muslim hadiths"""
     processed_hadiths = hadiths_df.select(
         [
             "hadith_id",
@@ -156,7 +157,7 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
             "chapter_no",
             pl.col("hadith_no").str.strip_chars(),
             pl.col("chapter").map_elements(clean_arabic_text, return_dtype=pl.Utf8),
-            "text_ar",
+            "text_ar",  # We'll replace this with diacritical text where available
             "text_en",
             "id",
         ]
@@ -171,20 +172,26 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
     bukhari_explanations = load_explanations("bukhari")
     muslim_explanations = load_explanations("muslim")
 
-    print(f"Loaded {bukhari_explanations.height} Bukhari explanations")
-    print(f"Loaded {muslim_explanations.height} Muslim explanations")
-
+    # Join and update text_ar with hadith_text where available
     bukhari_hadiths = (
         bukhari_hadiths.with_columns(
             pl.col("hadith_no").str.strip_chars().alias("normalized_id")
         )
         .join(
             bukhari_explanations.with_columns(pl.col("hadith_no")),
-            left_on=["id", "normalized_id"],  # Join on both 'id' and 'hadith_no'
+            left_on=["id", "normalized_id"],
             right_on=["id", "hadith_no"],
             how="left",
         )
-        .drop("normalized_id")
+        .with_columns(
+            [
+                pl.when(pl.col("hadith_text").is_not_null())
+                .then(pl.col("hadith_text"))
+                .otherwise(pl.col("text_ar"))
+                .alias("text_ar")
+            ]
+        )
+        .drop(["normalized_id", "hadith_text"])
         .unique(["hadith_id"])
     )
 
@@ -194,11 +201,19 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
         )
         .join(
             muslim_explanations.with_columns(pl.col("hadith_no")),
-            left_on=["id", "normalized_id"],  # Join on both 'id' and 'hadith_no'
+            left_on=["id", "normalized_id"],
             right_on=["id", "hadith_no"],
             how="left",
         )
-        .drop("normalized_id")
+        .with_columns(
+            [
+                pl.when(pl.col("hadith_text").is_not_null())
+                .then(pl.col("hadith_text"))
+                .otherwise(pl.col("text_ar"))
+                .alias("text_ar")
+            ]
+        )
+        .drop(["normalized_id", "hadith_text"])
         .unique(["hadith_id"])
     )
 
