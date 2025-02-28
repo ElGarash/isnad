@@ -40,9 +40,10 @@ function Summary({ narrator }: { narrator: Narrator }) {
           <div className="flex items-center gap-2">
             <BabyIcon className="h-5 w-5" />
             <span className="font-bold">الولادة:</span>
-            {(narrator.birth_date_hijri || narrator.birth_date_gregorian) ? (
+            {narrator.birth_date_hijri || narrator.birth_date_gregorian ? (
               <span>
-                {`${narrator.birth_date_hijri ?? 'غير معروف'} هـ`} / {`${narrator.birth_date_gregorian ?? 'غير معروف'} مـ`}
+                {`${narrator.birth_date_hijri ?? "غير معروف"} هـ`} /{" "}
+                {`${narrator.birth_date_gregorian ?? "غير معروف"} مـ`}
               </span>
             ) : (
               <span>غير معروف</span>
@@ -52,9 +53,10 @@ function Summary({ narrator }: { narrator: Narrator }) {
           <div className="flex items-center gap-2">
             <SkullIcon className="h-5 w-5" />
             <span className="font-bold">الوفاة:</span>
-            {(narrator.death_date_hijri || narrator.death_date_gregorian) ? (
+            {narrator.death_date_hijri || narrator.death_date_gregorian ? (
               <span>
-                {`${narrator.death_date_hijri ?? 'غير معروف'} هـ`} / {`${narrator.death_date_gregorian ?? 'غير معروف'} مـ`}
+                {`${narrator.death_date_hijri ?? "غير معروف"} هـ`} /{" "}
+                {`${narrator.death_date_gregorian ?? "غير معروف"} مـ`}
               </span>
             ) : (
               <span>غير معروف</span>
@@ -90,7 +92,7 @@ function RelationsSection({
     <div className="flex flex-col gap-6">
       {predecessors.length !== 0 && (
         <BrutalistCard>
-          <h2 className="mb-3 text-xl font-bold px-2 py-1 bg-parchment-dark inline-block border-2 border-navy/70">
+          <h2 className="mb-3 inline-block border-2 border-navy/70 bg-parchment-dark px-2 py-1 text-xl font-bold">
             رَوى عن ({predecessors.length})
           </h2>
           <VirtualizedNarratorList items={predecessors} />
@@ -98,7 +100,7 @@ function RelationsSection({
       )}
       {successors.length !== 0 && (
         <BrutalistCard>
-          <h2 className="mb-3 text-xl font-bold px-2 py-1 bg-parchment-dark inline-block border-2 border-navy/70">
+          <h2 className="mb-3 inline-block border-2 border-navy/70 bg-parchment-dark px-2 py-1 text-xl font-bold">
             رَوى عنه ({successors.length})
           </h2>
           <VirtualizedNarratorList items={successors} />
@@ -106,7 +108,7 @@ function RelationsSection({
       )}
       {chapters.length !== 0 && (
         <BrutalistCard>
-          <h2 className="mb-3 text-xl font-bold px-2 py-1 bg-parchment-dark inline-block border-2 border-navy/70">
+          <h2 className="mb-3 inline-block border-2 border-navy/70 bg-parchment-dark px-2 py-1 text-xl font-bold">
             روى في ({chapters.length} باب)
           </h2>
           <VirtualizedChapterList items={chapters} />
@@ -156,7 +158,9 @@ function InfoSection({ info }: { info: InfoSource[] }) {
           <div className="w-full border-t-4 border-black"></div>
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-parchment-dark px-4 text-2xl font-bold">ذُكر عنه</span>
+          <span className="bg-parchment-dark px-4 text-2xl font-bold">
+            ذُكر عنه
+          </span>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-6">
