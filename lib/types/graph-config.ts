@@ -23,6 +23,8 @@ export interface GraphViewConfig<TNode extends GraphNode = GraphNode>
     highlightColor?: string;
     type?: "STRAIGHT" | "CURVE_SMOOTH" | "CURVE_FULL";
     strokeLinecap?: "round" | "butt" | "square";
+    color?: string;
+    opacity?: number;
   };
   d3?: {
     gravity?: number;
