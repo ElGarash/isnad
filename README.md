@@ -1,6 +1,6 @@
 # Random dev notes that will be removed later
 
-[![Check Links](https://github.com/elgarash/isnad/actions/workflows/links.yml/badge.svg)](https://github.com/elgarash/isnad/actions/workflows/links.yml)
+[![Check Links](https://github.com/elgarash/isnad/actions/workflows/links.yml/badge.svg)](https://github.com/elgarash/isnad/actions/workflows/deploy.yml)
 
 ### Generating the db
 ```bash
