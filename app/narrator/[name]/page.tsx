@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import BrutalistCard from "@/components/brutalist-card";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { LoadingSpinner } from "@/components/loading-spinner";
@@ -17,6 +18,51 @@ import {
 } from "@/lib/sqlite";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+
+export async function generateMetadata({ params }: {
+  params: Promise<{ name: string }>;}): Promise<Metadata> {
+    const { name } = await params;
+  const decodedName = decodeURIComponent(name);
+  const narrator = getNarrator(decodedName);
+
+  if (!narrator) {
+    return {
+      title: 'Narrator Not Found',
+      description: 'The requested narrator could not be found.',
+    };
+  }
+
+  // Get a brief description from narrator info if available
+  const info = getNarratorInfo(narrator.scholar_indx);
+  let description = `Hadith narrator profile for ${narrator.name}`;
+  if (info && info.length > 0 && info[0].content) {
+    description = info[0].content.substring(0, 160) + '...';
+  }
+
+  return {
+    title: `${narrator.name} - Hadith Narrator Profile`,
+    description,
+    openGraph: {
+      title: `${narrator.name} - Hadith Narrator Profile`,
+      description,
+      images: [
+        {
+          url: '/images/og-default.jpg',
+          width: 1200,
+          height: 630,
+          alt: `Profile of hadith narrator ${narrator.name}`,
+        },
+      ],
+      type: 'profile',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${narrator.name} - Hadith Narrator Profile`,
+      description,
+      images: ['/images/og-default.jpg'],
+    }
+  };
+}
 
 function RelationshipsSection({
   narrator,

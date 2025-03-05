@@ -2,6 +2,7 @@ import "./globals.css";
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
 import { Noto_Naskh_Arabic } from "next/font/google";
+import { Metadata } from 'next'
 
 const notoNaskhArabic = Noto_Naskh_Arabic({
   subsets: ["arabic"],
@@ -9,9 +10,39 @@ const notoNaskhArabic = Noto_Naskh_Arabic({
   variable: "--font-naskh",
 });
 
-export const metadata = {
-  title: "Isnad - Hadith Transmission Chain Visualizer",
-  description: "Visualize and explore hadith transmission chains",
+export const metadata: Metadata = {
+  title: {
+    default: 'Hadith Transmission Chain Visualizer',
+    template: '%s | Hadith Transmission Chain Visualizer',
+  },
+  description: 'Explore the chains of transmission for authentic hadiths',
+  openGraph: {
+    title: {
+      default: 'Hadith Transmission Chain Visualizer',
+      template: '%s | Hadith Transmission Chain Visualizer',
+    },
+    description: 'Explore the chains of transmission for authentic hadiths',
+    images: [
+      {
+        url: '/og-default.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Hadith Transmission Chain Visualizer',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+    siteName: 'Hadith Transmission Chain Visualizer',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: {
+      default: 'Hadith Transmission Chain Visualizer',
+      template: '%s | Hadith Transmission Chain Visualizer',
+    },
+    description: 'Explore the chains of transmission for authentic hadiths',
+    images: ['/og-default.jpg'],
+  }
 };
 
 export default function RootLayout({

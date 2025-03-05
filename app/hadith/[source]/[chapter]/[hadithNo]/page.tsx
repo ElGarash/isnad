@@ -9,6 +9,50 @@ import {
   getHadithsBySource,
 } from "@/lib/sqlite";
 import { Suspense } from "react";
+import { Metadata } from 'next'
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { source, chapter, hadithNo } = await params;
+  const hadith = await getHadithById(source, chapter, hadithNo)
+
+  if (!hadith) {
+    return {
+      title: `Hadith ${hadithNo} - ${source}`,
+      description: 'Explore this hadith transmission chain',
+      openGraph: {
+        title: `Hadith ${hadithNo} - ${source}`,
+        description: 'Explore this hadith transmission chain',
+        images: [
+          {
+            url: '/images/og-default.jpg',
+            width: 1200,
+            height: 630,
+            alt: `Transmission chain for Hadith ${hadithNo}`,
+          },
+        ],
+        type: 'article',
+      },
+    }
+  }
+
+  return {
+    title: `Hadith ${hadith.hadith_no} - ${hadith.source}`,
+    description: hadith.text_ar?.substring(0, 160) || 'Explore this hadith transmission chain',
+    openGraph: {
+      title: `Hadith ${hadith.hadith_no} - ${hadith.source}`,
+      description: hadith.text_ar?.substring(0, 160) || 'Explore this hadith transmission chain',
+      images: [
+        {
+          url: '/images/og-default.jpg', // Static image
+          width: 1200,
+          height: 630,
+          alt: `Transmission chain for Hadith ${hadithNo}`,
+        },
+      ],
+      type: 'article',
+    },
+  }
+}
 
 interface PageProps {
   params: Promise<{
