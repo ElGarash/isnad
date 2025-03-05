@@ -47,3 +47,18 @@ const gradeMap: Record<string, string> = {
 export const getArabicGrade = (grade: string): string => {
   return gradeMap[grade] || grade;
 };
+
+export const getBlessings = (grade: string): string => {
+  if (["من الصحابة", "من التابعين"].includes(grade)) {
+    return "رضي الله عنه";
+  } else if (
+    [
+      "من تابعي التابعين",
+      "من علماء القرن الثالث الهجري",
+      "من علماء القرن الرابع الهجري",
+    ].includes(grade)
+  ) {
+    return "رحمه الله";
+  }
+  return "";
+};

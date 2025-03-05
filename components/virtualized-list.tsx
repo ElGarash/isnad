@@ -12,7 +12,7 @@ interface VirtualizedListProps<T> {
 
 export default function VirtualizedList<T>({
   items,
-  rowHeight = 44,
+  rowHeight = 42,
   maxHeight = 400,
   renderItem,
 }: VirtualizedListProps<T>) {
