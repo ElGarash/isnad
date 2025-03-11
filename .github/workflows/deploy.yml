@@ -81,7 +81,7 @@ jobs:
 
       - name: Generate OG Images
         if: steps.cache-og-images.outputs.cache-hit != 'true'
-        run: python scripts/gen_images.py
+        run: uv run python scripts/gen_images.py
 
       - run: bun install
 
