@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         description: 'Explore this hadith transmission chain',
         images: [
           {
-            url: '/images/og-default.jpg',
+            url: '/images/og-images/og-default.png',
             width: 1200,
             height: 630,
             alt: `Transmission chain for Hadith ${hadithNo}`,
@@ -35,6 +35,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
+  const sanitizedSource = hadith.source.replace(' ', '_');
+  const sanitizedHadithNo = hadith.hadith_no.toString().replace('/', '-').trim();
+
   return {
     title: `Hadith ${hadith.hadith_no} - ${hadith.source}`,
     description: hadith.text_ar?.substring(0, 160) || 'Explore this hadith transmission chain',
@@ -43,7 +46,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: hadith.text_ar?.substring(0, 160) || 'Explore this hadith transmission chain',
       images: [
         {
-          url: '/images/og-default.jpg', // Static image
+          url: `/images/og-images/hadiths/${sanitizedSource}/${hadith.chapter_no}/${sanitizedHadithNo}.png`,
           width: 1200,
           height: 630,
           alt: `Transmission chain for Hadith ${hadithNo}`,

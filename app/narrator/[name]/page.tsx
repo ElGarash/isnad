@@ -29,6 +29,18 @@ export async function generateMetadata({ params }: {
     return {
       title: 'Narrator Not Found',
       description: 'The requested narrator could not be found.',
+      openGraph: {
+        title: 'Narrator Not Found',
+        description: 'The requested narrator could not be found.',
+        images: [
+          {
+            url: '/images/og-images/og-default.png',
+            width: 1200,
+            height: 630,
+            alt: 'Narrator Not Found',
+          },
+        ],
+      },
     };
   }
 
@@ -39,6 +51,9 @@ export async function generateMetadata({ params }: {
     description = info[0].content.substring(0, 160) + '...';
   }
 
+  // Sanitize the name for file path
+  const sanitizedName = narrator.name.replace('/', '-').replace('\\', '-');
+
   return {
     title: `${narrator.name} - Hadith Narrator Profile`,
     description,
@@ -47,7 +62,7 @@ export async function generateMetadata({ params }: {
       description,
       images: [
         {
-          url: '/images/og-default.jpg',
+          url: `/images/og-images/narrators/${sanitizedName}.png`,
           width: 1200,
           height: 630,
           alt: `Profile of hadith narrator ${narrator.name}`,
@@ -59,7 +74,7 @@ export async function generateMetadata({ params }: {
       card: 'summary_large_image',
       title: `${narrator.name} - Hadith Narrator Profile`,
       description,
-      images: ['/images/og-default.jpg'],
+      images: [`/images/og-images/narrators/${sanitizedName}.png`],
     }
   };
 }

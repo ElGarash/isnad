@@ -22,6 +22,18 @@ export async function generateMetadata({ params }: ChapterPageProps ): Promise<M
     return {
       title: 'Chapter Not Found',
       description: 'The requested hadith chapter could not be found.',
+      openGraph: {
+        title: 'Chapter Not Found',
+        description: 'The requested hadith chapter could not be found.',
+        images: [
+          {
+            url: '/images/og-images/og-default.png',
+            width: 1200,
+            height: 630,
+            alt: 'Chapter Not Found',
+          },
+        ],
+      },
     };
   }
 
@@ -31,9 +43,24 @@ export async function generateMetadata({ params }: ChapterPageProps ): Promise<M
     return {
       title: 'Chapter Not Found',
       description: 'The requested hadith chapter could not be found.',
+      openGraph: {
+        title: 'Chapter Not Found',
+        description: 'The requested hadith chapter could not be found.',
+        images: [
+          {
+            url: '/images/og-images/og-default.png',
+            width: 1200,
+            height: 630,
+            alt: 'Chapter Not Found',
+          },
+        ],
+      },
     };
   }
 
+  // Get the chapter number from the first hadith
+  const chapterNo = hadiths[0].chapter_no;
+  const sanitizedSource = decodedSource.replace(' ', '_');
   const description = `Collection of ${hadiths.length} hadiths from chapter ${decodedChapter} in ${decodedSource}`;
 
   return {
@@ -44,7 +71,7 @@ export async function generateMetadata({ params }: ChapterPageProps ): Promise<M
       description,
       images: [
         {
-          url: '/images/og-default.jpg', // Static image
+          url: `/images/og-images/chapters/${sanitizedSource}/${chapterNo}.png`,
           width: 1200,
           height: 630,
           alt: `Hadiths from chapter ${decodedChapter} in ${decodedSource}`,
@@ -56,7 +83,7 @@ export async function generateMetadata({ params }: ChapterPageProps ): Promise<M
       card: 'summary_large_image',
       title: `${decodedChapter} - ${decodedSource}`,
       description,
-      images: ['/images/og-default.jpg'],
+      images: [`/images/og-images/chapters/${sanitizedSource}/${chapterNo}.png`],
     }
   };
 }
