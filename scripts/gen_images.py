@@ -1,11 +1,11 @@
 import os
 import sqlite3
 import textwrap
+import time
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 from tqdm import tqdm
 
-# TODO: Update the script to generate for Sahih Muslim as well
 # Connect to the SQLite database
 def get_db_connection():
     db_path = Path("data/sqlite.db")
@@ -108,9 +108,9 @@ def generate_hadith_og_image(hadith, output_path):
 
     # Load fonts
     try:
-        title_font = ImageFont.truetype("scripts/fonts/NotoNaskhArabic-Bold.ttf", 60)
-        subtitle_font = ImageFont.truetype("scripts/fonts/NotoNaskhArabic-Bold.ttf", 40)
-        text_font = ImageFont.truetype("scripts/fonts/NotoNaskhArabic-Regular.ttf", 36)
+        title_font = ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 60)
+        subtitle_font = ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 40)
+        text_font = ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Regular.ttf", 36)
     except IOError:
         title_font = ImageFont.load_default()
         subtitle_font = ImageFont.load_default()
@@ -142,9 +142,9 @@ def generate_chapter_og_image(source, chapter_no, chapter_name, hadith_count, ou
 
     # Load fonts
     try:
-        title_font = ImageFont.truetype("scripts/fonts/NotoNaskhArabic-Bold.ttf", 60)
-        subtitle_font = ImageFont.truetype("scripts/fonts/NotoNaskhArabic-Bold.ttf", 50)
-        text_font = ImageFont.truetype("scripts/fonts/NotoNaskhArabic-Regular.ttf", 40)
+        title_font = ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 60)
+        subtitle_font = ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 50)
+        text_font = ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Regular.ttf", 40)
     except IOError:
         title_font = ImageFont.load_default()
         subtitle_font = ImageFont.load_default()
@@ -175,8 +175,8 @@ def generate_default_og_image(output_path):
 
     # Load fonts
     try:
-        title_font = ImageFont.truetype("scripts/fonts/NotoNaskhArabic-Bold.ttf", 70)
-        subtitle_font = ImageFont.truetype("scripts/fonts/NotoNaskhArabic-Regular.ttf", 40)
+        title_font = ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 70)
+        subtitle_font = ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Regular.ttf", 40)
     except IOError:
         title_font = ImageFont.load_default()
         subtitle_font = ImageFont.load_default()
@@ -208,13 +208,17 @@ def create_index_html(og_images_dir):
         .image-card { border: 1px solid #ddd; padding: 10px; border-radius: 5px; }
         img { max-width: 100%; height: auto; }
         .image-caption { margin-top: 10px; font-size: 0.9em; color: #555; }
+        .metrics { background: #f5f5f5; padding: 15px; margin-bottom: 30px; border-radius: 5px; }
     </style>
 </head>
 <body>
     <h1>OG Images Preview</h1>
+    <div class="metrics">
+        <h3>Generation Metrics</h3>
 """
 
-    # Add sections for each type of OG image
+    # We'll add metrics at the end of the process
+
     image_types = {
         "narrators": "Narrator OG Images",
         "hadiths": "Hadith OG Images",
@@ -253,6 +257,7 @@ def create_index_html(og_images_dir):
         f.write(html_content)
 
 def main():
+    start_time = time.time()
     conn = get_db_connection()
 
     # Create output directories
@@ -266,9 +271,20 @@ def main():
     print("Generating default OG image...")
     generate_default_og_image(og_images_dir / "og-default.png")
 
-    # Generate narrator OG images
-    print("Generating narrator OG images...")
-    narrators = conn.execute("SELECT * FROM rawis").fetchall()
+    # Generate narrator OG images - ONLY for narrators with hadiths
+    print("Generating narrator OG images (only for narrators in hadith chains)...")
+
+    # Get only narrators who appear in chains
+    narrators = conn.execute("""
+        SELECT DISTINCT r.*
+        FROM rawis r
+        JOIN hadith_chains hc ON r.scholar_indx = hc.scholar_indx
+        ORDER BY r.scholar_indx
+    """).fetchall()
+
+    narrator_count = len(narrators)
+    print(f"Found {narrator_count} narrators with hadiths (out of total rawis)")
+
     narrator_columns = [desc[0] for desc in conn.execute("SELECT * FROM rawis LIMIT 1").description]
 
     for narrator in tqdm(narrators):
@@ -281,12 +297,20 @@ def main():
         except Exception as e:
             print(f"Error generating OG image for narrator {sanitized_name}: {e}")
 
-    # Generate hadith OG images
-    print("Generating hadith OG images...")
-    # Only generate for Sahih Bukhari as per your static generation pattern
-    hadiths = conn.execute(
-        "SELECT * FROM hadiths WHERE source = 'Sahih Bukhari'"
-    ).fetchall()
+    # Generate hadith OG images - ONLY for hadiths with explanations
+    print("Generating hadith OG images (only for hadiths with explanations)...")
+
+    # Get hadiths with explanations from both Bukhari and Muslim
+    hadiths = conn.execute("""
+        SELECT * FROM hadiths
+        WHERE explanation IS NOT NULL
+        AND source IN ('Sahih Bukhari', 'Sahih Muslim')
+        ORDER BY source, chapter_no, hadith_no
+    """).fetchall()
+
+    hadith_count = len(hadiths)
+    print(f"Found {hadith_count} hadiths with explanations")
+
     hadith_columns = [desc[0] for desc in conn.execute("SELECT * FROM hadiths LIMIT 1").description]
 
     for hadith in tqdm(hadiths):
@@ -307,15 +331,19 @@ def main():
 
     # Generate chapter OG images
     print("Generating chapter OG images...")
-    # Get unique chapters from Sahih Bukhari
+    # Get unique chapters from Sahih Bukhari and Muslim
     chapters = conn.execute(
         """
         SELECT source, chapter_no, chapter, COUNT(*) as hadith_count
         FROM hadiths
-        WHERE source = 'Sahih Bukhari'
+        WHERE source IN ('Sahih Bukhari', 'Sahih Muslim')
         GROUP BY source, chapter_no, chapter
+        ORDER BY source, chapter_no
         """
     ).fetchall()
+
+    chapter_count = len(chapters)
+    print(f"Found {chapter_count} chapters")
 
     for source, chapter_no, chapter_name, hadith_count in tqdm(chapters):
         source_dir = og_images_dir / "chapters" / source.replace(' ', '_')
@@ -327,11 +355,30 @@ def main():
         except Exception as e:
             print(f"Error generating OG image for chapter {chapter_no}: {e}")
 
+    # Update HTML with metrics
+    duration = round(time.time() - start_time, 2)
+    metrics_html = f"""
+        <p>Total narrators with images: {narrator_count}</p>
+        <p>Total hadiths with images: {hadith_count}</p>
+        <p>Total chapters with images: {chapter_count}</p>
+        <p>Generation time: {duration} seconds</p>
+    </div>
+    """
+
     # Create an index HTML for QA
-    create_index_html(og_images_dir)
+    html_content = create_index_html(og_images_dir)
+    if html_content:
+        # Insert metrics after the opening metrics div
+        metrics_pos = html_content.find('<div class="metrics">') + len('<div class="metrics">')
+        html_content = html_content[:metrics_pos] + metrics_html + html_content[metrics_pos:]
+
+        with open(og_images_dir / "index.html", "w", encoding="utf-8") as f:
+            f.write(html_content)
 
     conn.close()
     print("OG image generation complete!")
+    print(f"Generated {narrator_count} narrator images, {hadith_count} hadith images, and {chapter_count} chapter images")
+    print(f"Total generation time: {duration} seconds")
     print(f"View the preview of generated images at /images/og-images/index.html")
 
 if __name__ == "__main__":
