@@ -64,6 +64,7 @@ export async function generateMetadata({ params }: ChapterPageProps ): Promise<M
   const description = `Collection of ${hadiths.length} hadiths from chapter ${decodedChapter} in ${decodedSource}`;
 
   return {
+    metadataBase: new URL(`https://open-graph.isnad-acg.pages.dev/`),
     title: `${decodedChapter} - ${decodedSource}`,
     description,
     openGraph: {

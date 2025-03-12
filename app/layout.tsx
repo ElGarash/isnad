@@ -11,6 +11,7 @@ const notoNaskhArabic = Noto_Naskh_Arabic({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(`https://open-graph.isnad-acg.pages.dev/`),
   title: {
     default: 'Hadith Transmission Chain Visualizer',
     template: '%s | Hadith Transmission Chain Visualizer',

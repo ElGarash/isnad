@@ -55,6 +55,7 @@ export async function generateMetadata({ params }: {
   const sanitizedName = narrator.name.replace('/', '-').replace('\\', '-');
 
   return {
+    metadataBase: new URL(`https://open-graph.isnad-acg.pages.dev/`),
     title: `${narrator.name} - Hadith Narrator Profile`,
     description,
     openGraph: {

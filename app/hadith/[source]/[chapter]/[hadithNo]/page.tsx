@@ -39,6 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const sanitizedHadithNo = hadith.hadith_no.toString().replace('/', '-').trim();
 
   return {
+    metadataBase: new URL(`https://open-graph.isnad-acg.pages.dev/`),
     title: `Hadith ${hadith.hadith_no} - ${hadith.source}`,
     description: hadith.text_ar?.substring(0, 160) || 'Explore this hadith transmission chain',
     openGraph: {
