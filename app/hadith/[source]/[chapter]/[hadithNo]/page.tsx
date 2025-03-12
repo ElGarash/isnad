@@ -8,43 +8,52 @@ import {
   getHadithById,
   getHadithsBySource,
 } from "@/lib/sqlite";
+import { Metadata } from "next";
 import { Suspense } from "react";
-import { Metadata } from 'next'
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { source, chapter, hadithNo } = await params;
-  const hadith = await getHadithById(source, chapter, hadithNo)
+  const hadith = await getHadithById(source, chapter, hadithNo);
 
   if (!hadith) {
     return {
       title: `Hadith ${hadithNo} - ${source}`,
-      description: 'Explore this hadith transmission chain',
+      description: "Explore this hadith transmission chain",
       openGraph: {
         title: `Hadith ${hadithNo} - ${source}`,
-        description: 'Explore this hadith transmission chain',
+        description: "Explore this hadith transmission chain",
         images: [
           {
-            url: '/images/og-images/og-default.png',
+            url: "/images/og-images/og-default.png",
             width: 1200,
             height: 630,
             alt: `Transmission chain for Hadith ${hadithNo}`,
           },
         ],
-        type: 'article',
+        type: "article",
       },
-    }
+    };
   }
 
-  const sanitizedSource = hadith.source.replace(' ', '_');
-  const sanitizedHadithNo = hadith.hadith_no.toString().replace('/', '-').trim();
+  const sanitizedSource = hadith.source.replace(" ", "_");
+  const sanitizedHadithNo = hadith.hadith_no
+    .toString()
+    .replace("/", "-")
+    .trim();
 
   return {
     metadataBase: new URL(`https://open-graph.isnad-acg.pages.dev/`),
     title: `Hadith ${hadith.hadith_no} - ${hadith.source}`,
-    description: hadith.text_ar?.substring(0, 160) || 'Explore this hadith transmission chain',
+    description:
+      hadith.text_ar?.substring(0, 160) ||
+      "Explore this hadith transmission chain",
     openGraph: {
       title: `Hadith ${hadith.hadith_no} - ${hadith.source}`,
-      description: hadith.text_ar?.substring(0, 160) || 'Explore this hadith transmission chain',
+      description:
+        hadith.text_ar?.substring(0, 160) ||
+        "Explore this hadith transmission chain",
       images: [
         {
           url: `/images/og-images/hadiths/${sanitizedSource}/${hadith.chapter_no}/${sanitizedHadithNo}.png`,
@@ -53,9 +62,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           alt: `Transmission chain for Hadith ${hadithNo}`,
         },
       ],
-      type: 'article',
+      type: "article",
     },
-  }
+  };
 }
 
 interface PageProps {

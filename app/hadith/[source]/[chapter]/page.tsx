@@ -1,6 +1,6 @@
-import { Metadata } from 'next';
 import HadithList from "@/components/hadith-list";
 import { getHadithsByChapterSource, getSourceChapters } from "@/lib/sqlite";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 const STATIC_SOURCES = ["Sahih Bukhari"] as const;
@@ -13,24 +13,26 @@ interface ChapterPageProps {
   }>;
 }
 
-export async function generateMetadata({ params }: ChapterPageProps ): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: ChapterPageProps): Promise<Metadata> {
   const { source, chapter } = await params;
   const decodedSource = decodeURIComponent(source) as StaticSource;
   const decodedChapter = decodeURIComponent(chapter);
 
   if (!STATIC_SOURCES.includes(decodedSource)) {
     return {
-      title: 'Chapter Not Found',
-      description: 'The requested hadith chapter could not be found.',
+      title: "Chapter Not Found",
+      description: "The requested hadith chapter could not be found.",
       openGraph: {
-        title: 'Chapter Not Found',
-        description: 'The requested hadith chapter could not be found.',
+        title: "Chapter Not Found",
+        description: "The requested hadith chapter could not be found.",
         images: [
           {
-            url: '/images/og-images/og-default.png',
+            url: "/images/og-images/og-default.png",
             width: 1200,
             height: 630,
-            alt: 'Chapter Not Found',
+            alt: "Chapter Not Found",
           },
         ],
       },
@@ -41,17 +43,17 @@ export async function generateMetadata({ params }: ChapterPageProps ): Promise<M
 
   if (hadiths.length === 0) {
     return {
-      title: 'Chapter Not Found',
-      description: 'The requested hadith chapter could not be found.',
+      title: "Chapter Not Found",
+      description: "The requested hadith chapter could not be found.",
       openGraph: {
-        title: 'Chapter Not Found',
-        description: 'The requested hadith chapter could not be found.',
+        title: "Chapter Not Found",
+        description: "The requested hadith chapter could not be found.",
         images: [
           {
-            url: '/images/og-images/og-default.png',
+            url: "/images/og-images/og-default.png",
             width: 1200,
             height: 630,
-            alt: 'Chapter Not Found',
+            alt: "Chapter Not Found",
           },
         ],
       },
@@ -60,7 +62,7 @@ export async function generateMetadata({ params }: ChapterPageProps ): Promise<M
 
   // Get the chapter number from the first hadith
   const chapterNo = hadiths[0].chapter_no;
-  const sanitizedSource = decodedSource.replace(' ', '_');
+  const sanitizedSource = decodedSource.replace(" ", "_");
   const description = `Collection of ${hadiths.length} hadiths from chapter ${decodedChapter} in ${decodedSource}`;
 
   return {
@@ -78,14 +80,16 @@ export async function generateMetadata({ params }: ChapterPageProps ): Promise<M
           alt: `Hadiths from chapter ${decodedChapter} in ${decodedSource}`,
         },
       ],
-      type: 'article',
+      type: "article",
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: `${decodedChapter} - ${decodedSource}`,
       description,
-      images: [`/images/og-images/chapters/${sanitizedSource}/${chapterNo}.png`],
-    }
+      images: [
+        `/images/og-images/chapters/${sanitizedSource}/${chapterNo}.png`,
+      ],
+    },
   };
 }
 

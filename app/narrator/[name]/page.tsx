@@ -1,4 +1,3 @@
-import { Metadata } from 'next';
 import BrutalistCard from "@/components/brutalist-card";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { LoadingSpinner } from "@/components/loading-spinner";
@@ -16,28 +15,32 @@ import {
   getSuccessors,
   narratedAbout,
 } from "@/lib/sqlite";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-export async function generateMetadata({ params }: {
-  params: Promise<{ name: string }>;}): Promise<Metadata> {
-    const { name } = await params;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ name: string }>;
+}): Promise<Metadata> {
+  const { name } = await params;
   const decodedName = decodeURIComponent(name);
   const narrator = getNarrator(decodedName);
 
   if (!narrator) {
     return {
-      title: 'Narrator Not Found',
-      description: 'The requested narrator could not be found.',
+      title: "Narrator Not Found",
+      description: "The requested narrator could not be found.",
       openGraph: {
-        title: 'Narrator Not Found',
-        description: 'The requested narrator could not be found.',
+        title: "Narrator Not Found",
+        description: "The requested narrator could not be found.",
         images: [
           {
-            url: '/images/og-images/og-default.png',
+            url: "/images/og-images/og-default.png",
             width: 1200,
             height: 630,
-            alt: 'Narrator Not Found',
+            alt: "Narrator Not Found",
           },
         ],
       },
@@ -48,11 +51,11 @@ export async function generateMetadata({ params }: {
   const info = getNarratorInfo(narrator.scholar_indx);
   let description = `Hadith narrator profile for ${narrator.name}`;
   if (info && info.length > 0 && info[0].content) {
-    description = info[0].content.substring(0, 160) + '...';
+    description = info[0].content.substring(0, 160) + "...";
   }
 
   // Sanitize the name for file path
-  const sanitizedName = narrator.name.replace('/', '-').replace('\\', '-');
+  const sanitizedName = narrator.name.replace("/", "-").replace("\\", "-");
 
   return {
     metadataBase: new URL(`https://open-graph.isnad-acg.pages.dev/`),
@@ -69,14 +72,14 @@ export async function generateMetadata({ params }: {
           alt: `Profile of hadith narrator ${narrator.name}`,
         },
       ],
-      type: 'profile',
+      type: "profile",
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: `${narrator.name} - Hadith Narrator Profile`,
       description,
       images: [`/images/og-images/narrators/${sanitizedName}.png`],
-    }
+    },
   };
 }
 
