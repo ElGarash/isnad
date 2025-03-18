@@ -2,12 +2,12 @@ import os
 import sqlite3
 import textwrap
 import time
+import concurrent.futures
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 from tqdm import tqdm
 
 
-# Connect to the SQLite database
 def get_db_connection():
     db_path = Path("data/sqlite.db")
     return sqlite3.connect(db_path)
@@ -15,14 +15,16 @@ def get_db_connection():
 
 def create_directory_if_not_exists(directory):
     """Create directory if it doesn't exist"""
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    try:
+        os.makedirs(directory, exist_ok=True)
+    except Exception:
+        pass
 
 
 def draw_text_with_wrapping(draw, text, font, x, y, max_width, line_height, color):
     """Draw text with word wrapping"""
     if not text:
-        return y  # Return original y if no text to draw
+        return y
 
     lines = textwrap.wrap(text, width=max_width)
     for i, line in enumerate(lines):
@@ -30,12 +32,50 @@ def draw_text_with_wrapping(draw, text, font, x, y, max_width, line_height, colo
     return y + len(lines) * line_height
 
 
+class FontLoader:
+    """Singleton for loading and caching fonts"""
+    _instance = None
+    _fonts: dict[str, ImageFont.FreeTypeFont] = {}
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(FontLoader, cls).__new__(cls)
+            cls._instance._load_fonts()
+        return cls._instance
+
+    def _load_fonts(self):
+        try:
+            self._fonts = {
+                "title_bold": ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 70),
+                "title_medium": ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 60),
+                "subtitle_bold": ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 50),
+                "subtitle": ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 40),
+                "regular": ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Regular.ttf", 40),
+                "text": ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Regular.ttf", 36),
+                "small": ImageFont.truetype("scripts/fonts/static/NotoNaskhArabic-Regular.ttf", 32),
+            }
+        except IOError:
+            print("Warning: Could not load custom fonts, falling back to default")
+            default = ImageFont.load_default()
+            self._fonts = {
+                "title_bold": default,
+                "title_medium": default,
+                "subtitle_bold": default,
+                "subtitle": default,
+                "regular": default,
+                "text": default,
+                "small": default,
+            }
+
+    def get(self, font_key):
+        return self._fonts.get(font_key, ImageFont.load_default())
+
+
 def create_base_image(width=1200, height=630, background_color="#F8F0E3"):
     """Create a base image with logo and style"""
     image = Image.new("RGB", (width, height), background_color)
     draw = ImageDraw.Draw(image)
 
-    # Add border
     border_width = 8
     draw.rectangle(
         [
@@ -46,7 +86,6 @@ def create_base_image(width=1200, height=630, background_color="#F8F0E3"):
         width=border_width,
     )
 
-    # Load and place logo if available
     try:
         logo = Image.open("public/logo.png").convert("RGBA")
         logo_width = 150
@@ -54,52 +93,26 @@ def create_base_image(width=1200, height=630, background_color="#F8F0E3"):
         logo_height = int(logo_width * aspect_ratio)
         logo = logo.resize((logo_width, logo_height), Image.LANCZOS)
 
-        # Calculate position to place logo at bottom right
         logo_position = (width - logo_width - 40, height - logo_height - 40)
 
-        # Create a temporary image with an alpha channel to composite the logo
         temp = Image.new("RGBA", image.size, (0, 0, 0, 0))
         temp.paste(logo, logo_position, logo)
 
-        # Composite the temporary image onto the background
         image = Image.alpha_composite(image.convert("RGBA"), temp).convert("RGB")
     except FileNotFoundError:
-        # No logo available, continue without it
         pass
 
     return image, ImageDraw.Draw(image)
 
 
-def generate_narrator_og_image(narrator, output_path):
+def generate_narrator_og_image(narrator, output_path, fonts):
     """Generate OG image for narrator profile page"""
     image, draw = create_base_image()
-    width, height = image.size
 
-    # Load fonts - adjust paths to your font location
-    try:
-        title_font = ImageFont.truetype(
-            "scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 70
-        )
-        regular_font = ImageFont.truetype(
-            "scripts/fonts/static/NotoNaskhArabic-Regular.ttf", 40
-        )
-        small_font = ImageFont.truetype(
-            "scripts/fonts/static/NotoNaskhArabic-Regular.ttf", 32
-        )
-    except IOError:
-        # Fallback to default font if custom font not available
-        title_font = ImageFont.load_default()
-        regular_font = ImageFont.load_default()
-        small_font = ImageFont.load_default()
-
-    # Add title
     title = f"{narrator['name']}"
-    draw.text((80, 80), title, font=title_font, fill="#000000")
+    draw.text((80, 80), title, font=fonts.get("title_bold"), fill="#000000")
+    draw.text((80, 180), "سيرة الراوي", font=fonts.get("regular"), fill="#000000")
 
-    # Add subtitle
-    draw.text((80, 180), "سيرة الراوي", font=regular_font, fill="#000000")
-
-    # Add details about narrator
     details = []
     if narrator["full_name"]:
         details.append(f"الاسم الكامل: {narrator['full_name']}")
@@ -112,133 +125,72 @@ def generate_narrator_og_image(narrator, output_path):
     for detail in details:
         y_position = (
             draw_text_with_wrapping(
-                draw, detail, small_font, 80, y_position, 40, 45, "#000000"
+                draw, detail, fonts.get("small"), 80, y_position, 40, 45, "#000000"
             )
             + 20
         )
 
-    # Save the image
     image.save(output_path)
 
 
-def generate_hadith_og_image(hadith, output_path):
+def generate_hadith_og_image(hadith, output_path, fonts):
     """Generate OG image for hadith detail page"""
     image, draw = create_base_image()
-    width, height = image.size
 
-    # Load fonts
-    try:
-        title_font = ImageFont.truetype(
-            "scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 60
-        )
-        subtitle_font = ImageFont.truetype(
-            "scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 40
-        )
-        text_font = ImageFont.truetype(
-            "scripts/fonts/static/NotoNaskhArabic-Regular.ttf", 36
-        )
-    except IOError:
-        title_font = ImageFont.load_default()
-        subtitle_font = ImageFont.load_default()
-        text_font = ImageFont.load_default()
-
-    # Add title
     title = f"حديث رقم {hadith['hadith_no']}"
-    draw.text((80, 60), title, font=title_font, fill="#000000")
+    draw.text((80, 60), title, font=fonts.get("title_medium"), fill="#000000")
 
-    # Add source
     subtitle = f"{hadith['source']}"
-    draw.text((80, 140), subtitle, font=subtitle_font, fill="#000000")
+    draw.text((80, 140), subtitle, font=fonts.get("subtitle"), fill="#000000")
 
-    # Add hadith text - truncated if too long
     if hadith["text_ar"]:
         text = hadith["text_ar"]
-        # Truncate text if it's too long
         if len(text) > 300:
             text = text[:300] + "..."
-        draw_text_with_wrapping(draw, text, text_font, 80, 220, 30, 50, "#000000")
+        draw_text_with_wrapping(draw, text, fonts.get("text"), 80, 220, 30, 50, "#000000")
 
-    # Save the image
     image.save(output_path)
 
 
 def generate_chapter_og_image(
-    source, chapter_no, chapter_name, hadith_count, output_path
+    source, chapter_no, chapter_name, hadith_count, output_path, fonts
 ):
     """Generate OG image for chapter page"""
     image, draw = create_base_image()
-    width, height = image.size
 
-    # Load fonts
-    try:
-        title_font = ImageFont.truetype(
-            "scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 60
-        )
-        subtitle_font = ImageFont.truetype(
-            "scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 50
-        )
-        text_font = ImageFont.truetype(
-            "scripts/fonts/static/NotoNaskhArabic-Regular.ttf", 40
-        )
-    except IOError:
-        title_font = ImageFont.load_default()
-        subtitle_font = ImageFont.load_default()
-        text_font = ImageFont.load_default()
+    draw.text((80, 80), source, font=fonts.get("title_medium"), fill="#000000")
+    draw.text((80, 180), f"باب {chapter_no}", font=fonts.get("subtitle_bold"), fill="#000000")
 
-    # Add source as title
-    draw.text((80, 80), source, font=title_font, fill="#000000")
-
-    # Add chapter number
-    draw.text((80, 180), f"باب {chapter_no}", font=subtitle_font, fill="#000000")
-
-    # Add chapter name
     y_position = 260
     if chapter_name:
         y_position = (
             draw_text_with_wrapping(
-                draw, chapter_name, text_font, 80, y_position, 35, 60, "#000000"
+                draw, chapter_name, fonts.get("text"), 80, y_position, 35, 60, "#000000"
             )
             + 40
         )
 
-    # Add hadith count
     count_text = f"عدد الأحاديث: {hadith_count}"
-    draw.text((80, y_position), count_text, font=text_font, fill="#000000")
+    draw.text((80, y_position), count_text, font=fonts.get("text"), fill="#000000")
 
-    # Save the image
     image.save(output_path)
 
 
-def generate_default_og_image(output_path):
+def generate_default_og_image(output_path, fonts):
     """Generate default fallback OG image"""
     image, draw = create_base_image()
     width, height = image.size
 
-    # Load fonts
-    try:
-        title_font = ImageFont.truetype(
-            "scripts/fonts/static/NotoNaskhArabic-Bold.ttf", 70
-        )
-        subtitle_font = ImageFont.truetype(
-            "scripts/fonts/static/NotoNaskhArabic-Regular.ttf", 40
-        )
-    except IOError:
-        title_font = ImageFont.load_default()
-        subtitle_font = ImageFont.load_default()
-
-    # Add title
     title = "سلسلة الرواة"
     draw.text(
-        (width // 2 - 200, height // 2 - 100), title, font=title_font, fill="#000000"
+        (width // 2 - 200, height // 2 - 100), title, font=fonts.get("title_bold"), fill="#000000"
     )
 
-    # Add subtitle
     subtitle = "استكشف الأحاديث وسلاسل الرواة"
     draw.text(
-        (width // 2 - 250, height // 2), subtitle, font=subtitle_font, fill="#000000"
+        (width // 2 - 250, height // 2), subtitle, font=fonts.get("regular"), fill="#000000"
     )
 
-    # Save the image
     image.save(output_path)
 
 
@@ -267,8 +219,6 @@ def create_index_html(og_images_dir):
         <h3>Generation Metrics</h3>
 """
 
-    # We'll add metrics at the end of the process
-
     image_types = {
         "narrators": "Narrator OG Images",
         "hadiths": "Hadith OG Images",
@@ -282,7 +232,6 @@ def create_index_html(og_images_dir):
 
         html_content += f"<div class='image-container'>\n<h2>{section_title}</h2>\n<div class='image-grid'>\n"
 
-        # Get sample images (limit to 50 per category to keep page size reasonable)
         sample_images = []
         for root, _, files in os.walk(dir_path):
             image_files = [
@@ -291,7 +240,6 @@ def create_index_html(og_images_dir):
             sample_paths = [os.path.join(root, f) for f in image_files[:50]]
             sample_images.extend(sample_paths)
 
-        # Add image cards to HTML
         for img_path in sample_images:
             rel_path = os.path.relpath(img_path, start=og_images_dir.parent.parent)
             html_content += f"""    <div class='image-card'>
@@ -304,30 +252,31 @@ def create_index_html(og_images_dir):
     html_content += """</body>
 </html>"""
 
-    # Write the HTML file
     with open(og_images_dir / "index.html", "w", encoding="utf-8") as f:
         f.write(html_content)
+
+    return html_content
 
 
 def main():
     start_time = time.time()
     conn = get_db_connection()
 
-    # Create output directories
     og_images_dir = Path("public/images/og-images")
     create_directory_if_not_exists(og_images_dir)
     create_directory_if_not_exists(og_images_dir / "narrators")
     create_directory_if_not_exists(og_images_dir / "hadiths")
     create_directory_if_not_exists(og_images_dir / "chapters")
 
-    # Generate default image for fallback
+    fonts = FontLoader()
+
     print("Generating default OG image...")
-    generate_default_og_image(og_images_dir / "og-default.png")
+    generate_default_og_image(og_images_dir / "og-default.png", fonts)
 
-    # Generate narrator OG images - ONLY for narrators with hadiths
-    print("Generating narrator OG images (only for narrators in hadith chains)...")
+    narrator_columns = [desc[0] for desc in conn.execute("SELECT * FROM rawis LIMIT 1").description]
+    hadith_columns = [desc[0] for desc in conn.execute("SELECT * FROM hadiths LIMIT 1").description]
 
-    # Get only narrators who appear in chains
+    print("Fetching narrators from database...")
     narrators = conn.execute(
         """
         SELECT DISTINCT r.*
@@ -338,26 +287,9 @@ def main():
     ).fetchall()
 
     narrator_count = len(narrators)
-    print(f"Found {narrator_count} narrators with hadiths (out of total rawis)")
+    print(f"Found {narrator_count} narrators with hadiths")
 
-    narrator_columns = [
-        desc[0] for desc in conn.execute("SELECT * FROM rawis LIMIT 1").description
-    ]
-
-    for narrator in tqdm(narrators):
-        narrator_dict = dict(zip(narrator_columns, narrator))
-        # Sanitize name for use as filename
-        sanitized_name = str(narrator_dict["name"]).replace("/", "-").replace("\\", "-")
-        output_path = og_images_dir / "narrators" / f"{sanitized_name}.png"
-        try:
-            generate_narrator_og_image(narrator_dict, output_path)
-        except Exception as e:
-            print(f"Error generating OG image for narrator {sanitized_name}: {e}")
-
-    # Generate hadith OG images - ONLY for hadiths with explanations
-    print("Generating hadith OG images (only for hadiths with explanations)...")
-
-    # Get hadiths with explanations from both Bukhari and Muslim
+    print("Fetching hadiths from database...")
     hadiths = conn.execute(
         """
         SELECT * FROM hadiths
@@ -370,29 +302,7 @@ def main():
     hadith_count = len(hadiths)
     print(f"Found {hadith_count} hadiths with explanations")
 
-    hadith_columns = [
-        desc[0] for desc in conn.execute("SELECT * FROM hadiths LIMIT 1").description
-    ]
-
-    for hadith in tqdm(hadiths):
-        hadith_dict = dict(zip(hadith_columns, hadith))
-        source_dir = og_images_dir / "hadiths" / hadith_dict["source"].replace(" ", "_")
-        create_directory_if_not_exists(source_dir)
-        chapter_dir = source_dir / str(hadith_dict["chapter_no"])
-        create_directory_if_not_exists(chapter_dir)
-
-        # Clean hadith_no for use as filename
-        sanitized_hadith_no = str(hadith_dict["hadith_no"]).replace("/", "-").strip()
-        output_path = chapter_dir / f"{sanitized_hadith_no}.png"
-
-        try:
-            generate_hadith_og_image(hadith_dict, output_path)
-        except Exception as e:
-            print(f"Error generating OG image for hadith {sanitized_hadith_no}: {e}")
-
-    # Generate chapter OG images
-    print("Generating chapter OG images...")
-    # Get unique chapters from Sahih Bukhari and Muslim
+    print("Fetching chapters from database...")
     chapters = conn.execute(
         """
         SELECT source, chapter_no, chapter, COUNT(*) as hadith_count
@@ -406,48 +316,102 @@ def main():
     chapter_count = len(chapters)
     print(f"Found {chapter_count} chapters")
 
-    for source, chapter_no, chapter_name, hadith_count in tqdm(chapters):
+    # Close the database connection before parallelizing
+    conn.close()
+
+    # Create required directories for all sources and chapters up front to avoid race conditions
+    for hadith in hadiths:
+        hadith_dict = dict(zip(hadith_columns, hadith))
+        source_dir = og_images_dir / "hadiths" / hadith_dict["source"].replace(" ", "_")
+        chapter_dir = source_dir / str(hadith_dict["chapter_no"])
+        create_directory_if_not_exists(source_dir)
+        create_directory_if_not_exists(chapter_dir)
+
+    for chapter_data in chapters:
+        source = chapter_data[0]
         source_dir = og_images_dir / "chapters" / source.replace(" ", "_")
         create_directory_if_not_exists(source_dir)
+
+    def process_narrator(narrator):
+        narrator_dict = dict(zip(narrator_columns, narrator))
+        sanitized_name = str(narrator_dict["name"]).replace("/", "-").replace("\\", "-").replace(":", "_")
+        output_path = og_images_dir / "narrators" / f"{sanitized_name}.png"
+        try:
+            generate_narrator_og_image(narrator_dict, output_path, fonts)
+            return True
+        except Exception as e:
+            print(f"Error generating OG image for narrator {sanitized_name}: {e}")
+            return False
+
+    def process_hadith(hadith):
+        hadith_dict = dict(zip(hadith_columns, hadith))
+        source_dir = og_images_dir / "hadiths" / hadith_dict["source"].replace(" ", "_")
+        chapter_dir = source_dir / str(hadith_dict["chapter_no"])
+        sanitized_hadith_no = str(hadith_dict["hadith_no"]).replace("/", "-").replace(":", "_").strip()
+        output_path = chapter_dir / f"{sanitized_hadith_no}.png"
+
+        try:
+            generate_hadith_og_image(hadith_dict, output_path, fonts)
+            return True
+        except Exception as e:
+            print(f"Error generating OG image for hadith {sanitized_hadith_no}: {e}")
+            return False
+
+    def process_chapter(chapter_data):
+        source, chapter_no, chapter_name, hadith_count = chapter_data
+        source_dir = og_images_dir / "chapters" / source.replace(" ", "_")
         output_path = source_dir / f"{chapter_no}.png"
 
         try:
-            generate_chapter_og_image(
-                source, chapter_no, chapter_name, hadith_count, output_path
-            )
+            generate_chapter_og_image(source, chapter_no, chapter_name, hadith_count, output_path, fonts)
+            return True
         except Exception as e:
             print(f"Error generating OG image for chapter {chapter_no}: {e}")
+            return False
 
-    # Update HTML with metrics
+    max_workers = min(32, os.cpu_count() * 4)
+    print(f"Using {max_workers} parallel workers for image generation")
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = []
+
+        # Submit all tasks at once
+        for narrator in narrators:
+            futures.append(executor.submit(process_narrator, narrator))
+
+        for hadith in hadiths:
+            futures.append(executor.submit(process_hadith, hadith))
+
+        for chapter in chapters:
+            futures.append(executor.submit(process_chapter, chapter))
+
+        # Track progress for all tasks together
+        success_count = 0
+        total_count = len(futures)
+
+        for future in tqdm(concurrent.futures.as_completed(futures), total=total_count, desc="Generating images"):
+            if future.result():
+                success_count += 1
+
     duration = round(time.time() - start_time, 2)
+    print("OG image generation complete!")
+    print(f"Successfully generated {success_count}/{total_count} images")
+    print(f"Total generation time: {duration} seconds")
+
     metrics_html = f"""
-        <p>Total narrators with images: {narrator_count}</p>
-        <p>Total hadiths with images: {hadith_count}</p>
-        <p>Total chapters with images: {chapter_count}</p>
+        <p>Total images generated: {success_count}/{total_count}</p>
         <p>Generation time: {duration} seconds</p>
     </div>
     """
 
-    # Create an index HTML for QA
     html_content = create_index_html(og_images_dir)
     if html_content:
-        # Insert metrics after the opening metrics div
-        metrics_pos = html_content.find('<div class="metrics">') + len(
-            '<div class="metrics">'
-        )
-        html_content = (
-            html_content[:metrics_pos] + metrics_html + html_content[metrics_pos:]
-        )
+        metrics_pos = html_content.find('<div class="metrics">') + len('<div class="metrics">')
+        html_content = html_content[:metrics_pos] + metrics_html + html_content[metrics_pos:]
 
         with open(og_images_dir / "index.html", "w", encoding="utf-8") as f:
             f.write(html_content)
 
-    conn.close()
-    print("OG image generation complete!")
-    print(
-        f"Generated {narrator_count} narrator images, {hadith_count} hadith images, and {chapter_count} chapter images"
-    )
-    print(f"Total generation time: {duration} seconds")
     print("View the preview of generated images at /images/og-images/index.html")
 
 

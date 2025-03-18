@@ -11,8 +11,8 @@ const notoNaskhArabic = Noto_Naskh_Arabic({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(`https://open-graph.isnad-acg.pages.dev/`),
-  title: {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_METADATA_BASE || 'https://open-graph.isnad-acg.pages.dev/'),
+    title: {
     default: "Hadith Transmission Chain Visualizer",
     template: "%s | Hadith Transmission Chain Visualizer",
   },
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     description: "Explore the chains of transmission for authentic hadiths",
     images: [
       {
-        url: "/og-default.jpg",
+        url: "/images/og-images/og-default.jpg",
         width: 1200,
         height: 630,
         alt: "Hadith Transmission Chain Visualizer",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
       template: "%s | Hadith Transmission Chain Visualizer",
     },
     description: "Explore the chains of transmission for authentic hadiths",
-    images: ["/og-default.jpg"],
+    images: ["/images/og-images/og-default.jpg"],
   },
 };
 

@@ -44,7 +44,7 @@ export async function generateMetadata({
     .trim();
 
   return {
-    metadataBase: new URL(`https://open-graph.isnad-acg.pages.dev/`),
+    metadataBase: new URL(process.env.NEXT_PUBLIC_METADATA_BASE || 'https://open-graph.isnad-acg.pages.dev/'),
     title: `Hadith ${hadith.hadith_no} - ${hadith.source}`,
     description:
       hadith.text_ar?.substring(0, 160) ||

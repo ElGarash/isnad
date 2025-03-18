@@ -20,5 +20,5 @@ dependencies = [
 
 [tool.poe.tasks]
 gen-db = { script = "scripts.gen_db:main", help = "Generate database from CSV files" }
-gen-images = { cmd = "python scripts/gen_images.py", help = "Generate OG images from database" }
+gen-images = { script = "scripts.gen_images:main", help = "Generate OG images from database" }
 pre-commit = { shell = "pre-commit run --all-files", help = "Run pre-commit checks" }
