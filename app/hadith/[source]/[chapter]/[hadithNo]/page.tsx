@@ -15,21 +15,25 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { source, chapter, hadithNo } = await params;
-  const hadith = await getHadithById(source, chapter, hadithNo);
+  const hadith = getHadithById(
+    decodeURIComponent(source),
+    decodeURIComponent(chapter),
+    hadithNo
+  );
 
   if (!hadith) {
     return {
-      title: `Hadith ${hadithNo} - ${source}`,
-      description: "Explore this hadith transmission chain",
+      title: "Hadith Not Found",
+      description: "The requested hadith could not be found",
       openGraph: {
-        title: `Hadith ${hadithNo} - ${source}`,
-        description: "Explore this hadith transmission chain",
+        title: "Hadith Not Found",
+        description: "The requested hadith could not be found",
         images: [
           {
             url: "/images/og-images/og-default.png",
             width: 1200,
             height: 630,
-            alt: `Transmission chain for Hadith ${hadithNo}`,
+            alt: `Hadith not found`,
           },
         ],
         type: "article",
