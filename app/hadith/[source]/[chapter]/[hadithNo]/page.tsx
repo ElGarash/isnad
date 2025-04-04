@@ -8,7 +8,71 @@ import {
   getHadithById,
   getHadithsBySource,
 } from "@/lib/sqlite";
+import { Metadata } from "next";
 import { Suspense } from "react";
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { source, chapter, hadithNo } = await params;
+  const hadith = getHadithById(
+    decodeURIComponent(source),
+    decodeURIComponent(chapter),
+    hadithNo,
+  );
+
+  if (!hadith) {
+    return {
+      title: "Hadith Not Found",
+      description: "The requested hadith could not be found",
+      openGraph: {
+        title: "Hadith Not Found",
+        description: "The requested hadith could not be found",
+        images: [
+          {
+            url: "/images/og-images/og-default.png",
+            width: 1200,
+            height: 630,
+            alt: `Hadith not found`,
+          },
+        ],
+        type: "article",
+      },
+    };
+  }
+
+  const sanitizedSource = hadith.source.replace(" ", "_");
+  const sanitizedHadithNo = hadith.hadith_no
+    .toString()
+    .replace("/", "-")
+    .trim();
+
+  return {
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_METADATA_BASE ||
+        "https://open-graph.isnad-acg.pages.dev/",
+    ),
+    title: `Hadith ${hadith.hadith_no} - ${hadith.source}`,
+    description:
+      hadith.text_ar?.substring(0, 160) ||
+      "Explore this hadith transmission chain",
+    openGraph: {
+      title: `Hadith ${hadith.hadith_no} - ${hadith.source}`,
+      description:
+        hadith.text_ar?.substring(0, 160) ||
+        "Explore this hadith transmission chain",
+      images: [
+        {
+          url: `/images/og-images/hadiths/${sanitizedSource}/${hadith.chapter_no}/${sanitizedHadithNo}.png`,
+          width: 1200,
+          height: 630,
+          alt: `Transmission chain for Hadith ${hadithNo}`,
+        },
+      ],
+      type: "article",
+    },
+  };
+}
 
 interface PageProps {
   params: Promise<{
