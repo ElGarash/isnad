@@ -18,7 +18,7 @@ export async function generateMetadata({
   const hadith = getHadithById(
     decodeURIComponent(source),
     decodeURIComponent(chapter),
-    hadithNo
+    hadithNo,
   );
 
   if (!hadith) {
