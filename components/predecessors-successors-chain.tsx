@@ -111,12 +111,12 @@ const STROKE_WIDTH = {
 
 // Enhanced glow effect settings - refined for rocket thrust effect
 const GLOW = {
-  dotSize: 3,           // Core light dot size
-  beamLength: 35,       // Longer beam for more prominent thrust (was 25)
-  blurAmount: 5,        // Slightly increased blur for better glow effect
-  outerGlowWidth: 4,    // Wider outer glow for more prominent thrust effect
+  dotSize: 3, // Core light dot size
+  beamLength: 35, // Longer beam for more prominent thrust (was 25)
+  blurAmount: 5, // Slightly increased blur for better glow effect
+  outerGlowWidth: 4, // Wider outer glow for more prominent thrust effect
   speedMultiplier: 2.5, // Higher speed multiplier for faster animation
-  opacity: 0.95,        // High opacity for bright effect
+  opacity: 0.95, // High opacity for bright effect
   animationDuration: 1.2, // Even faster animation (was 1.5)
 };
 
@@ -149,12 +149,12 @@ function animatePathElements(pathElements: NodeListOf<Element>) {
       path.style.transition = "stroke 0.2s, stroke-width 0.2s";
 
       // Add hover effect
-      path.addEventListener('mouseover', () => {
+      path.addEventListener("mouseover", () => {
         path.style.stroke = COLORS.hover;
         path.style.strokeWidth = `${STROKE_WIDTH.hover}px`;
       });
 
-      path.addEventListener('mouseout', () => {
+      path.addEventListener("mouseout", () => {
         path.style.stroke = COLORS.default;
         path.style.strokeWidth = `${STROKE_WIDTH.default}px`;
       });
@@ -171,7 +171,6 @@ function animatePathElements(pathElements: NodeListOf<Element>) {
 
       // Create a glowing dot effect
       createGlowingDotEffect(path, pathLength, index);
-
     } catch (err) {
       console.error("Error animating path:", err);
       // Make sure the path is visible even if animation fails
@@ -182,7 +181,11 @@ function animatePathElements(pathElements: NodeListOf<Element>) {
   });
 }
 
-function createGlowingDotEffect(path: SVGPathElement, pathLength: number, index: number) {
+function createGlowingDotEffect(
+  path: SVGPathElement,
+  pathLength: number,
+  index: number,
+) {
   // Get the SVG parent
   const svg = path.ownerSVGElement;
   if (!svg) {
@@ -218,7 +221,7 @@ function createGlowingDotEffect(path: SVGPathElement, pathLength: number, index:
       { offset: "100%", color: COLORS.glow, opacity: "0" },
     ];
 
-    stops.forEach(stopData => {
+    stops.forEach((stopData) => {
       const stop = document.createElementNS(svgNS, "stop");
       stop.setAttribute("offset", stopData.offset);
       stop.setAttribute("stop-color", stopData.color);
@@ -288,7 +291,7 @@ function createGlowingDotEffect(path: SVGPathElement, pathLength: number, index:
 
     // Calculate the current offset position
     const progress = (elapsed % loopDuration) / loopDuration;
-    const currentOffset = pathLength - (progress * pathLength);
+    const currentOffset = pathLength - progress * pathLength;
 
     // Apply the offset with variations to create rocket thrust effect
     // The glow should be slightly behind the beam for thrust effect
@@ -297,22 +300,30 @@ function createGlowingDotEffect(path: SVGPathElement, pathLength: number, index:
     dotPath.style.strokeDashoffset = `${currentOffset}`; // Dot at the front
 
     // Continue the animation
-    (glowPath as any)._animationFrame = requestAnimationFrame(animateRocketThrust);
+    (glowPath as any)._animationFrame =
+      requestAnimationFrame(animateRocketThrust);
   };
 
   // Start the animation after a minimal delay
-  setTimeout(() => {
-    (glowPath as any)._animationFrame = requestAnimationFrame(animateRocketThrust);
-  }, index * 0.03 * 1000); // Very small stagger for nearly simultaneous effect
+  setTimeout(
+    () => {
+      (glowPath as any)._animationFrame =
+        requestAnimationFrame(animateRocketThrust);
+    },
+    index * 0.03 * 1000,
+  ); // Very small stagger for nearly simultaneous effect
 }
 
 // Helper function to get path start and end points for gradient orientation
-function getPathEndpoints(path: SVGPathElement): { start: { x: number, y: number }, end: { x: number, y: number } } {
+function getPathEndpoints(path: SVGPathElement): {
+  start: { x: number; y: number };
+  end: { x: number; y: number };
+} {
   try {
     // Default values in case calculation fails
     const defaultResult = {
       start: { x: 0, y: 0 },
-      end: { x: 100, y: 0 }
+      end: { x: 100, y: 0 },
     };
 
     // Try to get the actual path points
@@ -324,12 +335,12 @@ function getPathEndpoints(path: SVGPathElement): { start: { x: number, y: number
         return {
           start: {
             x: startPoint.x,
-            y: startPoint.y
+            y: startPoint.y,
           },
           end: {
             x: endPoint.x,
-            y: endPoint.y
-          }
+            y: endPoint.y,
+          },
         };
       }
     }
@@ -338,7 +349,7 @@ function getPathEndpoints(path: SVGPathElement): { start: { x: number, y: number
     console.error("Error getting path endpoints:", e);
     return {
       start: { x: 0, y: 0 },
-      end: { x: 100, y: 0 }
+      end: { x: 100, y: 0 },
     };
   }
 }
@@ -346,11 +357,11 @@ function getPathEndpoints(path: SVGPathElement): { start: { x: number, y: number
 // Add a helper function to create global CSS hover styles
 function addGlobalHoverStyles() {
   // Check if we've already added styles
-  if (document.getElementById('isnad-path-hover-styles')) return;
+  if (document.getElementById("isnad-path-hover-styles")) return;
 
   // Create a style element for global hover effects
-  const styleEl = document.createElement('style');
-  styleEl.id = 'isnad-path-hover-styles';
+  const styleEl = document.createElement("style");
+  styleEl.id = "isnad-path-hover-styles";
   styleEl.innerHTML = `
     .link:hover {
       stroke: ${COLORS.hover} !important;
@@ -369,8 +380,10 @@ function addGlobalHoverStyles() {
 // Add a cleanup function for when component unmounts
 function cleanupAnimations() {
   // Find all glow paths and cancel their animation frames
-  const glowPaths = document.querySelectorAll("[id^='glow-'], [id^='halo-'], [id^='trail-']");
-  glowPaths.forEach(path => {
+  const glowPaths = document.querySelectorAll(
+    "[id^='glow-'], [id^='halo-'], [id^='trail-']",
+  );
+  glowPaths.forEach((path) => {
     if ((path as any)._animationFrame) {
       cancelAnimationFrame((path as any)._animationFrame);
       (path as any)._animationFrame = null;
@@ -378,12 +391,14 @@ function cleanupAnimations() {
   });
 
   // Remove the added paths
-  const addedPaths = document.querySelectorAll("[id^='glow-'], [id^='dot-'], [id^='halo-'], [id^='trail-']");
-  addedPaths.forEach(path => path.parentNode?.removeChild(path));
+  const addedPaths = document.querySelectorAll(
+    "[id^='glow-'], [id^='dot-'], [id^='halo-'], [id^='trail-']",
+  );
+  addedPaths.forEach((path) => path.parentNode?.removeChild(path));
 
   // Clear intervals from any original paths
   const paths = document.querySelectorAll("path");
-  paths.forEach(path => {
+  paths.forEach((path) => {
     if ((path as any)._animationInterval) {
       clearInterval((path as any)._animationInterval);
       (path as any)._animationInterval = null;
@@ -392,7 +407,7 @@ function cleanupAnimations() {
 
   // Also remove any gradients we created
   const gradients = document.querySelectorAll("[id^='beam-gradient-']");
-  gradients.forEach(gradient => {
+  gradients.forEach((gradient) => {
     if (gradient.parentNode) {
       gradient.parentNode.removeChild(gradient);
     }
@@ -407,14 +422,11 @@ function setupAnimationRestartOnScroll() {
   // Function to check visibility and restart animations if needed
   const checkVisibilityAndRestart = () => {
     const isGraphVisible = () => {
-      const container = document.getElementById('isnad-graph-container');
+      const container = document.getElementById("isnad-graph-container");
       if (!container) return false;
 
       const rect = container.getBoundingClientRect();
-      const isVisible = (
-        rect.top < window.innerHeight &&
-        rect.bottom > 0
-      );
+      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
       return isVisible;
     };
 
@@ -436,11 +448,13 @@ function setupAnimationRestartOnScroll() {
   };
 
   // Set up scroll listener
-  window.addEventListener('scroll', checkVisibilityAndRestart, { passive: true });
+  window.addEventListener("scroll", checkVisibilityAndRestart, {
+    passive: true,
+  });
 
   // Clean up function
   return () => {
-    window.removeEventListener('scroll', checkVisibilityAndRestart);
+    window.removeEventListener("scroll", checkVisibilityAndRestart);
   };
 }
 
@@ -457,7 +471,8 @@ function useAnimateLinks() {
       console.log("Looking for links to animate");
 
       // Try multiple selector strategies to find the links
-      let links: NodeListOf<Element> | Element[] = document.querySelectorAll(".link");
+      let links: NodeListOf<Element> | Element[] =
+        document.querySelectorAll(".link");
 
       if (links.length === 0) {
         console.log("No .link elements found, trying direct path selector");
@@ -466,9 +481,9 @@ function useAnimateLinks() {
         if (svgs.length > 0) {
           // Find all paths in all SVGs
           const allPaths: Element[] = [];
-          svgs.forEach(svg => {
+          svgs.forEach((svg) => {
             const paths = svg.querySelectorAll("path");
-            paths.forEach(path => allPaths.push(path));
+            paths.forEach((path) => allPaths.push(path));
           });
 
           console.log(`Found ${allPaths.length} paths in SVGs`);
@@ -488,7 +503,6 @@ function useAnimateLinks() {
       } else {
         console.warn("Could not find any links or paths to animate");
       }
-
     }, 1000); // Give the graph time to render
 
     // Clean up animations when component unmounts
@@ -498,7 +512,7 @@ function useAnimateLinks() {
       cleanupScrollListener(); // Clean up scroll listener
 
       // Clean up the style element
-      const styleEl = document.getElementById('isnad-path-hover-styles');
+      const styleEl = document.getElementById("isnad-path-hover-styles");
       if (styleEl) styleEl.remove();
     };
   }, []);
@@ -549,11 +563,7 @@ export default function TeacherStudentChain({
         return (
           <div id="isnad-graph-container" ref={graphRef}>
             {graphData.nodes.length > 0 && (
-              <TypedGraph
-                id="isnad"
-                data={graphData}
-                config={graphConfig}
-              />
+              <TypedGraph id="isnad" data={graphData} config={graphConfig} />
             )}
           </div>
         );

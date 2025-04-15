@@ -16,12 +16,10 @@ import {
   getSuccessors,
   narratedAbout,
 } from "@/lib/sqlite";
-
+import { BabyIcon, MapPinIcon, SkullIcon } from "lucide-react";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-
-import { BabyIcon, MapPinIcon, SkullIcon } from "lucide-react";
 
 export async function generateMetadata({
   params,
@@ -64,7 +62,7 @@ export async function generateMetadata({
   return {
     metadataBase: new URL(
       process.env.NEXT_PUBLIC_METADATA_BASE ||
-      "https://open-graph.isnad-acg.pages.dev/",
+        "https://open-graph.isnad-acg.pages.dev/",
     ),
     title: `${narrator.name} - Hadith Narrator Profile`,
     description,
