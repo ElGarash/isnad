@@ -327,7 +327,7 @@ def insert_chains(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
 
 def main() -> None:
     # Ensure place_translations.json path is correct
-    place_translations_path = Path("place_translations.json")
+    place_translations_path = Path("data/place_translations.json")
     if not place_translations_path.exists():
         print(
             f"Warning: Place translations file not found at {place_translations_path}"

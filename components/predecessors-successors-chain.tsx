@@ -24,6 +24,9 @@ interface TeacherStudentChainProps {
   };
 }
 
+type AnimatedPath = SVGPathElement & { _animationFrame?: number | null, _animationInterval?: number | null };
+type AnimatedElement = Element & { _animationFrame: number | null };
+
 function calculateGraphData(
   chainData: TeacherStudentChainProps["chainData"],
   width: number,
@@ -239,7 +242,7 @@ function createGlowingDotEffect(
   }
 
   // First create a wider glowing effect for the thrust base
-  const glowPath = path.cloneNode() as SVGPathElement;
+  const glowPath = path.cloneNode() as AnimatedPath;
   const pathId = path.id || `path-${index}`;
   glowPath.id = `glow-${pathId}`;
   glowPath.style.stroke = COLORS.glow;
@@ -300,14 +303,14 @@ function createGlowingDotEffect(
     dotPath.style.strokeDashoffset = `${currentOffset}`; // Dot at the front
 
     // Continue the animation
-    (glowPath as any)._animationFrame =
+    glowPath._animationFrame =
       requestAnimationFrame(animateRocketThrust);
   };
 
   // Start the animation after a minimal delay
   setTimeout(
     () => {
-      (glowPath as any)._animationFrame =
+      glowPath._animationFrame =
         requestAnimationFrame(animateRocketThrust);
     },
     index * 0.03 * 1000,
@@ -380,13 +383,13 @@ function addGlobalHoverStyles() {
 // Add a cleanup function for when component unmounts
 function cleanupAnimations() {
   // Find all glow paths and cancel their animation frames
-  const glowPaths = document.querySelectorAll(
+  const glowPaths: NodeListOf<AnimatedElement> = document.querySelectorAll(
     "[id^='glow-'], [id^='halo-'], [id^='trail-']",
   );
   glowPaths.forEach((path) => {
-    if ((path as any)._animationFrame) {
-      cancelAnimationFrame((path as any)._animationFrame);
-      (path as any)._animationFrame = null;
+    if (path._animationFrame) {
+      cancelAnimationFrame(path._animationFrame);
+      path._animationFrame = null;
     }
   });
 
@@ -397,11 +400,11 @@ function cleanupAnimations() {
   addedPaths.forEach((path) => path.parentNode?.removeChild(path));
 
   // Clear intervals from any original paths
-  const paths = document.querySelectorAll("path");
+  const paths: NodeListOf<AnimatedPath> = document.querySelectorAll("path");
   paths.forEach((path) => {
-    if ((path as any)._animationInterval) {
-      clearInterval((path as any)._animationInterval);
-      (path as any)._animationInterval = null;
+    if (path._animationInterval) {
+      clearInterval(path._animationInterval);
+      path._animationInterval = null;
     }
   });
 

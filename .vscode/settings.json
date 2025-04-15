@@ -21,9 +21,30 @@
   "npm.packageManager": "bun",
   "python.terminal.activateEnvironment": true,
   "python.defaultInterpreterPath": ".venv/bin/python3",
-  "python.testing.pytestArgs": ["tests"],
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
-  "cSpell.words": ["hadiths", "Isnad", "Sahih", "Sanad", "Tabi", "الرواة"],
+  "cSpell.words": [
+    "beautifulsoup",
+    "bunx",
+    "cmdk",
+    "embla",
+    "hadiths",
+    "ipykernel",
+    "Isnad",
+    "poethepoet",
+    "pyarrow",
+    "rapidfuzz",
+    "Sahih",
+    "Sanad",
+    "sonner",
+    "Tabi",
+    "tqdm",
+    "trivago",
+    "vaul",
+    "الرواة"
+  ],
   "eslint.useFlatConfig": false
 }
