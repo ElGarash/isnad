@@ -21,7 +21,6 @@ jobs:
       pull-requests: write
       issues: write
     runs-on: ubuntu-latest
-    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v4
@@ -68,6 +67,20 @@ jobs:
       - name: Generate Database
         if: steps.cache-db.outputs.cache-hit != 'true'
         run: uv run poe gen-db
+
+      # Add OG Image generation step here
+      - name: Cache OG Images
+        id: cache-og-images
+        uses: actions/cache@v4
+        with:
+          path: public/images/og-images
+          key: ${{ runner.os }}-og-images-${{ hashFiles('scripts/gen_images.py') }}-${{ hashFiles('data/sqlite.db') }}
+          restore-keys: |
+            ${{ runner.os }}-og-images-
+
+      - name: Generate OG Images
+        if: steps.cache-og-images.outputs.cache-hit != 'true'
+        run: uv run python scripts/gen_images.py
 
       - run: bun install
 
