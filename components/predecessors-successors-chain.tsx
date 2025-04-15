@@ -24,7 +24,10 @@ interface TeacherStudentChainProps {
   };
 }
 
-type AnimatedPath = SVGPathElement & { _animationFrame?: number | null, _animationInterval?: number | null };
+type AnimatedPath = SVGPathElement & {
+  _animationFrame?: number | null;
+  _animationInterval?: number | null;
+};
 type AnimatedElement = Element & { _animationFrame: number | null };
 
 function calculateGraphData(
@@ -303,15 +306,13 @@ function createGlowingDotEffect(
     dotPath.style.strokeDashoffset = `${currentOffset}`; // Dot at the front
 
     // Continue the animation
-    glowPath._animationFrame =
-      requestAnimationFrame(animateRocketThrust);
+    glowPath._animationFrame = requestAnimationFrame(animateRocketThrust);
   };
 
   // Start the animation after a minimal delay
   setTimeout(
     () => {
-      glowPath._animationFrame =
-        requestAnimationFrame(animateRocketThrust);
+      glowPath._animationFrame = requestAnimationFrame(animateRocketThrust);
     },
     index * 0.03 * 1000,
   ); // Very small stagger for nearly simultaneous effect

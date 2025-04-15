@@ -1,8 +1,7 @@
 {
-  "name": "Isnad-Dev",
+  "name": "isnad-dev",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   "features": {
-    "ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/shyim/devcontainers-features/bun:0": {},
     "ghcr.io/devcontainers/features/python:1": {
@@ -13,13 +12,18 @@
     "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
       "upgradePackages": true,
       "packages": ["git-delta", "neovim", "sqlite3", "xdg-utils"]
-    }
+    },
+    "ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {
+      "plugins": "zsh-autosuggestions",
+      "omzPlugins": "https://github.com/zsh-users/zsh-autosuggestions"
+    },
+    "ghcr.io/stuartleeks/dev-container-features/shell-history:0": {}
   },
-
-  "postCreateCommand": "uv sync && bun install  && mkdir -p ~/.oh-my-zsh/completions && uv run poe _zsh_completion > ~/.oh-my-zsh/completions/_poe",
+  "postStartCommand": ".devcontainer/post-start.sh",
   "remoteEnv": {
     "DEVCONTAINER": "true",
-    "UV_LINK_MODE": "copy"
+    "UV_LINK_MODE": "copy",
+    "TZ": "Africa/Cairo"
   },
   "customizations": {
     "vscode": {
