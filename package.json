@@ -9,6 +9,7 @@
     "lint": "bunx --bun next lint",
     "fmt": "prettier --write app components",
     "type-check": "bunx --bun tsc",
+    "meta-check": "bunx --bun check-site-meta 3000",
     "wrangler:login": "wrangler login",
     "wrangler:deploy": "wrangler pages deploy out"
   },

@@ -4,6 +4,7 @@ import { LoadingSpinner } from "@/components/loading-spinner";
 import TeacherStudentChain from "@/components/predecessors-successors-chain";
 import VirtualizedChapterList from "@/components/virtualized-chapter-list";
 import VirtualizedNarratorList from "@/components/virtualized-narrator-list";
+import { getArabicGrade, getBlessings } from "@/lib/grade-mapping";
 import {
   ChapterCount,
   InfoSource,
@@ -15,6 +16,7 @@ import {
   getSuccessors,
   narratedAbout,
 } from "@/lib/sqlite";
+import { BabyIcon, MapPinIcon, SkullIcon } from "lucide-react";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -86,58 +88,100 @@ export async function generateMetadata({
   };
 }
 
-function RelationshipsSection({
-  narrator,
+function Summary({ narrator }: { narrator: Narrator }) {
+  return (
+    <BrutalistCard className="flex flex-col gap-6 p-4">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-start gap-2">
+            <span className="font-bold">الدرجة</span>
+            <div className="inline-flex min-h-[28px] items-center justify-center border-2 border-navy bg-parchment px-3 py-1 text-base font-bold shadow-[3px_3px_0px_0px_theme(colors.navy)]">
+              {getArabicGrade(narrator.grade)}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <h2 className="text-xl font-bold">تواريخ</h2>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <BabyIcon className="h-5 w-5" />
+            <span className="font-bold">الولادة:</span>
+            {narrator.birth_date_hijri || narrator.birth_date_gregorian ? (
+              <span>
+                {`${narrator.birth_date_hijri ?? "غير معروف"} هـ`} /{" "}
+                {`${narrator.birth_date_gregorian ?? "غير معروف"} مـ`}
+              </span>
+            ) : (
+              <span>غير معروف</span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <SkullIcon className="h-5 w-5" />
+            <span className="font-bold">الوفاة:</span>
+            {narrator.death_date_hijri || narrator.death_date_gregorian ? (
+              <span>
+                {`${narrator.death_date_hijri ?? "غير معروف"} هـ`} /{" "}
+                {`${narrator.death_date_gregorian ?? "غير معروف"} مـ`}
+              </span>
+            ) : (
+              <span>غير معروف</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {narrator.death_place && (
+        <div className="flex flex-col gap-3">
+          <h2 className="text-xl font-bold">أماكن</h2>
+          <div className="flex items-center gap-2">
+            <MapPinIcon className="h-5 w-5" />
+            <span className="font-bold">الوفاة: </span>
+            <span>{narrator.death_place}</span>
+          </div>
+        </div>
+      )}
+    </BrutalistCard>
+  );
+}
+
+function RelationsSection({
   predecessors,
   successors,
   chapters,
 }: {
-  narrator: Narrator;
   predecessors: Narrator[];
   successors: Narrator[];
   chapters: ChapterCount[];
 }) {
   return (
-    <div className="grid h-full grid-cols-12 gap-6">
-      <section className="col-span-3 flex flex-col gap-6">
-        {predecessors.length !== 0 && (
-          <BrutalistCard>
-            <h2 className="mb-3 text-xl font-bold">
-              روى عن ({predecessors.length})
-            </h2>
-            <VirtualizedNarratorList items={predecessors} />
-          </BrutalistCard>
-        )}
-        {successors.length !== 0 && (
-          <BrutalistCard>
-            <h2 className="mb-3 text-xl font-bold">
-              روى عنه ({successors.length})
-            </h2>
-            <VirtualizedNarratorList items={successors} />
-          </BrutalistCard>
-        )}
-        {chapters.length !== 0 && (
-          <BrutalistCard>
-            <h2 className="mb-3 text-xl font-bold">
-              روى في ({chapters.length} باب)
-            </h2>
-            <VirtualizedChapterList items={chapters} />
-          </BrutalistCard>
-        )}
-      </section>
-      <BrutalistCard className="col-span-9 h-full p-1">
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
-            <TeacherStudentChain
-              chainData={{
-                narrator,
-                predecessors,
-                successors,
-              }}
-            />
-          </Suspense>
-        </ErrorBoundary>
-      </BrutalistCard>
+    <div className="flex flex-col gap-6">
+      {predecessors.length !== 0 && (
+        <BrutalistCard>
+          <h2 className="mb-3 inline-block border-2 border-navy/70 bg-parchment-dark px-2 py-1 text-xl font-bold">
+            رَوى عن ({predecessors.length})
+          </h2>
+          <VirtualizedNarratorList items={predecessors} />
+        </BrutalistCard>
+      )}
+      {successors.length !== 0 && (
+        <BrutalistCard>
+          <h2 className="mb-3 inline-block border-2 border-navy/70 bg-parchment-dark px-2 py-1 text-xl font-bold">
+            رَوى عنه ({successors.length})
+          </h2>
+          <VirtualizedNarratorList items={successors} />
+        </BrutalistCard>
+      )}
+      {chapters.length !== 0 && (
+        <BrutalistCard>
+          <h2 className="mb-3 inline-block border-2 border-navy/70 bg-parchment-dark px-2 py-1 text-xl font-bold">
+            روى في ({chapters.length} باب)
+          </h2>
+          <VirtualizedChapterList items={chapters} />
+        </BrutalistCard>
+      )}
     </div>
   );
 }
@@ -176,13 +220,15 @@ function InfoSection({ info }: { info: InfoSource[] }) {
   if (!info || info.length === 0) return null;
 
   return (
-    <>
+    <div className="flex flex-col gap-6">
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t-4 border-black"></div>
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-parchment px-4 text-2xl font-bold">ذُكر عنه</span>
+          <span className="bg-parchment-dark px-4 text-2xl font-bold">
+            ذُكر عنه
+          </span>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-6">
@@ -203,7 +249,7 @@ function InfoSection({ info }: { info: InfoSource[] }) {
           </BrutalistCard>
         ))}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -238,19 +284,43 @@ export default async function NarratorPage({
       <div className="container my-12 flex min-h-screen flex-col gap-12">
         <div className="w-fit">
           <h1 className="relative inline-block text-4xl font-bold">
-            {narrator.name}
+            {narrator.name} ({getBlessings(getArabicGrade(narrator.grade))})
             <div className="absolute bottom-0 left-0 right-0 -z-10 h-4 translate-y-2 bg-parchment"></div>
           </h1>
         </div>
 
-        <RelationshipsSection
-          narrator={narrator}
-          predecessors={predecessors}
-          successors={successors}
-          chapters={chapters}
-        />
+        <div className="grid grid-cols-12 gap-6">
+          <div className="order-1 col-span-3 flex flex-col gap-6">
+            <Summary narrator={narrator} />
+            <RelationsSection
+              predecessors={predecessors}
+              successors={successors}
+              chapters={chapters}
+            />
+          </div>
 
-        <InfoSection info={info} />
+          <div className="order-2 col-span-9 flex flex-col gap-6">
+            <BrutalistCard className="min-h-screen p-1">
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <TeacherStudentChain
+                    chainData={{
+                      narrator,
+                      predecessors,
+                      successors,
+                    }}
+                  />
+                </Suspense>
+              </ErrorBoundary>
+            </BrutalistCard>
+
+            {info && info.length > 0 && (
+              <div className="mt-6">
+                <InfoSection info={info} />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </main>
   );

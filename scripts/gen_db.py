@@ -240,7 +240,33 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
     ).to_pandas().to_sql("hadiths", conn, if_exists="append", index=False)
 
 
+def translate_place(place: str, translations: dict) -> str | None:
+    """Translate place name using the translations dictionary or return None if not found"""
+    if place is None:
+        return None
+
+    # Strip any whitespace and normalize
+    normalized_place = place.strip()
+
+    # Return the translation if found, otherwise None
+    return translations.get(normalized_place)
+
+
 def insert_rawis(conn: sqlite3.Connection, rawis_df: pl.DataFrame) -> None:
+    # Load place translations
+    with open(Path("data/place_translations.json")) as f:
+        place_translations = json.load(f)
+
+    def translate_place_fn(place: str) -> str | None:
+        return translate_place(place, place_translations)
+
+    rawis_df = rawis_df.with_columns(
+        pl.col("death_place").map_elements(
+            translate_place_fn,
+            return_dtype=pl.Utf8,
+        )
+    )
+
     rawis_df.select(
         [
             "scholar_indx",
@@ -300,6 +326,14 @@ def insert_chains(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
 
 
 def main() -> None:
+    # Ensure place_translations.json path is correct
+    place_translations_path = Path("data/place_translations.json")
+    if not place_translations_path.exists():
+        print(
+            f"Warning: Place translations file not found at {place_translations_path}"
+        )
+        print("Death place translations will not be applied.")
+
     hadiths_df = pl.read_csv(Path("data/hadiths_dataset.csv"))
     rawis_df = pl.read_csv(Path("data/rawis.csv"))
 

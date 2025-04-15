@@ -11,7 +11,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        parchment: "#e6ded1",
+        parchment: {
+          DEFAULT: "#e6ded1",
+          light: "#f0ebe2",
+          dark: "#d3c7b5",
+          accent: "#c5b9a3",
+        },
         navy: "#1b2b3b",
         gold: "#c49b66",
         background: "hsl(var(--background))",
