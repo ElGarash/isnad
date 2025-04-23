@@ -50,7 +50,10 @@ export async function generateMetadata({
   }
 
   // Get a brief description from narrator info if available
-  const info = getNarratorInfo(narrator.scholar_indx);
+  const info =
+    narrator.scholar_indx !== undefined
+      ? getNarratorInfo(narrator.scholar_indx)
+      : [];
   let description = `Hadith narrator profile for ${narrator.name}`;
   if (info && info.length > 0 && info[0].content) {
     description = info[0].content.substring(0, 160) + "...";
