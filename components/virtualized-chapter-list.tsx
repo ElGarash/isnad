@@ -19,7 +19,7 @@ export default function VirtualizedChapterList({
         return (
           <Link
             href={`/hadith/${encodeURIComponent(item.source)}/${item.chapter}`}
-            className="block p-2 border-2 border-black hover:bg-parchment hover:text-navy transition-colors"
+            className="block border-2 border-black p-2 transition-colors hover:bg-parchment hover:text-navy"
             title={fullText}
           >
             <div className="truncate">{fullText}</div>

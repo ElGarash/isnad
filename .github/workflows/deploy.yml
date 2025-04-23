@@ -19,8 +19,8 @@ jobs:
       contents: read
       deployments: write
       pull-requests: write
+      issues: write
     runs-on: ubuntu-latest
-    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v4
@@ -68,6 +68,20 @@ jobs:
         if: steps.cache-db.outputs.cache-hit != 'true'
         run: uv run poe gen-db
 
+      # Add OG Image generation step here
+      - name: Cache OG Images
+        id: cache-og-images
+        uses: actions/cache@v4
+        with:
+          path: public/images/og-images
+          key: ${{ runner.os }}-og-images-${{ hashFiles('scripts/gen_images.py') }}-${{ hashFiles('data/sqlite.db') }}
+          restore-keys: |
+            ${{ runner.os }}-og-images-
+
+      - name: Generate OG Images
+        if: steps.cache-og-images.outputs.cache-hit != 'true'
+        run: uv run python scripts/gen_images.py
+
       - run: bun install
 
       - run: bun run build
@@ -82,3 +96,37 @@ jobs:
           directory: out
           github-token: ${{ secrets.GITHUB_TOKEN }}
           github-environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
+
+
+      - name: Restore lychee cache
+        uses: actions/cache@v4
+        with:
+          path: .lycheecache
+          key: cache-lychee-${{ github.sha }}
+          restore-keys: cache-lychee-
+
+
+      - name: Link Checker
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
+        continue-on-error: true
+        with:
+          args: >-
+            --cache
+            --max-cache-age 1d
+            --accept 200
+            --base ${{ steps.pages.outputs.url }}
+            --exclude "out/_next/.*"
+            './out/**/*.html'
+          output: ./lychee/out.md
+          fail: true
+
+      - name: Create Issue From File
+        if: steps.lychee.outputs.exit_code != 0
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          title: Link Checker Report
+          content-filepath: ./lychee/out.md
+          labels: report, automated issue

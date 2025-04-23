@@ -29,7 +29,7 @@ def create_tables(conn: sqlite3.Connection) -> None:
         birth_date_hijri INTEGER,
         birth_date_gregorian INTEGER,
         death_date_hijri INTEGER,
-        death_date_gregorian TEXT,
+        death_date_gregorian INTEGER,
         death_place TEXT
     );
 
@@ -144,11 +144,12 @@ def load_explanations(source: str) -> pl.DataFrame:
     # Join the dataframes to get hadith_no -> explanation mapping
     return matches_df.join(
         explanations_df, left_on="open_hadith_id", right_on="hadith_id", how="left"
-    ).select(["id", "hadith_no", "explanation"])
+    ).select(["id", "hadith_no", "explanation", "hadith_text"])
 
 
+# TODO: Add Diacritics for hadiths with no explanations as well
 def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
-    """Insert hadiths into SQLite database with explanations for Bukhari and Muslim hadiths"""
+    """Insert hadiths into SQLite database with explanations and diacritical text for Bukhari and Muslim hadiths"""
     processed_hadiths = hadiths_df.select(
         [
             "hadith_id",
@@ -156,7 +157,7 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
             "chapter_no",
             pl.col("hadith_no").str.strip_chars(),
             pl.col("chapter").map_elements(clean_arabic_text, return_dtype=pl.Utf8),
-            "text_ar",
+            "text_ar",  # We'll replace this with diacritical text where available
             "text_en",
             "id",
         ]
@@ -171,20 +172,26 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
     bukhari_explanations = load_explanations("bukhari")
     muslim_explanations = load_explanations("muslim")
 
-    print(f"Loaded {bukhari_explanations.height} Bukhari explanations")
-    print(f"Loaded {muslim_explanations.height} Muslim explanations")
-
+    # Join and update text_ar with hadith_text where available
     bukhari_hadiths = (
         bukhari_hadiths.with_columns(
             pl.col("hadith_no").str.strip_chars().alias("normalized_id")
         )
         .join(
             bukhari_explanations.with_columns(pl.col("hadith_no")),
-            left_on=["id", "normalized_id"],  # Join on both 'id' and 'hadith_no'
+            left_on=["id", "normalized_id"],
             right_on=["id", "hadith_no"],
             how="left",
         )
-        .drop("normalized_id")
+        .with_columns(
+            [
+                pl.when(pl.col("hadith_text").is_not_null())
+                .then(pl.col("hadith_text"))
+                .otherwise(pl.col("text_ar"))
+                .alias("text_ar")
+            ]
+        )
+        .drop(["normalized_id", "hadith_text"])
         .unique(["hadith_id"])
     )
 
@@ -194,11 +201,19 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
         )
         .join(
             muslim_explanations.with_columns(pl.col("hadith_no")),
-            left_on=["id", "normalized_id"],  # Join on both 'id' and 'hadith_no'
+            left_on=["id", "normalized_id"],
             right_on=["id", "hadith_no"],
             how="left",
         )
-        .drop("normalized_id")
+        .with_columns(
+            [
+                pl.when(pl.col("hadith_text").is_not_null())
+                .then(pl.col("hadith_text"))
+                .otherwise(pl.col("text_ar"))
+                .alias("text_ar")
+            ]
+        )
+        .drop(["normalized_id", "hadith_text"])
         .unique(["hadith_id"])
     )
 
@@ -225,7 +240,33 @@ def insert_hadiths(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
     ).to_pandas().to_sql("hadiths", conn, if_exists="append", index=False)
 
 
+def translate_place(place: str, translations: dict) -> str | None:
+    """Translate place name using the translations dictionary or return None if not found"""
+    if place is None:
+        return None
+
+    # Strip any whitespace and normalize
+    normalized_place = place.strip()
+
+    # Return the translation if found, otherwise None
+    return translations.get(normalized_place)
+
+
 def insert_rawis(conn: sqlite3.Connection, rawis_df: pl.DataFrame) -> None:
+    # Load place translations
+    with open(Path("data/place_translations.json")) as f:
+        place_translations = json.load(f)
+
+    def translate_place_fn(place: str) -> str | None:
+        return translate_place(place, place_translations)
+
+    rawis_df = rawis_df.with_columns(
+        pl.col("death_place").map_elements(
+            translate_place_fn,
+            return_dtype=pl.Utf8,
+        )
+    )
+
     rawis_df.select(
         [
             "scholar_indx",
@@ -233,10 +274,10 @@ def insert_rawis(conn: sqlite3.Connection, rawis_df: pl.DataFrame) -> None:
             "full_name",
             "grade",
             "parents",
-            "birth_date_hijri",
-            "birth_date_gregorian",
-            pl.col("death_date_hijri").cast(pl.Int16),
-            pl.col("death_date_gregorian").cast(pl.Int16),
+            pl.col("birth_date_hijri").round(0).cast(pl.Int16, wrap_numerical=True),
+            pl.col("birth_date_gregorian").round(0).cast(pl.Int16, wrap_numerical=True),
+            pl.col("death_date_hijri").round(0).cast(pl.Int16, wrap_numerical=True),
+            pl.col("death_date_gregorian").round(0).cast(pl.Int16, wrap_numerical=True),
             "death_place",
         ]
     ).to_pandas().to_sql("rawis", conn, if_exists="append", index=False)
@@ -286,6 +327,14 @@ def insert_chains(conn: sqlite3.Connection, hadiths_df: pl.DataFrame) -> None:
 
 
 def main() -> None:
+    # Ensure place_translations.json path is correct
+    place_translations_path = Path("data/place_translations.json")
+    if not place_translations_path.exists():
+        print(
+            f"Warning: Place translations file not found at {place_translations_path}"
+        )
+        print("Death place translations will not be applied.")
+
     hadiths_df = pl.read_csv(Path("data/hadiths_dataset.csv"))
     rawis_df = pl.read_csv(Path("data/rawis.csv"))
 

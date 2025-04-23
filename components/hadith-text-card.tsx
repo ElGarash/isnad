@@ -6,10 +6,10 @@ interface HadithTextCardProps {
 
 function HadithTextCard({ text }: HadithTextCardProps) {
   return (
-    <Card className="p-6 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col">
-      <h2 className="text-2xl font-bold mb-4 text-right">متن الحديث</h2>
-      <div className="prose prose-xl dark:prose-invert max-w-none overflow-y-auto flex-grow pl-4">
-        <p className="text-right leading-relaxed whitespace-pre-wrap">{text}</p>
+    <Card className="flex flex-col border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+      <h2 className="mb-4 text-right text-2xl font-bold">متن الحديث</h2>
+      <div className="prose prose-xl dark:prose-invert max-w-none flex-grow overflow-y-auto pl-4">
+        <p className="whitespace-pre-wrap text-right leading-relaxed">{text}</p>
       </div>
     </Card>
   );

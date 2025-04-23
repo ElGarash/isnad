@@ -10,6 +10,7 @@
     "generate-types": "bunx @rmp135/sql-ts -c sql-ts.config.json",
     "fmt": "prettier --write app components",
     "type-check": "bunx --bun tsc",
+    "meta-check": "bunx --bun check-site-meta 3000",
     "wrangler:login": "wrangler login",
     "wrangler:deploy": "wrangler pages deploy out"
   },
@@ -84,6 +85,7 @@
     "eslint-config-next": "^15.1.7",
     "postcss": "^8",
     "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
     "wrangler": "^3.108.1"
