@@ -30,6 +30,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set environment variables
+        id: set-env
+        run: |
+          echo "NEXT_PUBLIC_BASE_PATH=$([ "${{ github.ref }}" = "refs/heads/main" ] && echo "/${{ github.event.repository.name }}" || echo "")" >> $GITHUB_ENV
+          echo "NODE_ENV=production" >> $GITHUB_ENV
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
@@ -89,7 +95,11 @@ jobs:
 
       - run: bun install
 
-      - run: bun run build
+      - name: Build
+        run: bun run build
+        env:
+          NEXT_PUBLIC_BASE_PATH: ${{ env.NEXT_PUBLIC_BASE_PATH }}
+          NODE_ENV: production
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
