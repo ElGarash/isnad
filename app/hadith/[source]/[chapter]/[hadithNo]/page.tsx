@@ -83,7 +83,7 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const hadiths = getHadithsBySource("Sahih Bukhari", 1000);
+  const hadiths = getHadithsBySource("Sahih Bukhari", 10_000);
   return hadiths.map((hadith) => ({
     source: hadith.source,
     chapter: hadith.chapter,
