@@ -26,7 +26,7 @@ interface HadithChainProps {
   };
 }
 
-const viewGenerator = (nodeData: HadithWithChain) => {
+const viewGenerator = (nodeData: HadithGraphNode) => {
   return <NarratorCard {...nodeData} />;
 };
 
@@ -53,9 +53,11 @@ export default function HadithTransmissionChain({
           levelNodes.set(index, []);
         }
         if (
-          !levelNodes.get(index)?.includes(narrator.scholar_indx.toString())
+          !levelNodes
+            .get(index)
+            ?.includes((narrator.scholar_indx ?? 0).toString())
         ) {
-          levelNodes.get(index)?.push(narrator.scholar_indx.toString());
+          levelNodes.get(index)?.push((narrator.scholar_indx ?? 0).toString());
         }
       });
     });
@@ -63,12 +65,12 @@ export default function HadithTransmissionChain({
     hadithData.transmissionChains.forEach((chain) => {
       let parentX: number | null = null;
       chain.narrators.forEach((narrator, index) => {
-        if (!seenNodes.has(narrator.scholar_indx.toString())) {
-          seenNodes.add(narrator.scholar_indx.toString());
+        if (!seenNodes.has((narrator.scholar_indx ?? 0).toString())) {
+          seenNodes.add((narrator.scholar_indx ?? 0).toString());
           const yPosition = topMargin + index * verticalSpacing;
           const nodesAtLevel = levelNodes.get(index) || [];
           const position = nodesAtLevel.indexOf(
-            narrator.scholar_indx.toString(),
+            (narrator.scholar_indx ?? 0).toString(),
           );
           const totalNodesAtLevel = nodesAtLevel.length;
           let xPosition;
@@ -89,7 +91,7 @@ export default function HadithTransmissionChain({
           parentX = xPosition;
           nodes.push({
             ...narrator,
-            id: narrator.scholar_indx.toString(),
+            id: (narrator.scholar_indx ?? 0).toString(),
             x: xPosition,
             y: yPosition,
             fx: xPosition,
@@ -100,8 +102,8 @@ export default function HadithTransmissionChain({
         if (index < chain.narrators.length - 1) {
           const nextNarrator = chain.narrators[index + 1];
           links.push({
-            source: narrator.scholar_indx.toString(),
-            target: nextNarrator.scholar_indx.toString(),
+            source: (narrator.scholar_indx ?? 0).toString(),
+            target: (nextNarrator.scholar_indx ?? 0).toString(),
             type: "STRAIGHT",
           });
         }
