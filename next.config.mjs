@@ -4,6 +4,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
+  trailingSlash: process.env.NODE_ENV === "production",
   experimental: {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,

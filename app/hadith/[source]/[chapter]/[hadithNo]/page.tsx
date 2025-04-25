@@ -48,10 +48,7 @@ export async function generateMetadata({
     .trim();
 
   return {
-    metadataBase: new URL(
-      process.env.NEXT_PUBLIC_METADATA_BASE ||
-        "https://open-graph.isnad-acg.pages.dev/",
-    ),
+    metadataBase: new URL(process.env.NEXT_PUBLIC_METADATA_BASE!),
     title: `Hadith ${hadith.hadith_no} - ${hadith.source}`,
     description:
       hadith.text_ar?.substring(0, 160) ||
@@ -83,7 +80,7 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const hadiths = getHadithsBySource("Sahih Bukhari", 1000);
+  const hadiths = getHadithsBySource("Sahih Bukhari", 10_000);
   return hadiths.map((hadith) => ({
     source: hadith.source,
     chapter: hadith.chapter,

@@ -20,10 +20,20 @@ jobs:
       deployments: write
       pull-requests: write
       issues: write
+      pages: write
+      id-token: write
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'github-pages' || 'preview' }}
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set environment variables
+        id: set-env
+        run: |
+          echo "NODE_ENV=production" >> $GITHUB_ENV
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -84,19 +94,24 @@ jobs:
 
       - run: bun install
 
-      - run: bun run build
+      - name: Build
+        run: bun run build
+        env:
+          NEXT_PUBLIC_BASE_PATH: "/isnad"
+          NODE_ENV: production
+          NEXT_PUBLIC_METADATA_BASE: https://elgarash.github.io/isnad
 
-      - name: Deploy to Cloudflare Pages
-        uses: andykenward/github-actions-cloudflare-pages@v2.3.2
-        id: pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          cloudflare-account-id: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-          cloudflare-project-name: ${{ vars.CLOUDFLARE_PROJECT_NAME }}
-          directory: out
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          github-environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
+          path: ./out
 
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
       - name: Restore lychee cache
         uses: actions/cache@v4
@@ -104,7 +119,6 @@ jobs:
           path: .lycheecache
           key: cache-lychee-${{ github.sha }}
           restore-keys: cache-lychee-
-
 
       - name: Link Checker
         id: lychee
@@ -115,8 +129,9 @@ jobs:
             --cache
             --max-cache-age 1d
             --accept 200
-            --base ${{ steps.pages.outputs.url }}
+            --base ${{ steps.deployment.outputs.page_url }}
             --exclude "out/_next/.*"
+            --exclude "images/og-images/.*\.png"
             './out/**/*.html'
           output: ./lychee/out.md
           fail: true
