@@ -126,7 +126,6 @@ jobs:
         continue-on-error: true
         with:
           args: >-
-            --cache
             --max-cache-age 1d
             --accept 200
             --base ${{ steps.deployment.outputs.page_url }}
