@@ -99,6 +99,7 @@ jobs:
         env:
           NEXT_PUBLIC_BASE_PATH: "/isnad"
           NODE_ENV: production
+          NEXT_PUBLIC_METADATA_BASE: https://elgarash.github.io/isnad
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -130,6 +131,7 @@ jobs:
             --accept 200
             --base ${{ steps.deployment.outputs.page_url }}
             --exclude "out/_next/.*"
+            --exclude "images/og-images/.*\.png"
             './out/**/*.html'
           output: ./lychee/out.md
           fail: true

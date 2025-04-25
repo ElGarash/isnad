@@ -66,10 +66,7 @@ export async function generateMetadata({
   const description = `Collection of ${hadiths.length} hadiths from chapter ${decodedChapter} in ${decodedSource}`;
 
   return {
-    metadataBase: new URL(
-      process.env.NEXT_PUBLIC_METADATA_BASE ||
-        "https://open-graph.isnad-acg.pages.dev/",
-    ),
+    metadataBase: new URL(process.env.NEXT_PUBLIC_METADATA_BASE!),
     title: `${decodedChapter} - ${decodedSource}`,
     description,
     openGraph: {
