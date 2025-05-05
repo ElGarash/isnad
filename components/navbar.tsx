@@ -1,9 +1,25 @@
 "use client";
 
-import { Info, Link as LinkIcon, Search, Users } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { BookOpen, Info, Link as LinkIcon, Search, Users } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 function Navbar() {
+  const [sources, setSources] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Dynamically import to avoid SSR issues
+    import("@/lib/sqlite").then((mod) => {
+      setSources(mod.getAllSources());
+    });
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b-4 border-black bg-white">
       <div className="flex h-16">
@@ -50,6 +66,29 @@ function Navbar() {
               </span>
               <span className="absolute bottom-0 left-0 h-1 w-full origin-left scale-x-0 transform bg-parchment transition-transform group-hover:scale-x-100"></span>
             </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="group relative flex cursor-pointer items-center gap-1 overflow-hidden border-none bg-transparent outline-none">
+                <BookOpen className="h-4 w-4" />
+                <span className="relative z-10 mb-0.5 transition-colors hover:text-foreground/80">
+                  الكتب
+                </span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {sources.length === 0 ? (
+                  <DropdownMenuItem disabled>لا يوجد كتب</DropdownMenuItem>
+                ) : (
+                  sources.map((source) => (
+                    <DropdownMenuItem asChild key={source}>
+                      <Link
+                        href={`/hadith/${encodeURIComponent(source)}/chapters`}
+                      >
+                        {source}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
         </div>
       </div>
