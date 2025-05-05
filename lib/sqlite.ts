@@ -311,6 +311,14 @@ export function getSourceChapters(source: Source): Chapter[] {
   }) as Chapter[];
 }
 
+export function getAllSources(): string[] {
+  getDb();
+  const rows = db!
+    .query("SELECT DISTINCT source FROM hadiths ORDER BY source")
+    .all() as { source: string }[];
+  return rows.map((row) => row.source);
+}
+
 export function close() {
   if (db) {
     // Clean up prepared statements
