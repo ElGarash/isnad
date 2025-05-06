@@ -1,5 +1,6 @@
 "use client";
 
+import hadiths from "../../data/hadiths_search_index.json";
 import Fuse from "fuse.js";
 import { useEffect, useMemo, useState } from "react";
 
@@ -16,24 +17,13 @@ interface HadithSearchItem {
 const PAGE_SIZE = 10;
 
 export default function SearchPage() {
-  const [data, setData] = useState<HadithSearchItem[]>([]);
+  const [data] = useState<HadithSearchItem[]>(hadiths as HadithSearchItem[]);
   const [query, setQuery] = useState("");
   const [book, setBook] = useState("");
   const [chapter, setChapter] = useState("");
   const [narrator, setNarrator] = useState("");
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-
-  // Load data on mount
-  useEffect(() => {
-    setLoading(true);
-    fetch("/data/hadiths_search_index.json")
-      .then((res) => res.json())
-      .then((json) => {
-        setData(json);
-        setLoading(false);
-      });
-  }, []);
+  const [loading] = useState(false);
 
   // Set up Fuse.js
   const fuse = useMemo(() => {
