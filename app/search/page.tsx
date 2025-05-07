@@ -1,5 +1,7 @@
 "use client";
 
+import hadithsBukhari from "../../data/hadiths_search_bukhari.json";
+import hadithsMuslim from "../../data/hadiths_search_muslim.json";
 import Fuse from "fuse.js";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -14,9 +16,9 @@ interface HadithSearchItem {
 }
 
 const PAGE_SIZE = 10;
-const BOOK_FILES: Record<string, string> = {
-  "Sahih Bukhari": "/data/hadiths_search_bukhari.json",
-  "Sahih Muslim": "/data/hadiths_search_muslim.json",
+const BOOK_DATA: Record<string, HadithSearchItem[]> = {
+  "Sahih Bukhari": hadithsBukhari as HadithSearchItem[],
+  "Sahih Muslim": hadithsMuslim as HadithSearchItem[],
 };
 
 export default function SearchPage() {
@@ -26,7 +28,7 @@ export default function SearchPage() {
   const [chapter, setChapter] = useState("");
   const [narrator, setNarrator] = useState("");
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   // Lazy-load the selected book's JSON file
   useEffect(() => {
@@ -34,13 +36,7 @@ export default function SearchPage() {
       setData([]);
       return;
     }
-    setLoading(true);
-    fetch(BOOK_FILES[book])
-      .then((res) => res.json())
-      .then((json) => {
-        setData(json);
-        setLoading(false);
-      });
+    setData(BOOK_DATA[book] || []);
   }, [book]);
 
   // Set up Fuse.js
