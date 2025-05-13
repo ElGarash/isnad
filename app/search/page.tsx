@@ -51,7 +51,8 @@ export default function SearchPage() {
   // Load hadiths.json once
   useEffect(() => {
     setLoading(true);
-    fetch("/hadiths.json")
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+    fetch(`${basePath}/hadiths.json`)
       .then((res) => res.json())
       .then((data) => {
         setAllHadiths(data);
