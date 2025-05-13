@@ -1,14 +1,23 @@
 import sqlite3
 import json
+import re
 from pathlib import Path
 
 DB_PATH = Path("data/sqlite.db")
 OUT_PATH = Path("public/hadiths.json")
 
+
+def strip_diacritics(text):
+    # Remove Arabic diacritics (tashkeel)
+    if not text:
+        return text
+    # Arabic diacritics unicode range
+    return re.sub(r"[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]", "", text)
+
+
 conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
 
-# Only include Sahih Bukhari (and optionally Sahih Muslim), and only hadiths with explanations
 sources = ["Sahih Bukhari", "Sahih Muslim"]  # Add "Sahih Muslim" if needed
 all_hadiths = []
 for source in sources:
@@ -25,6 +34,9 @@ for source in sources:
     rows = cursor.fetchall()
     columns = [desc[0] for desc in cursor.description]
     hadiths = [dict(zip(columns, row)) for row in rows]
+    # Strip diacritics from text_ar in-place
+    for h in hadiths:
+        h["text_ar"] = strip_diacritics(h["text_ar"])
     all_hadiths.extend(hadiths)
 
 OUT_PATH.parent.mkdir(parents=True, exist_ok=True)

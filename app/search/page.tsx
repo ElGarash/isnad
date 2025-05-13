@@ -1,12 +1,13 @@
 "use client";
 
 import HadithList from "@/components/hadith-list";
+import { LoadingSpinner } from "@/components/loading-spinner";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import type { HadithWithFirstNarrator } from "@/lib/sqlite";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 
-const SOURCES = ["Sahih Bukhari"];
+const SOURCES = ["Sahih Bukhari", "Sahih Muslim"];
 
 function useDebouncedValue<T>(value: T, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -35,6 +36,7 @@ export default function SearchPage() {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
   const limit = 30;
+  const [initializing, setInitializing] = useState(true);
 
   // For chapter dropdown
   const [chapters, setChapters] = useState<string[]>([]);
@@ -51,12 +53,14 @@ export default function SearchPage() {
   // Load hadiths.json once
   useEffect(() => {
     setLoading(true);
+    setInitializing(true);
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
     fetch(`${basePath}/hadiths.json`)
       .then((res) => res.json())
       .then((data) => {
         setAllHadiths(data);
         setLoading(false);
+        setInitializing(false);
       });
   }, []);
 
@@ -125,6 +129,10 @@ export default function SearchPage() {
     debouncedNarrator,
     page,
   ]);
+
+  if (initializing) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8">
