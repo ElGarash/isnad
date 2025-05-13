@@ -7,6 +7,7 @@ repos:
     -   id: check-yaml
     -   id: check-json
     -   id: check-added-large-files
+        exclude: ^public/hadiths\.json$
     -   id: check-toml
 
 -   repo: https://github.com/psf/black
