@@ -5,7 +5,8 @@ import { LoadingSpinner } from "@/components/loading-spinner";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import type { HadithWithFirstNarrator } from "@/lib/sqlite";
-import { useDeferredValue, useEffect, useRef, useState } from "react";
+import Fuse from "fuse.js";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 
 const SOURCES = ["Sahih Bukhari", "Sahih Muslim"];
 
@@ -23,6 +24,11 @@ function useDebouncedValue<T>(value: T, delay: number) {
   }, [value, delay]);
 
   return debouncedValue;
+}
+
+function stripDiacritics(text: string): string {
+  if (!text) return "";
+  return text.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, "");
 }
 
 export default function SearchPage() {
@@ -70,7 +76,26 @@ export default function SearchPage() {
   const deferredNarrator = useDeferredValue(narrator);
   const debouncedNarrator = useDebouncedValue(deferredNarrator, 500);
 
-  // Filter hadiths client-side
+  // Fuse.js instance (re-created when allHadiths changes)
+  const fuse = useMemo(() => {
+    return new Fuse(allHadiths, {
+      keys: [
+        {
+          name: "text_ar",
+          getFn: (obj) => stripDiacritics(obj.text_ar),
+        },
+        {
+          name: "narrator_name",
+          getFn: (obj) => stripDiacritics(obj.narrator_name || ""),
+        },
+      ],
+      threshold: 0.4, // adjust for fuzziness
+      ignoreLocation: true,
+      minMatchCharLength: 2,
+    });
+  }, [allHadiths]);
+
+  // Filter hadiths client-side using Fuse.js
   useEffect(() => {
     setLoading(true);
     setPage(0);
@@ -78,18 +103,23 @@ export default function SearchPage() {
     let filtered = allHadiths;
     if (source) filtered = filtered.filter((h) => h.source === source);
     if (chapter) filtered = filtered.filter((h) => h.chapter === chapter);
-    if (debouncedNarrator)
-      filtered = filtered.filter(
-        (h) => h.narrator_name && h.narrator_name.includes(debouncedNarrator),
-      );
-    if (debouncedText)
-      filtered = filtered.filter(
-        (h) => h.text_ar && h.text_ar.includes(debouncedText),
-      );
-    setResults(filtered.slice(0, limit));
-    setHasMore(filtered.length > limit);
+
+    // Use Fuse.js for Arabic text and narrator search
+    let fuseResults = filtered;
+    if (debouncedText || debouncedNarrator) {
+      const query = [
+        debouncedText ? stripDiacritics(debouncedText) : "",
+        debouncedNarrator ? stripDiacritics(debouncedNarrator) : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+      fuseResults = fuse.search(query).map((r) => r.item);
+    }
+
+    setResults(fuseResults.slice(0, limit));
+    setHasMore(fuseResults.length > limit);
     setLoading(false);
-  }, [allHadiths, debouncedText, source, chapter, debouncedNarrator]);
+  }, [allHadiths, debouncedText, source, chapter, debouncedNarrator, fuse]);
 
   // Infinite scroll
   const loaderRef = useRef<HTMLDivElement>(null);
