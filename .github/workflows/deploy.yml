@@ -78,6 +78,9 @@ jobs:
         if: steps.cache-db.outputs.cache-hit != 'true'
         run: uv run poe gen-db
 
+      - name: Generate Hadiths Search Index
+        run: uv run python scripts/export_hadiths_json.py
+
       # Add OG Image generation step here
       - name: Cache OG Images
         id: cache-og-images
