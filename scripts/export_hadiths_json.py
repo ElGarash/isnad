@@ -7,6 +7,12 @@ DB_PATH = Path("data/sqlite.db")
 OUT_PATH = Path("public/hadiths.json")
 
 
+def normalize_whitespace(text):
+    if not text:
+        return text
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def strip_diacritics(text):
     # Remove Arabic diacritics (tashkeel) and bidirectional marks (RLM, LRM, etc.)
     if not text:
@@ -36,8 +42,12 @@ rows = cursor.fetchall()
 columns = [desc[0] for desc in cursor.description]
 all_hadiths = [dict(zip(columns, row)) for row in rows]
 # Strip diacritics from text_ar in-place
+
+# Normalize and clean text_ar and narrator_name
 for h in all_hadiths:
-    h["text_ar"] = strip_diacritics(h["text_ar"])
+    h["text_ar"] = normalize_whitespace(strip_diacritics(h["text_ar"]))
+    if h.get("narrator_name"):
+        h["narrator_name"] = normalize_whitespace(strip_diacritics(h["narrator_name"]))
 
 OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 with open(OUT_PATH, "w", encoding="utf-8") as f:

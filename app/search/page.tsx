@@ -7,6 +7,20 @@ import { Input } from "@/components/ui/input";
 import type { HadithWithFirstNarrator } from "@/lib/sqlite";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 
+// Utility: Strip Arabic diacritics and bidirectional marks (same as backend)
+function stripDiacritics(text: string) {
+  if (!text) return text;
+  return text.replace(
+    /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u200E\u200F\u202A-\u202E\u2066-\u2069]/g,
+    "",
+  );
+}
+
+// Utility: Normalize whitespace (collapse all whitespace to a single space)
+function normalizeWhitespace(str: string) {
+  return str.replace(/\s+/g, " ").trim();
+}
+
 const SOURCES = ["Sahih Bukhari", "Sahih Muslim"];
 
 function useDebouncedValue<T>(value: T, delay: number) {
@@ -70,7 +84,7 @@ export default function SearchPage() {
   const deferredNarrator = useDeferredValue(narrator);
   const debouncedNarrator = useDebouncedValue(deferredNarrator, 500);
 
-  // Filter hadiths client-side
+  // Filter hadiths client-side (robust: normalize whitespace & strip diacritics)
   useEffect(() => {
     setLoading(true);
     setPage(0);
@@ -78,20 +92,30 @@ export default function SearchPage() {
     let filtered = allHadiths;
     if (source) filtered = filtered.filter((h) => h.source === source);
     if (chapter) filtered = filtered.filter((h) => h.chapter === chapter);
-    if (debouncedNarrator)
+    if (debouncedNarrator) {
+      const normNarr = normalizeWhitespace(stripDiacritics(debouncedNarrator));
       filtered = filtered.filter(
-        (h) => h.narrator_name && h.narrator_name.includes(debouncedNarrator),
+        (h) =>
+          h.narrator_name &&
+          normalizeWhitespace(stripDiacritics(h.narrator_name)).includes(
+            normNarr,
+          ),
       );
-    if (debouncedText)
+    }
+    if (debouncedText) {
+      const normText = normalizeWhitespace(stripDiacritics(debouncedText));
       filtered = filtered.filter(
-        (h) => h.text_ar && h.text_ar.includes(debouncedText),
+        (h) =>
+          h.text_ar &&
+          normalizeWhitespace(stripDiacritics(h.text_ar)).includes(normText),
       );
+    }
     setResults(filtered.slice(0, limit));
     setHasMore(filtered.length > limit);
     setLoading(false);
   }, [allHadiths, debouncedText, source, chapter, debouncedNarrator]);
 
-  // Infinite scroll
+  // Infinite scroll (with robust normalization)
   const loaderRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!hasMore || loading) return;
@@ -101,15 +125,28 @@ export default function SearchPage() {
         let filtered = allHadiths;
         if (source) filtered = filtered.filter((h) => h.source === source);
         if (chapter) filtered = filtered.filter((h) => h.chapter === chapter);
-        if (debouncedNarrator)
+        if (debouncedNarrator) {
+          const normNarr = normalizeWhitespace(
+            stripDiacritics(debouncedNarrator),
+          );
           filtered = filtered.filter(
             (h) =>
-              h.narrator_name && h.narrator_name.includes(debouncedNarrator),
+              h.narrator_name &&
+              normalizeWhitespace(stripDiacritics(h.narrator_name)).includes(
+                normNarr,
+              ),
           );
-        if (debouncedText)
+        }
+        if (debouncedText) {
+          const normText = normalizeWhitespace(stripDiacritics(debouncedText));
           filtered = filtered.filter(
-            (h) => h.text_ar && h.text_ar.includes(debouncedText),
+            (h) =>
+              h.text_ar &&
+              normalizeWhitespace(stripDiacritics(h.text_ar)).includes(
+                normText,
+              ),
           );
+        }
         const next = filtered.slice((page + 1) * limit, (page + 2) * limit);
         setResults((prev) => [...prev, ...next]);
         setHasMore(filtered.length > (page + 2) * limit);
