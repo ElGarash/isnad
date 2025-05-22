@@ -21,6 +21,7 @@
   },
   "postStartCommand": ".devcontainer/post-start.sh",
   "remoteEnv": {
+    "NEXT_PUBLIC_METADATA_BASE": "http://localhost:3000",
     "DEVCONTAINER": "true",
     "UV_LINK_MODE": "copy",
     "TZ": "Africa/Cairo"
