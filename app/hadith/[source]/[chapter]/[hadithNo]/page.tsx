@@ -120,8 +120,10 @@ export default async function HadithPage({ params }: PageProps) {
       <div className="container my-12 grid h-full min-h-screen grid-cols-12 gap-6">
         {/* Hadith Content and Explanation */}
         <section className="col-span-3 grid h-screen grid-rows-2 gap-6">
-          <HadithTextCard text={hadith.text_ar} />
-          <HadithExplanationCard explanation={hadith.explanation} />
+          <HadithTextCard text={hadith.text_ar ?? "No text available"} />
+          <HadithExplanationCard
+            explanation={hadith.explanation ?? "No explanation available"}
+          />
         </section>
         {/* Network Visualization */}
         <section className="relative col-span-9 h-screen border-4 border-black bg-white p-1 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
