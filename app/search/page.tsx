@@ -170,7 +170,7 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
+    <div className="mx-auto w-full max-w-7xl px-6 py-8">
       {/* Title with brutalist styling */}
       <div className="mb-8 text-center">
         <h1 className="inline-block -skew-x-12 transform bg-black px-6 py-3 text-4xl font-bold text-white">
@@ -181,23 +181,23 @@ export default function SearchPage() {
       {/* Search Form with brutalist card design */}
       <div className="relative mb-8 overflow-hidden border-4 border-black bg-parchment">
         {/* Decorative corner */}
-        <div className="absolute left-0 top-0 z-10 h-16 w-16 -translate-x-8 -translate-y-8 -rotate-45 transform bg-parchment"></div>
+        <div className="absolute left-0 top-0 z-10 h-20 w-20 -translate-x-10 -translate-y-10 -rotate-45 transform bg-parchment"></div>
         <div className="absolute left-1 top-1 z-20 rotate-45 transform">
-          <div className="-rotate-90 transform bg-black px-2 py-1 text-sm font-bold text-parchment">
+          <div className="-rotate-90 transform bg-black px-3 py-2 text-base font-bold text-parchment">
             بحث
           </div>
         </div>
 
         {/* Form content */}
-        <form className="p-6 pl-12 pt-10">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <form className="p-8 pl-20 pt-16">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
             {/* Source Selection */}
             <div>
-              <label className="mb-2 block -skew-x-6 transform bg-black px-2 py-1 text-sm font-bold text-white">
+              <label className="mb-3 block -skew-x-6 transform bg-black px-3 py-2 text-sm font-bold text-white">
                 الكتاب
               </label>
               <select
-                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
+                className="w-full border-2 border-black bg-white p-4 text-right font-medium focus:bg-parchment focus:outline-none"
                 value={source}
                 onChange={(e) => setSource(e.target.value)}
               >
@@ -208,11 +208,11 @@ export default function SearchPage() {
 
             {/* Text Search */}
             <div>
-              <label className="mb-2 block -skew-x-6 transform bg-black px-2 py-1 text-sm font-bold text-white">
+              <label className="mb-3 block -skew-x-6 transform bg-black px-3 py-2 text-sm font-bold text-white">
                 نص الحديث
               </label>
               <input
-                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
+                className="w-full border-2 border-black bg-white p-4 text-right font-medium focus:bg-parchment focus:outline-none"
                 type="text"
                 placeholder="ابحث في نص الحديث..."
                 value={text}
@@ -223,11 +223,11 @@ export default function SearchPage() {
 
             {/* Chapter Selection */}
             <div>
-              <label className="mb-2 block -skew-x-6 transform bg-black px-2 py-1 text-sm font-bold text-white">
+              <label className="mb-3 block -skew-x-6 transform bg-black px-3 py-2 text-sm font-bold text-white">
                 الباب
               </label>
               <select
-                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
+                className="w-full border-2 border-black bg-white p-4 text-right font-medium focus:bg-parchment focus:outline-none"
                 value={chapter}
                 onChange={(e) => setChapter(e.target.value)}
               >
@@ -242,11 +242,11 @@ export default function SearchPage() {
 
             {/* Narrator Search */}
             <div>
-              <label className="mb-2 block -skew-x-6 transform bg-black px-2 py-1 text-sm font-bold text-white">
+              <label className="mb-3 block -skew-x-6 transform bg-black px-3 py-2 text-sm font-bold text-white">
                 الراوي
               </label>
               <input
-                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
+                className="w-full border-2 border-black bg-white p-4 text-right font-medium focus:bg-parchment focus:outline-none"
                 type="text"
                 placeholder="اسم الراوي..."
                 value={narrator}
