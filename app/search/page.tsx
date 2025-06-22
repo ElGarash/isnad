@@ -3,6 +3,7 @@
 import HadithList from "@/components/hadith-list";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import type { HadithWithFirstNarrator } from "@/lib/sqlite";
+import { toArabicNumerals } from "@/lib/utils";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 
 // Utility: Strip Arabic diacritics and bidirectional marks (same as backend)
@@ -44,6 +45,7 @@ export default function SearchPage() {
   const [chapter, setChapter] = useState("");
   const [narrator, setNarrator] = useState("");
   const [results, setResults] = useState<HadithWithFirstNarrator[]>([]);
+  const [totalCount, setTotalCount] = useState(0); // Track total filtered count
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
@@ -108,6 +110,9 @@ export default function SearchPage() {
           normalizeWhitespace(stripDiacritics(h.text_ar)).includes(normText),
       );
     }
+
+    // Set the total count and initial results
+    setTotalCount(filtered.length);
     setResults(filtered.slice(0, limit));
     setHasMore(filtered.length > limit);
     setLoading(false);
@@ -268,7 +273,7 @@ export default function SearchPage() {
           {loading ? (
             <span>🔍 جاري البحث...</span>
           ) : (
-            <span>📊 عدد النتائج: {results.length}</span>
+            <span>📊 عدد النتائج: {toArabicNumerals(totalCount)}</span>
           )}
         </div>
       </div>
@@ -290,7 +295,7 @@ export default function SearchPage() {
       )}
 
       {/* No results state with brutalist styling */}
-      {!loading && results.length === 0 && (
+      {!loading && totalCount === 0 && (
         <div className="py-8 text-center">
           <div className="inline-block border-4 border-black bg-white px-8 py-6">
             <div className="text-2xl font-bold text-gray-700">🔍</div>
