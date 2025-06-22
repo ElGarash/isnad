@@ -175,16 +175,9 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-8">
-      {/* Title with brutalist styling */}
-      <div className="mb-8 text-center">
-        <h1 className="inline-block -skew-x-12 transform bg-black px-6 py-3 text-4xl font-bold text-white">
-          بحث في الأحاديث
-        </h1>
-      </div>
-
+    <div className="mx-auto w-full max-w-7xl px-4 py-4">
       {/* Search Form with brutalist card design */}
-      <div className="relative mb-8 overflow-hidden border-4 border-black bg-parchment">
+      <div className="relative mb-6 overflow-hidden border-4 border-black bg-parchment">
         {/* Decorative corner */}
         <div className="absolute left-0 top-0 z-10 h-20 w-20 -translate-x-10 -translate-y-10 -rotate-45 transform bg-parchment"></div>
         <div className="absolute left-1 top-1 z-20 rotate-45 transform">
@@ -268,7 +261,7 @@ export default function SearchPage() {
       </div>
 
       {/* Results Info with brutalist styling */}
-      <div className="mb-6">
+      <div className="mb-4">
         <div className="inline-block border-2 border-black bg-white px-4 py-2 font-bold">
           {loading ? (
             <span>🔍 جاري البحث...</span>
