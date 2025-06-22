@@ -1,10 +1,8 @@
 "use client";
 
-import HadithList from "@/components/hadith-list";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import type { HadithWithFirstNarrator } from "@/lib/sqlite";
+import Link from "next/link";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 
 // Utility: Strip Arabic diacritics and bidirectional marks (same as backend)
@@ -173,61 +171,84 @@ export default function SearchPage() {
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">بحث</h1>
-      <Card className="mb-6 p-4">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end">
-          <div className="flex-1">
-            <label className="mb-1 block font-bold">نص الحديث (بالعربية)</label>
-            <Input
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="ابحث في نص الحديث..."
-              className="w-full"
+      <h1 className="mb-6 text-3xl font-bold">بحث في الأحاديث</h1>
+
+      {/* Search Form */}
+      <form className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <select
+          className="rounded border p-2"
+          value={source}
+          onChange={(e) => setSource(e.target.value)}
+        >
+          <option value="Sahih Bukhari">صحيح البخاري</option>
+          <option value="Sahih Muslim">صحيح مسلم</option>
+        </select>
+
+        <input
+          className="rounded border p-2"
+          type="text"
+          placeholder="بحث نصي أو رقم الحديث..."
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          dir="rtl"
+        />
+
+        <select
+          className="rounded border p-2"
+          value={chapter}
+          onChange={(e) => setChapter(e.target.value)}
+        >
+          <option value="">كل الأبواب</option>
+          {chapters.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+
+        <input
+          className="rounded border p-2"
+          type="text"
+          placeholder="اسم الراوي..."
+          value={narrator}
+          onChange={(e) => setNarrator(e.target.value)}
+          dir="rtl"
+        />
+      </form>
+
+      {/* Results Info */}
+      <div className="mb-4 text-sm text-gray-600">
+        {loading ? (
+          <span>جاري البحث...</span>
+        ) : (
+          <span>عدد النتائج: {results.length}</span>
+        )}
+      </div>
+
+      {/* Results List */}
+      <ul className="space-y-4">
+        {results.map((hadith) => (
+          <li key={hadith.id} className="rounded border bg-white p-4 shadow">
+            <div className="mb-2 text-xs text-gray-500">
+              {hadith.source} | الباب: {hadith.chapter} | رقم:{" "}
+              {hadith.hadith_no}
+            </div>
+            <Link
+              href={`/hadith/${encodeURIComponent(hadith.source)}/${encodeURIComponent(hadith.chapter)}/${encodeURIComponent(hadith.hadith_no)}`}
+              className="mb-2 block text-right text-lg font-bold text-blue-700 hover:underline"
               dir="rtl"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block font-bold">الكتاب</label>
-            <select
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
-              className="w-full border px-2 py-1"
             >
-              {SOURCES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block font-bold">الباب</label>
-            <select
-              value={chapter}
-              onChange={(e) => setChapter(e.target.value)}
-              className="w-full border px-2 py-1"
-            >
-              <option value="">كل الأبواب</option>
-              {chapters.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex-1">
-            <label className="mb-1 block font-bold">الراوي</label>
-            <Input
-              value={narrator}
-              onChange={(e) => setNarrator(e.target.value)}
-              placeholder="اسم الراوي..."
-              className="w-full"
-              dir="rtl"
-            />
-          </div>
-        </div>
-      </Card>
-      <HadithList hadiths={results} />
+              {hadith.text_ar}
+            </Link>
+            {hadith.narrator_name && (
+              <div className="text-xs text-gray-600">
+                الراوي: {hadith.narrator_name}
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+
       <div ref={loaderRef} />
       {loading && <div className="py-4 text-center">جاري التحميل...</div>}
       {!loading && results.length === 0 && (
