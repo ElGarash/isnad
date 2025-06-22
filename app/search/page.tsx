@@ -1,8 +1,8 @@
 "use client";
 
+import HadithList from "@/components/hadith-list";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import type { HadithWithFirstNarrator } from "@/lib/sqlite";
-import Link from "next/link";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 
 // Utility: Strip Arabic diacritics and bidirectional marks (same as backend)
@@ -170,89 +170,138 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">بحث في الأحاديث</h1>
+    <div className="container mx-auto max-w-4xl px-4 py-8">
+      {/* Title with brutalist styling */}
+      <div className="mb-8 text-center">
+        <h1 className="inline-block -skew-x-12 transform bg-black px-6 py-3 text-4xl font-bold text-white">
+          بحث في الأحاديث
+        </h1>
+      </div>
 
-      {/* Search Form */}
-      <form className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-        <select
-          className="rounded border p-2"
-          value={source}
-          onChange={(e) => setSource(e.target.value)}
-        >
-          <option value="Sahih Bukhari">صحيح البخاري</option>
-          <option value="Sahih Muslim">صحيح مسلم</option>
-        </select>
+      {/* Search Form with brutalist card design */}
+      <div className="relative mb-8 overflow-hidden border-4 border-black bg-parchment">
+        {/* Decorative corner */}
+        <div className="absolute left-0 top-0 z-10 h-16 w-16 -translate-x-8 -translate-y-8 -rotate-45 transform bg-parchment"></div>
+        <div className="absolute left-1 top-1 z-20 rotate-45 transform">
+          <div className="-rotate-90 transform bg-black px-2 py-1 text-sm font-bold text-parchment">
+            بحث
+          </div>
+        </div>
 
-        <input
-          className="rounded border p-2"
-          type="text"
-          placeholder="بحث نصي أو رقم الحديث..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          dir="rtl"
-        />
+        {/* Form content */}
+        <form className="p-6 pl-12 pt-10">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Source Selection */}
+            <div>
+              <label className="mb-2 block -skew-x-6 transform bg-black px-2 py-1 text-sm font-bold text-white">
+                الكتاب
+              </label>
+              <select
+                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
+                value={source}
+                onChange={(e) => setSource(e.target.value)}
+              >
+                <option value="Sahih Bukhari">صحيح البخاري</option>
+                <option value="Sahih Muslim">صحيح مسلم</option>
+              </select>
+            </div>
 
-        <select
-          className="rounded border p-2"
-          value={chapter}
-          onChange={(e) => setChapter(e.target.value)}
-        >
-          <option value="">كل الأبواب</option>
-          {chapters.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+            {/* Text Search */}
+            <div>
+              <label className="mb-2 block -skew-x-6 transform bg-black px-2 py-1 text-sm font-bold text-white">
+                نص الحديث
+              </label>
+              <input
+                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
+                type="text"
+                placeholder="ابحث في نص الحديث..."
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                dir="rtl"
+              />
+            </div>
 
-        <input
-          className="rounded border p-2"
-          type="text"
-          placeholder="اسم الراوي..."
-          value={narrator}
-          onChange={(e) => setNarrator(e.target.value)}
-          dir="rtl"
-        />
-      </form>
+            {/* Chapter Selection */}
+            <div>
+              <label className="mb-2 block -skew-x-6 transform bg-black px-2 py-1 text-sm font-bold text-white">
+                الباب
+              </label>
+              <select
+                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
+                value={chapter}
+                onChange={(e) => setChapter(e.target.value)}
+              >
+                <option value="">كل الأبواب</option>
+                {chapters.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-      {/* Results Info */}
-      <div className="mb-4 text-sm text-gray-600">
-        {loading ? (
-          <span>جاري البحث...</span>
-        ) : (
-          <span>عدد النتائج: {results.length}</span>
-        )}
+            {/* Narrator Search */}
+            <div>
+              <label className="mb-2 block -skew-x-6 transform bg-black px-2 py-1 text-sm font-bold text-white">
+                الراوي
+              </label>
+              <input
+                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
+                type="text"
+                placeholder="اسم الراوي..."
+                value={narrator}
+                onChange={(e) => setNarrator(e.target.value)}
+                dir="rtl"
+              />
+            </div>
+          </div>
+        </form>
+
+        {/* Bottom border decorations */}
+        <div className="absolute bottom-0 left-0 h-1 w-full bg-black"></div>
+        <div className="absolute bottom-0 right-0 h-full w-1 bg-black"></div>
+      </div>
+
+      {/* Results Info with brutalist styling */}
+      <div className="mb-6">
+        <div className="inline-block border-2 border-black bg-white px-4 py-2 font-bold">
+          {loading ? (
+            <span>🔍 جاري البحث...</span>
+          ) : (
+            <span>📊 عدد النتائج: {results.length}</span>
+          )}
+        </div>
       </div>
 
       {/* Results List */}
-      <ul className="space-y-4">
-        {results.map((hadith) => (
-          <li key={hadith.id} className="rounded border bg-white p-4 shadow">
-            <div className="mb-2 text-xs text-gray-500">
-              {hadith.source} | الباب: {hadith.chapter} | رقم:{" "}
-              {hadith.hadith_no}
-            </div>
-            <Link
-              href={`/hadith/${encodeURIComponent(hadith.source)}/${encodeURIComponent(hadith.chapter)}/${encodeURIComponent(hadith.hadith_no)}`}
-              className="mb-2 block text-right text-lg font-bold text-blue-700 hover:underline"
-              dir="rtl"
-            >
-              {hadith.text_ar}
-            </Link>
-            {hadith.narrator_name && (
-              <div className="text-xs text-gray-600">
-                الراوي: {hadith.narrator_name}
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
+      <HadithList hadiths={results} />
 
       <div ref={loaderRef} />
-      {loading && <div className="py-4 text-center">جاري التحميل...</div>}
+
+      {/* Loading state with brutalist styling */}
+      {loading && (
+        <div className="py-8 text-center">
+          <div className="inline-block border-4 border-black bg-parchment px-6 py-4">
+            <div className="animate-pulse text-xl font-bold">
+              ⏳ جاري التحميل...
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* No results state with brutalist styling */}
       {!loading && results.length === 0 && (
-        <div className="py-4 text-center text-gray-500">لا توجد نتائج</div>
+        <div className="py-8 text-center">
+          <div className="inline-block border-4 border-black bg-white px-8 py-6">
+            <div className="text-2xl font-bold text-gray-700">🔍</div>
+            <div className="mt-2 text-lg font-bold text-gray-700">
+              لا توجد نتائج
+            </div>
+            <div className="mt-1 text-sm text-gray-500">
+              جرب تعديل معايير البحث
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
