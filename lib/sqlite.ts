@@ -73,6 +73,10 @@ let statements: {
   getNarratorChapters?: ReturnType<Database["prepare"]>;
   getHadithsByChapter?: ReturnType<Database["prepare"]>;
   getSourceChapters?: ReturnType<Database["prepare"]>;
+  searchNarrators?: ReturnType<Database["prepare"]>;
+  getNarratorsByGrade?: ReturnType<Database["prepare"]>;
+  getNarratorStats?: ReturnType<Database["prepare"]>;
+  getNarratorsWithHadiths?: ReturnType<Database["prepare"]>;
 } = {};
 
 function getDb() {
@@ -180,6 +184,46 @@ function getDb() {
       WHERE source = $source
       GROUP BY source, chapter, chapter_no
       ORDER BY chapter_no ASC
+    `);
+    statements.searchNarrators = db.prepare(`
+      SELECT * FROM rawis
+      WHERE name LIKE $query OR grade LIKE $query OR parents LIKE $query
+      ORDER BY name
+      LIMIT 20
+    `);
+    statements.getNarratorsByGrade = db.prepare(`
+      SELECT r.*, COUNT(h.id) as hadith_count
+      FROM rawis r
+      LEFT JOIN hadith_chains c ON r.scholar_indx = c.scholar_indx
+      LEFT JOIN hadiths h ON c.source = h.source
+          AND c.chapter_no = h.chapter_no
+          AND c.hadith_no = h.hadith_no
+      WHERE r.grade = $grade
+      GROUP BY r.scholar_indx
+      ORDER BY hadith_count DESC, r.name
+      LIMIT 20
+    `);
+    statements.getNarratorStats = db.prepare(`
+      SELECT r.*, COUNT(h.id) as hadith_count, GROUP_CONCAT(DISTINCT h.source) as sources
+      FROM rawis r
+      LEFT JOIN hadith_chains c ON r.scholar_indx = c.scholar_indx
+      LEFT JOIN hadiths h ON c.source = h.source
+          AND c.chapter_no = h.chapter_no
+          AND c.hadith_no = h.hadith_no
+      WHERE r.scholar_indx = $scholar_indx
+      GROUP BY r.scholar_indx
+    `);
+    statements.getNarratorsWithHadiths = db.prepare(`
+      SELECT r.*, COUNT(h.id) as hadith_count
+      FROM rawis r
+      JOIN hadith_chains c ON r.scholar_indx = c.scholar_indx
+      JOIN hadiths h ON c.source = h.source
+          AND c.chapter_no = h.chapter_no
+          AND c.hadith_no = h.hadith_no
+      WHERE h.source = $source
+      GROUP BY r.scholar_indx
+      ORDER BY hadith_count DESC, r.name
+      LIMIT 20
     `);
   }
   return db;
@@ -309,6 +353,34 @@ export function getSourceChapters(source: Source): Chapter[] {
   return statements.getSourceChapters!.all({
     $source: source,
   }) as Chapter[];
+}
+
+export function searchNarrators(query: string): Narrator[] {
+  getDb();
+  return statements.searchNarrators!.all({
+    $query: `%${query}%`,
+  }) as Narrator[];
+}
+
+export function getNarratorsByGrade(grade: string): Narrator[] {
+  getDb();
+  return statements.getNarratorsByGrade!.all({
+    $grade: grade,
+  }) as Narrator[];
+}
+
+export function getNarratorStats(scholarIndex: number) {
+  getDb();
+  return statements.getNarratorStats!.get({
+    $scholar_indx: scholarIndex,
+  });
+}
+
+export function getNarratorsWithHadiths(source: Source): Narrator[] {
+  getDb();
+  return statements.getNarratorsWithHadiths!.all({
+    $source: source,
+  }) as Narrator[];
 }
 
 export function close() {
