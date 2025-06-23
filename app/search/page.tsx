@@ -175,27 +175,27 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="mx-auto w-full px-2 py-4">
+    <div className="container mx-auto px-4 py-6">
       {/* Search Form with brutalist card design */}
-      <div className="relative mb-6 overflow-hidden border-4 border-black bg-parchment">
+      <div className="relative mx-16 mb-4 overflow-hidden border-4 border-black bg-parchment">
         {/* Decorative corner */}
-        <div className="absolute left-0 top-0 z-10 h-20 w-20 -translate-x-10 -translate-y-10 -rotate-45 transform bg-parchment"></div>
+        <div className="absolute left-0 top-0 z-10 h-16 w-16 -translate-x-8 -translate-y-8 -rotate-45 transform bg-parchment"></div>
         <div className="absolute left-1 top-1 z-20 rotate-45 transform">
-          <div className="-rotate-90 transform bg-black px-3 py-2 text-base font-bold text-parchment">
+          <div className="-rotate-90 transform bg-black px-2 py-1 text-sm font-bold text-parchment">
             بحث
           </div>
         </div>
 
         {/* Form content */}
-        <form className="p-6 pl-16 pt-12">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <form className="p-4 pl-12 pt-8">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {/* Source Selection */}
             <div>
-              <label className="mb-3 block -skew-x-6 transform bg-black px-3 py-2 text-sm font-bold text-white">
+              <label className="mb-2 inline-block -skew-x-6 transform bg-black px-2 py-1 text-xs font-bold text-white">
                 الكتاب
               </label>
               <select
-                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
+                className="w-full border-2 border-black bg-white p-2 text-right text-sm font-medium focus:bg-parchment focus:outline-none"
                 value={source}
                 onChange={(e) => setSource(e.target.value)}
               >
@@ -204,28 +204,13 @@ export default function SearchPage() {
               </select>
             </div>
 
-            {/* Text Search */}
-            <div>
-              <label className="mb-3 block -skew-x-6 transform bg-black px-3 py-2 text-sm font-bold text-white">
-                نص الحديث
-              </label>
-              <input
-                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
-                type="text"
-                placeholder="ابحث في نص الحديث..."
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                dir="rtl"
-              />
-            </div>
-
             {/* Chapter Selection */}
             <div>
-              <label className="mb-3 block -skew-x-6 transform bg-black px-3 py-2 text-sm font-bold text-white">
+              <label className="mb-2 inline-block -skew-x-6 transform bg-black px-2 py-1 text-xs font-bold text-white">
                 الباب
               </label>
               <select
-                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
+                className="w-full border-2 border-black bg-white p-2 text-right text-sm font-medium focus:bg-parchment focus:outline-none"
                 value={chapter}
                 onChange={(e) => setChapter(e.target.value)}
               >
@@ -238,13 +223,28 @@ export default function SearchPage() {
               </select>
             </div>
 
+            {/* Text Search */}
+            <div>
+              <label className="mb-2 inline-block -skew-x-6 transform bg-black px-2 py-1 text-xs font-bold text-white">
+                نص الحديث
+              </label>
+              <input
+                className="w-full border-2 border-black bg-white p-2 text-right text-sm font-medium focus:bg-parchment focus:outline-none"
+                type="text"
+                placeholder="ابحث في نص الحديث..."
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                dir="rtl"
+              />
+            </div>
+
             {/* Narrator Search */}
             <div>
-              <label className="mb-3 block -skew-x-6 transform bg-black px-3 py-2 text-sm font-bold text-white">
+              <label className="mb-2 inline-block -skew-x-6 transform bg-black px-2 py-1 text-xs font-bold text-white">
                 الراوي
               </label>
               <input
-                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
+                className="w-full border-2 border-black bg-white p-2 text-right text-sm font-medium focus:bg-parchment focus:outline-none"
                 type="text"
                 placeholder="اسم الراوي..."
                 value={narrator}
@@ -252,23 +252,22 @@ export default function SearchPage() {
                 dir="rtl"
               />
             </div>
+          </div>{" "}
+          {/* Results Info integrated into the search card */}
+          <div className="mt-4 border-t-2 border-black bg-parchment px-4 py-2">
+            <div className="text-right text-sm font-bold">
+              {loading ? (
+                <span>🔍 جاري البحث...</span>
+              ) : (
+                <span>📊 عدد النتائج: {toArabicNumerals(totalCount)}</span>
+              )}
+            </div>
           </div>
         </form>
 
         {/* Bottom border decorations */}
         <div className="absolute bottom-0 left-0 h-1 w-full bg-black"></div>
         <div className="absolute bottom-0 right-0 h-full w-1 bg-black"></div>
-      </div>
-
-      {/* Results Info with brutalist styling */}
-      <div className="mb-4">
-        <div className="inline-block border-2 border-black bg-white px-4 py-2 font-bold">
-          {loading ? (
-            <span>🔍 جاري البحث...</span>
-          ) : (
-            <span>📊 عدد النتائج: {toArabicNumerals(totalCount)}</span>
-          )}
-        </div>
       </div>
 
       {/* Results List */}
