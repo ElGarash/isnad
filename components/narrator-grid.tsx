@@ -1,13 +1,13 @@
 "use client";
 
+import { Summary } from "@/components/narrator-summary";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getArabicGrade } from "@/lib/grade-mapping";
-import { Narrator } from "@/lib/sqlite";
+import type { Narrator } from "@/lib/sqlite";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Clock, MapPin, Search, Users } from "lucide-react";
+import { Search, Users } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 
@@ -23,90 +23,8 @@ interface FilterState {
 }
 
 const ITEMS_PER_ROW = 4;
-const CARD_HEIGHT = 280;
+const CARD_HEIGHT = 320; // Updated to match the fixed height
 const GAP = 16;
-
-function NarratorCard({ narrator }: { narrator: Narrator }) {
-  return (
-    <Link href={`/narrator/${encodeURIComponent(narrator.name)}`}>
-      <Card className="relative h-64 cursor-pointer overflow-hidden border-4 border-black bg-white p-4 transition-all hover:shadow-[8px_8px_0px_0px_theme(colors.gray.900)]">
-        {/* Corner decoration */}
-        <div className="absolute left-0 top-0 z-10 h-16 w-16 -translate-x-8 -translate-y-8 -rotate-45 transform bg-parchment"></div>
-        <div className="absolute left-1 top-1 z-20 rotate-45 transform">
-          <div className="-rotate-90 transform bg-black px-2 py-1 text-xs font-bold text-parchment">
-            {narrator.scholar_indx}
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="pt-8">
-          {/* Name */}
-          <h3
-            className="mb-3 overflow-hidden text-right text-lg font-bold leading-tight"
-            style={{
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-            }}
-          >
-            {narrator.name}
-          </h3>
-
-          {/* Grade */}
-          <div className="mb-3 flex justify-end">
-            <Badge className="inline-block -skew-x-12 transform bg-black px-2 py-1 text-xs text-white">
-              {getArabicGrade(narrator.grade)}
-            </Badge>
-          </div>
-
-          {/* Birth/Death dates */}
-          <div className="mb-3 space-y-1 text-right text-xs text-gray-600">
-            {(narrator.birth_date_hijri || narrator.birth_date_gregorian) && (
-              <div className="flex items-center justify-end gap-1">
-                <span>
-                  {narrator.birth_date_hijri &&
-                    `${narrator.birth_date_hijri} هـ`}
-                  {narrator.birth_date_hijri &&
-                    narrator.birth_date_gregorian &&
-                    " / "}
-                  {narrator.birth_date_gregorian &&
-                    `${narrator.birth_date_gregorian} م`}
-                </span>
-                <Clock className="h-3 w-3" />
-              </div>
-            )}
-            {(narrator.death_date_hijri || narrator.death_date_gregorian) && (
-              <div className="flex items-center justify-end gap-1">
-                <span>
-                  {narrator.death_date_hijri &&
-                    `${narrator.death_date_hijri} هـ`}
-                  {narrator.death_date_hijri &&
-                    narrator.death_date_gregorian &&
-                    " / "}
-                  {narrator.death_date_gregorian &&
-                    `${narrator.death_date_gregorian} م`}
-                </span>
-                <span>وفاة:</span>
-              </div>
-            )}
-          </div>
-
-          {/* Death place */}
-          {narrator.death_place && (
-            <div className="mb-3 flex items-center justify-end gap-1 text-xs text-gray-600">
-              <span className="truncate">{narrator.death_place}</span>
-              <MapPin className="h-3 w-3 flex-shrink-0" />
-            </div>
-          )}
-        </div>
-
-        {/* Bottom border */}
-        <div className="absolute bottom-0 left-0 h-1 w-full bg-black"></div>
-        <div className="absolute bottom-0 right-0 h-full w-1 bg-black"></div>
-      </Card>
-    </Link>
-  );
-}
 
 function FilterPanel({
   filters,
@@ -148,7 +66,11 @@ function FilterPanel({
         <Button
           variant={filters.grade === "" ? "default" : "outline"}
           onClick={() => onFilterChange({ ...filters, grade: "" })}
-          className="border-2 border-black"
+          className={`border-2 border-black text-xs transition-all hover:bg-parchment hover:shadow-[4px_4px_0px_0px_theme(colors.gray.900)] active:translate-x-1 active:translate-y-1 active:shadow-none ${
+            filters.grade === ""
+              ? "bg-black text-white hover:bg-gray-800"
+              : "bg-white text-black hover:bg-parchment"
+          }`}
         >
           <Users className="ml-2 h-4 w-4" />
           جميع الدرجات
@@ -158,7 +80,11 @@ function FilterPanel({
             key={grade}
             variant={filters.grade === grade ? "default" : "outline"}
             onClick={() => onFilterChange({ ...filters, grade })}
-            className="border-2 border-black text-xs"
+            className={`border-2 border-black text-xs transition-all hover:bg-parchment hover:shadow-[4px_4px_0px_0px_theme(colors.gray.900)] active:translate-x-1 active:translate-y-1 active:shadow-none ${
+              filters.grade === grade
+                ? "bg-black text-white hover:bg-gray-800"
+                : "bg-white text-black hover:bg-parchment"
+            }`}
           >
             {getArabicGrade(grade)}
           </Button>
@@ -252,13 +178,10 @@ export default function NarratorGrid({ narrators }: NarratorGridProps) {
         narratorCount={filteredNarrators.length}
         totalCount={narrators.length}
       />
-
       <div ref={parentRef} className="h-[800px] overflow-auto">
         <div
           className="relative w-full"
-          style={{
-            height: `${virtualizer.getTotalSize()}px`,
-          }}
+          style={{ height: `${virtualizer.getTotalSize()}px` }}
         >
           {virtualizer.getVirtualItems().map((virtualRow) => {
             const row = rows[virtualRow.index];
@@ -273,10 +196,13 @@ export default function NarratorGrid({ narrators }: NarratorGridProps) {
               >
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {row.map((narrator) => (
-                    <NarratorCard
+                    <Link
                       key={narrator.scholar_indx}
-                      narrator={narrator}
-                    />
+                      href={`/narrator/${encodeURIComponent(narrator.name)}`}
+                      className="block h-full"
+                    >
+                      <Summary narrator={narrator} />
+                    </Link>
                   ))}
                 </div>
               </div>

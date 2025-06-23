@@ -1,5 +1,5 @@
 import NarratorGrid from "@/components/narrator-grid";
-import { getNarrators } from "@/lib/sqlite";
+import { getNarratorsWithHadithsOnly } from "@/lib/sqlite";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NarratorsPage() {
-  const narrators = getNarrators();
+  const narrators = getNarratorsWithHadithsOnly();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -32,13 +32,7 @@ export default async function NarratorsPage() {
           <span className="inline-block -skew-x-12 transform bg-black px-3 py-1 text-white">
             {narrators.length.toLocaleString()} راوي
           </span>
-          <span>جميع رواة الأحاديث النبوية الشريفة</span>
-        </div>
-        <div className="mt-2 rounded-md bg-parchment p-3 text-sm">
-          <p>
-            🔍 استخدم البحث والفلاتر للعثور على الرواة. يتم عرض 200 راوي في
-            البداية مع إمكانية تحميل المزيد.
-          </p>
+          <span>جميع الرواة في قاعدة البيانات</span>
         </div>
       </div>
       <NarratorGrid narrators={narrators} />

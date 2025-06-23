@@ -62,6 +62,7 @@ let statements: {
   getHadiths?: ReturnType<Database["prepare"]>;
   getAllHadiths?: ReturnType<Database["prepare"]>;
   getNarrators?: ReturnType<Database["prepare"]>;
+  getNarratorsWithHadithsOnly?: ReturnType<Database["prepare"]>;
   getHadithById?: ReturnType<Database["prepare"]>;
   getChainForHadith?: ReturnType<Database["prepare"]>;
   getHadithsBySource?: ReturnType<Database["prepare"]>;
@@ -156,7 +157,6 @@ function getDb() {
       SELECT * FROM sources
       WHERE scholar_indx = $scholar_indx
       ORDER BY LENGTH(content) DESC
-      LIMIT 20
     `);
     statements.getNarratorChapters = db.prepare(`
       SELECT h.source, h.chapter, COUNT(DISTINCT h.hadith_no) as count
@@ -189,7 +189,6 @@ function getDb() {
       SELECT * FROM rawis
       WHERE name LIKE $query OR grade LIKE $query OR parents LIKE $query
       ORDER BY name
-      LIMIT 20
     `);
     statements.getNarratorsByGrade = db.prepare(`
       SELECT r.*, COUNT(h.id) as hadith_count
@@ -201,7 +200,15 @@ function getDb() {
       WHERE r.grade = $grade
       GROUP BY r.scholar_indx
       ORDER BY hadith_count DESC, r.name
-      LIMIT 20
+    `);
+    statements.getNarratorsWithHadithsOnly = db.prepare(`
+      SELECT DISTINCT r.*
+      FROM rawis r
+      JOIN hadith_chains c ON r.scholar_indx = c.scholar_indx
+      JOIN hadiths h ON c.source = h.source
+          AND c.chapter_no = h.chapter_no
+          AND c.hadith_no = h.hadith_no
+      ORDER BY r.name
     `);
     statements.getNarratorStats = db.prepare(`
       SELECT r.*, COUNT(h.id) as hadith_count, GROUP_CONCAT(DISTINCT h.source) as sources
@@ -223,7 +230,6 @@ function getDb() {
       WHERE h.source = $source
       GROUP BY r.scholar_indx
       ORDER BY hadith_count DESC, r.name
-      LIMIT 20
     `);
   }
   return db;
@@ -381,6 +387,11 @@ export function getNarratorsWithHadiths(source: Source): Narrator[] {
   return statements.getNarratorsWithHadiths!.all({
     $source: source,
   }) as Narrator[];
+}
+
+export function getNarratorsWithHadithsOnly(): Narrator[] {
+  getDb();
+  return statements.getNarratorsWithHadithsOnly!.all() as Narrator[];
 }
 
 export function close() {
