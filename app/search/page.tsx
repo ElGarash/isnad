@@ -175,7 +175,7 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-4">
+    <div className="mx-auto w-full px-2 py-4">
       {/* Search Form with brutalist card design */}
       <div className="relative mb-6 overflow-hidden border-4 border-black bg-parchment">
         {/* Decorative corner */}
@@ -187,15 +187,15 @@ export default function SearchPage() {
         </div>
 
         {/* Form content */}
-        <form className="p-8 pl-20 pt-16">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <form className="p-6 pl-16 pt-12">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             {/* Source Selection */}
             <div>
               <label className="mb-3 block -skew-x-6 transform bg-black px-3 py-2 text-sm font-bold text-white">
                 الكتاب
               </label>
               <select
-                className="w-full border-2 border-black bg-white p-4 text-right font-medium focus:bg-parchment focus:outline-none"
+                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
                 value={source}
                 onChange={(e) => setSource(e.target.value)}
               >
@@ -210,7 +210,7 @@ export default function SearchPage() {
                 نص الحديث
               </label>
               <input
-                className="w-full border-2 border-black bg-white p-4 text-right font-medium focus:bg-parchment focus:outline-none"
+                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
                 type="text"
                 placeholder="ابحث في نص الحديث..."
                 value={text}
@@ -225,7 +225,7 @@ export default function SearchPage() {
                 الباب
               </label>
               <select
-                className="w-full border-2 border-black bg-white p-4 text-right font-medium focus:bg-parchment focus:outline-none"
+                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
                 value={chapter}
                 onChange={(e) => setChapter(e.target.value)}
               >
@@ -244,7 +244,7 @@ export default function SearchPage() {
                 الراوي
               </label>
               <input
-                className="w-full border-2 border-black bg-white p-4 text-right font-medium focus:bg-parchment focus:outline-none"
+                className="w-full border-2 border-black bg-white p-3 text-right font-medium focus:bg-parchment focus:outline-none"
                 type="text"
                 placeholder="اسم الراوي..."
                 value={narrator}
