@@ -6,25 +6,25 @@ import Link from "next/link";
 function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b-4 border-black bg-white">
-      <div className="flex h-16">
-        <div className="flex flex-1 items-center justify-around">
+      <div className="container mx-auto flex h-20">
+        <div className="flex flex-1 items-center justify-between px-4">
           <Link
             href="/"
             className="group flex items-center space-x-2 rtl:space-x-reverse"
           >
-            <div className="relative h-10 w-10 rotate-45 transform bg-parchment transition-transform group-hover:rotate-0 group-hover:-skew-x-12">
-              <LinkIcon className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 -rotate-45 transform text-black" />
+            <div className="relative h-12 w-12 rotate-45 transform bg-parchment transition-transform group-hover:rotate-0 group-hover:-skew-x-12">
+              <LinkIcon className="absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 -rotate-45 transform text-black" />
             </div>
-            <span className="inline-block -skew-x-12 transform bg-black px-2 py-1 text-xl font-bold text-white transition-transform">
+            <span className="inline-block -skew-x-12 transform bg-black px-3 py-2 text-2xl font-bold text-white transition-transform">
               إسناد
             </span>
           </Link>
-          <nav className="flex items-center space-x-6 text-sm rtl:space-x-reverse">
+          <nav className="flex items-center space-x-6 text-base rtl:space-x-reverse">
             <Link
               href="/search"
-              className="group relative flex items-center gap-1 overflow-hidden"
+              className="group relative flex items-center gap-2 overflow-hidden"
             >
-              <Search className="h-4 w-4" />
+              <Search className="h-5 w-5" />
               <span className="relative z-10 mb-0.5 transition-colors hover:text-foreground/80">
                 البحث
               </span>
@@ -32,9 +32,9 @@ function Navbar() {
             </Link>
             <Link
               href="/narrator"
-              className="group relative flex items-center gap-1 overflow-hidden"
+              className="group relative flex items-center gap-2 overflow-hidden"
             >
-              <Users className="h-4 w-4" />
+              <Users className="h-5 w-5" />
               <span className="relative z-10 mb-0.5 transition-colors hover:text-foreground/80">
                 الرواة
               </span>
@@ -42,9 +42,9 @@ function Navbar() {
             </Link>
             <Link
               href="/about"
-              className="group relative flex items-center gap-1 overflow-hidden"
+              className="group relative flex items-center gap-2 overflow-hidden"
             >
-              <Info className="h-4 w-4" />
+              <Info className="h-5 w-5" />
               <span className="relative z-10 mb-0.5 transition-colors hover:text-foreground/80">
                 عن المشروع
               </span>

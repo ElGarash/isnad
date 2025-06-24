@@ -2,9 +2,8 @@
 
 import HadithList from "@/components/hadith-list";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import type { HadithWithFirstNarrator } from "@/lib/sqlite";
+import { toArabicNumerals } from "@/lib/utils";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 
 // Utility: Strip Arabic diacritics and bidirectional marks (same as backend)
@@ -46,6 +45,7 @@ export default function SearchPage() {
   const [chapter, setChapter] = useState("");
   const [narrator, setNarrator] = useState("");
   const [results, setResults] = useState<HadithWithFirstNarrator[]>([]);
+  const [totalCount, setTotalCount] = useState(0); // Track total filtered count
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
@@ -110,6 +110,9 @@ export default function SearchPage() {
           normalizeWhitespace(stripDiacritics(h.text_ar)).includes(normText),
       );
     }
+
+    // Set the total count and initial results
+    setTotalCount(filtered.length);
     setResults(filtered.slice(0, limit));
     setHasMore(filtered.length > limit);
     setLoading(false);
@@ -172,66 +175,130 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">بحث</h1>
-      <Card className="mb-6 p-4">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end">
-          <div className="flex-1">
-            <label className="mb-1 block font-bold">نص الحديث (بالعربية)</label>
-            <Input
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="ابحث في نص الحديث..."
-              className="w-full"
-              dir="rtl"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block font-bold">الكتاب</label>
-            <select
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
-              className="w-full border px-2 py-1"
-            >
-              {SOURCES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block font-bold">الباب</label>
-            <select
-              value={chapter}
-              onChange={(e) => setChapter(e.target.value)}
-              className="w-full border px-2 py-1"
-            >
-              <option value="">كل الأبواب</option>
-              {chapters.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex-1">
-            <label className="mb-1 block font-bold">الراوي</label>
-            <Input
-              value={narrator}
-              onChange={(e) => setNarrator(e.target.value)}
-              placeholder="اسم الراوي..."
-              className="w-full"
-              dir="rtl"
-            />
+    <div className="container mx-auto px-4 py-6">
+      {/* Search Form with brutalist card design */}
+      <div className="relative mx-16 mb-4 overflow-hidden border-4 border-black bg-parchment">
+        {/* Decorative corner */}
+        <div className="absolute left-0 top-0 z-10 h-16 w-16 -translate-x-8 -translate-y-8 -rotate-45 transform bg-parchment"></div>
+        <div className="absolute left-1 top-1 z-20 rotate-45 transform">
+          <div className="-rotate-90 transform bg-black px-2 py-1 text-sm font-bold text-parchment">
+            بحث
           </div>
         </div>
-      </Card>
+
+        {/* Form content */}
+        <form className="p-4 pl-12 pt-8">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {/* Source Selection */}
+            <div>
+              <label className="mb-2 inline-block -skew-x-6 transform bg-black px-2 py-1 text-xs font-bold text-white">
+                الكتاب
+              </label>
+              <select
+                className="w-full border-2 border-black bg-white p-2 text-right text-sm font-medium focus:bg-parchment focus:outline-none"
+                value={source}
+                onChange={(e) => setSource(e.target.value)}
+              >
+                <option value="Sahih Bukhari">صحيح البخاري</option>
+                <option value="Sahih Muslim">صحيح مسلم</option>
+              </select>
+            </div>
+
+            {/* Chapter Selection */}
+            <div>
+              <label className="mb-2 inline-block -skew-x-6 transform bg-black px-2 py-1 text-xs font-bold text-white">
+                الباب
+              </label>
+              <select
+                className="w-full border-2 border-black bg-white p-2 text-right text-sm font-medium focus:bg-parchment focus:outline-none"
+                value={chapter}
+                onChange={(e) => setChapter(e.target.value)}
+              >
+                <option value="">كل الأبواب</option>
+                {chapters.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Text Search */}
+            <div>
+              <label className="mb-2 inline-block -skew-x-6 transform bg-black px-2 py-1 text-xs font-bold text-white">
+                نص الحديث
+              </label>
+              <input
+                className="w-full border-2 border-black bg-white p-2 text-right text-sm font-medium focus:bg-parchment focus:outline-none"
+                type="text"
+                placeholder="ابحث في نص الحديث..."
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                dir="rtl"
+              />
+            </div>
+
+            {/* Narrator Search */}
+            <div>
+              <label className="mb-2 inline-block -skew-x-6 transform bg-black px-2 py-1 text-xs font-bold text-white">
+                الراوي
+              </label>
+              <input
+                className="w-full border-2 border-black bg-white p-2 text-right text-sm font-medium focus:bg-parchment focus:outline-none"
+                type="text"
+                placeholder="اسم الراوي..."
+                value={narrator}
+                onChange={(e) => setNarrator(e.target.value)}
+                dir="rtl"
+              />
+            </div>
+          </div>{" "}
+          {/* Results Info integrated into the search card */}
+          <div className="mt-4 border-t-2 border-black bg-parchment px-4 py-2">
+            <div className="text-right text-sm font-bold">
+              {loading ? (
+                <span>🔍 جاري البحث...</span>
+              ) : (
+                <span>📊 عدد النتائج: {toArabicNumerals(totalCount)}</span>
+              )}
+            </div>
+          </div>
+        </form>
+
+        {/* Bottom border decorations */}
+        <div className="absolute bottom-0 left-0 h-1 w-full bg-black"></div>
+        <div className="absolute bottom-0 right-0 h-full w-1 bg-black"></div>
+      </div>
+
+      {/* Results List */}
       <HadithList hadiths={results} />
+
       <div ref={loaderRef} />
-      {loading && <div className="py-4 text-center">جاري التحميل...</div>}
-      {!loading && results.length === 0 && (
-        <div className="py-4 text-center text-gray-500">لا توجد نتائج</div>
+
+      {/* Loading state with brutalist styling */}
+      {loading && (
+        <div className="py-8 text-center">
+          <div className="inline-block border-4 border-black bg-parchment px-6 py-4">
+            <div className="animate-pulse text-xl font-bold">
+              ⏳ جاري التحميل...
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* No results state with brutalist styling */}
+      {!loading && totalCount === 0 && (
+        <div className="py-8 text-center">
+          <div className="inline-block border-4 border-black bg-white px-8 py-6">
+            <div className="text-2xl font-bold text-gray-700">🔍</div>
+            <div className="mt-2 text-lg font-bold text-gray-700">
+              لا توجد نتائج
+            </div>
+            <div className="mt-1 text-sm text-gray-500">
+              جرب تعديل معايير البحث
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

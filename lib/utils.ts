@@ -15,3 +15,11 @@ export const cleanName = (text: string) => {
     .replace(/\s.\s|\s.$/g, " ") // remove single chars between spaces OR at the end
     .trim();
 };
+
+// Convert English numerals to Arabic numerals
+export function toArabicNumerals(num: number): string {
+  const arabicNumerals = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+  return num
+    .toString()
+    .replace(/[0-9]/g, (digit) => arabicNumerals[parseInt(digit)]);
+}
