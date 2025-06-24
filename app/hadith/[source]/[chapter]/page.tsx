@@ -1,10 +1,18 @@
-import HadithList from "@/components/hadith-list";
+import ChapterPageComponent from "@/components/chapter-page";
+import { formatArabicCount } from "@/lib/arabic-utils";
+import { STATIC_SOURCES, StaticSource } from "@/lib/constants";
+import {
+  generateBaseMetadata,
+  generateNotFoundMetadata,
+} from "@/lib/metadata-utils";
 import { getHadithsByChapterSource, getSourceChapters } from "@/lib/sqlite";
+import {
+  sanitizeSourceForPath,
+  validateAndDecodeChapter,
+  validateAndDecodeSource,
+} from "@/lib/validation-utils";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-
-const STATIC_SOURCES = ["Sahih Bukhari"] as const;
-type StaticSource = (typeof STATIC_SOURCES)[number];
 
 interface ChapterPageProps {
   params: Promise<{
@@ -17,80 +25,25 @@ export async function generateMetadata({
   params,
 }: ChapterPageProps): Promise<Metadata> {
   const { source, chapter } = await params;
-  const decodedSource = decodeURIComponent(source) as StaticSource;
-  const decodedChapter = decodeURIComponent(chapter);
-
-  if (!STATIC_SOURCES.includes(decodedSource)) {
-    return {
-      title: "Chapter Not Found",
-      description: "The requested hadith chapter could not be found.",
-      openGraph: {
-        title: "Chapter Not Found",
-        description: "The requested hadith chapter could not be found.",
-        images: [
-          {
-            url: "/images/og-images/og-default.png",
-            width: 1200,
-            height: 630,
-            alt: "Chapter Not Found",
-          },
-        ],
-      },
-    };
-  }
+  const decodedSource = validateAndDecodeSource(source);
+  const decodedChapter = validateAndDecodeChapter(chapter);
 
   const hadiths = getHadithsByChapterSource(decodedSource, decodedChapter);
 
   if (hadiths.length === 0) {
-    return {
-      title: "Chapter Not Found",
-      description: "The requested hadith chapter could not be found.",
-      openGraph: {
-        title: "Chapter Not Found",
-        description: "The requested hadith chapter could not be found.",
-        images: [
-          {
-            url: "/images/og-images/og-default.png",
-            width: 1200,
-            height: 630,
-            alt: "Chapter Not Found",
-          },
-        ],
-      },
-    };
+    return generateNotFoundMetadata("chapterNotFound");
   }
 
-  // Get the chapter number from the first hadith
   const chapterNo = hadiths[0].chapter_no;
-  const sanitizedSource = decodedSource.replace(" ", "_");
-  const description = `Collection of ${hadiths.length} hadiths from chapter ${decodedChapter} in ${decodedSource}`;
+  const sanitizedSource = sanitizeSourceForPath(decodedSource);
+  const description = `مجموعة من ${formatArabicCount(hadiths.length, "حديث", "أحاديث")} من فصل ${decodedChapter} في ${decodedSource}`;
 
-  return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_METADATA_BASE!),
+  return generateBaseMetadata({
     title: `${decodedChapter} - ${decodedSource}`,
     description,
-    openGraph: {
-      title: `${decodedChapter} - ${decodedSource}`,
-      description,
-      images: [
-        {
-          url: `/images/og-images/chapters/${sanitizedSource}/${chapterNo}.png`,
-          width: 1200,
-          height: 630,
-          alt: `Hadiths from chapter ${decodedChapter} in ${decodedSource}`,
-        },
-      ],
-      type: "article",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${decodedChapter} - ${decodedSource}`,
-      description,
-      images: [
-        `/images/og-images/chapters/${sanitizedSource}/${chapterNo}.png`,
-      ],
-    },
-  };
+    ogImagePath: `/images/og-images/chapters/${sanitizedSource}/${chapterNo}.png`,
+    type: "article",
+  });
 }
 
 export async function generateStaticParams() {
@@ -105,18 +58,19 @@ export async function generateStaticParams() {
 
 export default async function ChapterPage({ params }: ChapterPageProps) {
   const { source, chapter } = await params;
-  const [decodedSource, decodedChapter] = [
-    decodeURIComponent(source) as StaticSource,
-    decodeURIComponent(chapter),
-  ];
-
-  if (!STATIC_SOURCES.includes(decodedSource)) {
-    notFound();
-  }
+  const decodedSource = validateAndDecodeSource(source);
+  const decodedChapter = validateAndDecodeChapter(chapter);
   const hadiths = getHadithsByChapterSource(decodedSource, decodedChapter);
 
   if (hadiths.length === 0) {
     notFound();
   }
-  return <HadithList hadiths={hadiths} />;
+
+  return (
+    <ChapterPageComponent
+      hadiths={hadiths}
+      source={decodedSource}
+      chapter={decodedChapter}
+    />
+  );
 }

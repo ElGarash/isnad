@@ -1,6 +1,7 @@
 "use client";
 
 import VirtualizedList from "./virtualized-list";
+import { toArabicNumerals } from "@/lib/arabic-utils";
 import { getArabicSource } from "@/lib/book-mapping";
 import { ChapterCount } from "@/lib/sqlite";
 import Link from "next/link";
@@ -15,7 +16,7 @@ export default function VirtualizedChapterList({
       items={items}
       maxHeight={300}
       renderItem={(item) => {
-        const fullText = `${getArabicSource(item.source)} — ${item.chapter} (${item.count})`;
+        const fullText = `${getArabicSource(item.source)} — ${item.chapter} (${toArabicNumerals(item.count)})`;
         return (
           <Link
             href={`/hadith/${encodeURIComponent(item.source)}/${item.chapter}`}

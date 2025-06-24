@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { toArabicNumerals } from "@/lib/arabic-utils";
 import { getArabicGrade } from "@/lib/grade-mapping";
 import type { Narrator } from "@/lib/sqlite";
 import {
@@ -13,7 +14,7 @@ import Link from "next/link";
 const Date = ({ value }: { value: string | undefined }) => {
   return value ? (
     <span className="inline-block w-3 text-center text-[5px]/tight">
-      {value}
+      {toArabicNumerals(value)}
     </span>
   ) : (
     <CircleHelpIcon className="inline-block h-[5px] w-3" />

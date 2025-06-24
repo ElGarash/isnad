@@ -2,23 +2,10 @@
 
 import HadithList from "@/components/hadith-list";
 import { LoadingSpinner } from "@/components/loading-spinner";
+import { arabicTexts, toArabicNumerals } from "@/lib/arabic-utils";
+import { normalizeForSearch } from "@/lib/search-utils";
 import type { HadithWithFirstNarrator } from "@/lib/sqlite";
-import { toArabicNumerals } from "@/lib/utils";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
-
-// Utility: Strip Arabic diacritics and bidirectional marks (same as backend)
-function stripDiacritics(text: string) {
-  if (!text) return text;
-  return text.replace(
-    /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u200E\u200F\u202A-\u202E\u2066-\u2069]/g,
-    "",
-  );
-}
-
-// Utility: Normalize whitespace (collapse all whitespace to a single space)
-function normalizeWhitespace(str: string) {
-  return str.replace(/\s+/g, " ").trim();
-}
 
 const SOURCES = ["Sahih Bukhari", "Sahih Muslim"];
 
@@ -93,21 +80,17 @@ export default function SearchPage() {
     if (source) filtered = filtered.filter((h) => h.source === source);
     if (chapter) filtered = filtered.filter((h) => h.chapter === chapter);
     if (debouncedNarrator) {
-      const normNarr = normalizeWhitespace(stripDiacritics(debouncedNarrator));
+      const normNarr = normalizeForSearch(debouncedNarrator);
       filtered = filtered.filter(
         (h) =>
           h.narrator_name &&
-          normalizeWhitespace(stripDiacritics(h.narrator_name)).includes(
-            normNarr,
-          ),
+          normalizeForSearch(h.narrator_name).includes(normNarr),
       );
     }
     if (debouncedText) {
-      const normText = normalizeWhitespace(stripDiacritics(debouncedText));
+      const normText = normalizeForSearch(debouncedText);
       filtered = filtered.filter(
-        (h) =>
-          h.text_ar &&
-          normalizeWhitespace(stripDiacritics(h.text_ar)).includes(normText),
+        (h) => h.text_ar && normalizeForSearch(h.text_ar).includes(normText),
       );
     }
 
@@ -129,25 +112,18 @@ export default function SearchPage() {
         if (source) filtered = filtered.filter((h) => h.source === source);
         if (chapter) filtered = filtered.filter((h) => h.chapter === chapter);
         if (debouncedNarrator) {
-          const normNarr = normalizeWhitespace(
-            stripDiacritics(debouncedNarrator),
-          );
+          const normNarr = normalizeForSearch(debouncedNarrator);
           filtered = filtered.filter(
             (h) =>
               h.narrator_name &&
-              normalizeWhitespace(stripDiacritics(h.narrator_name)).includes(
-                normNarr,
-              ),
+              normalizeForSearch(h.narrator_name).includes(normNarr),
           );
         }
         if (debouncedText) {
-          const normText = normalizeWhitespace(stripDiacritics(debouncedText));
+          const normText = normalizeForSearch(debouncedText);
           filtered = filtered.filter(
             (h) =>
-              h.text_ar &&
-              normalizeWhitespace(stripDiacritics(h.text_ar)).includes(
-                normText,
-              ),
+              h.text_ar && normalizeForSearch(h.text_ar).includes(normText),
           );
         }
         const next = filtered.slice((page + 1) * limit, (page + 2) * limit);
@@ -182,7 +158,7 @@ export default function SearchPage() {
         <div className="absolute left-0 top-0 z-10 h-16 w-16 -translate-x-8 -translate-y-8 -rotate-45 transform bg-parchment"></div>
         <div className="absolute left-1 top-1 z-20 rotate-45 transform">
           <div className="-rotate-90 transform bg-black px-2 py-1 text-sm font-bold text-parchment">
-            بحث
+            {arabicTexts.search}
           </div>
         </div>
 
@@ -192,7 +168,7 @@ export default function SearchPage() {
             {/* Source Selection */}
             <div>
               <label className="mb-2 inline-block -skew-x-6 transform bg-black px-2 py-1 text-xs font-bold text-white">
-                الكتاب
+                {arabicTexts.bookLabel}
               </label>
               <select
                 className="w-full border-2 border-black bg-white p-2 text-right text-sm font-medium focus:bg-parchment focus:outline-none"
@@ -207,14 +183,14 @@ export default function SearchPage() {
             {/* Chapter Selection */}
             <div>
               <label className="mb-2 inline-block -skew-x-6 transform bg-black px-2 py-1 text-xs font-bold text-white">
-                الباب
+                {arabicTexts.chapterLabel}
               </label>
               <select
                 className="w-full border-2 border-black bg-white p-2 text-right text-sm font-medium focus:bg-parchment focus:outline-none"
                 value={chapter}
                 onChange={(e) => setChapter(e.target.value)}
               >
-                <option value="">كل الأبواب</option>
+                <option value="">{arabicTexts.allChapters}</option>
                 {chapters.map((c) => (
                   <option key={c} value={c}>
                     {c}
@@ -226,12 +202,12 @@ export default function SearchPage() {
             {/* Text Search */}
             <div>
               <label className="mb-2 inline-block -skew-x-6 transform bg-black px-2 py-1 text-xs font-bold text-white">
-                نص الحديث
+                {arabicTexts.hadithTextLabel}
               </label>
               <input
                 className="w-full border-2 border-black bg-white p-2 text-right text-sm font-medium focus:bg-parchment focus:outline-none"
                 type="text"
-                placeholder="ابحث في نص الحديث..."
+                placeholder={arabicTexts.searchInText}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 dir="rtl"
@@ -241,12 +217,12 @@ export default function SearchPage() {
             {/* Narrator Search */}
             <div>
               <label className="mb-2 inline-block -skew-x-6 transform bg-black px-2 py-1 text-xs font-bold text-white">
-                الراوي
+                {arabicTexts.narratorLabel}
               </label>
               <input
                 className="w-full border-2 border-black bg-white p-2 text-right text-sm font-medium focus:bg-parchment focus:outline-none"
                 type="text"
-                placeholder="اسم الراوي..."
+                placeholder={arabicTexts.narratorName}
                 value={narrator}
                 onChange={(e) => setNarrator(e.target.value)}
                 dir="rtl"
@@ -257,9 +233,11 @@ export default function SearchPage() {
           <div className="mt-4 border-t-2 border-black bg-parchment px-4 py-2">
             <div className="text-right text-sm font-bold">
               {loading ? (
-                <span>🔍 جاري البحث...</span>
+                <span>🔍 {arabicTexts.searching}</span>
               ) : (
-                <span>📊 عدد النتائج: {toArabicNumerals(totalCount)}</span>
+                <span>
+                  📊 {arabicTexts.resultsCount}: {toArabicNumerals(totalCount)}
+                </span>
               )}
             </div>
           </div>
@@ -280,7 +258,7 @@ export default function SearchPage() {
         <div className="py-8 text-center">
           <div className="inline-block border-4 border-black bg-parchment px-6 py-4">
             <div className="animate-pulse text-xl font-bold">
-              ⏳ جاري التحميل...
+              ⏳ {arabicTexts.loading}
             </div>
           </div>
         </div>
@@ -292,10 +270,10 @@ export default function SearchPage() {
           <div className="inline-block border-4 border-black bg-white px-8 py-6">
             <div className="text-2xl font-bold text-gray-700">🔍</div>
             <div className="mt-2 text-lg font-bold text-gray-700">
-              لا توجد نتائج
+              {arabicTexts.noResults}
             </div>
             <div className="mt-1 text-sm text-gray-500">
-              جرب تعديل معايير البحث
+              {arabicTexts.tryDifferentSearch}
             </div>
           </div>
         </div>
