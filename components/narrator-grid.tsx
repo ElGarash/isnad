@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { getArabicGrade } from "@/lib/grade-mapping";
 import type { Narrator } from "@/lib/sqlite";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Search, Users } from "lucide-react";
+import { Loader2, Search, Users } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 
@@ -110,6 +110,7 @@ export default function NarratorGrid({ narrators }: NarratorGridProps) {
     century: "",
   });
   const [displayLimit, setDisplayLimit] = useState(200); // Start with 200 narrators
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -170,6 +171,15 @@ export default function NarratorGrid({ narrators }: NarratorGridProps) {
       ? filteredNarrators.length >= 500
       : displayLimit < narrators.length;
 
+  // Handle load more with loading state
+  const handleLoadMore = async () => {
+    setIsLoadingMore(true);
+    // Simulate async loading for better UX
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    setDisplayLimit((prev) => Math.min(prev + 200, narrators.length));
+    setIsLoadingMore(false);
+  };
+
   return (
     <div className="w-full">
       <FilterPanel
@@ -215,13 +225,21 @@ export default function NarratorGrid({ narrators }: NarratorGridProps) {
       {canLoadMore && (
         <div className="mt-6 flex justify-center">
           <Button
-            onClick={() =>
-              setDisplayLimit((prev) => Math.min(prev + 200, narrators.length))
-            }
-            className="border-2 border-black bg-parchment text-black hover:bg-parchment-dark"
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className="border-2 border-black bg-parchment text-black hover:bg-parchment-dark disabled:opacity-50"
           >
-            تحميل المزيد ({Math.min(200, narrators.length - displayLimit)} راوي
-            إضافي)
+            {isLoadingMore ? (
+              <>
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                جاري التحميل...
+              </>
+            ) : (
+              <>
+                تحميل المزيد ({Math.min(200, narrators.length - displayLimit)}{" "}
+                راوي إضافي)
+              </>
+            )}
           </Button>
         </div>
       )}
