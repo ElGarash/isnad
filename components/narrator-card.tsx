@@ -120,14 +120,22 @@ export const NarratorCard = ({
       <HeaderSection name={name} grade={grade} />
       <InfoSection
         birth_dates={{
-          hijri: birth_date_hijri,
-          gregorian: birth_date_gregorian,
+          hijri:
+            birth_date_hijri != null ? String(birth_date_hijri) : undefined,
+          gregorian:
+            birth_date_gregorian != null
+              ? String(birth_date_gregorian)
+              : undefined,
         }}
         death_dates={{
-          hijri: death_date_hijri,
-          gregorian: death_date_gregorian,
+          hijri:
+            death_date_hijri != null ? String(death_date_hijri) : undefined,
+          gregorian:
+            death_date_gregorian != null
+              ? String(death_date_gregorian)
+              : undefined,
         }}
-        death_place={death_place}
+        death_place={death_place != null ? String(death_place) : undefined}
       />
       <Link
         href={`/narrator/${name}`}
