@@ -32,7 +32,7 @@ cursor = conn.cursor()
 # Fetch all hadiths from all sources
 cursor.execute(
     """
-    SELECT h.source, h.chapter, h.chapter_no, h.hadith_no, h.text_ar, r.name as narrator_name
+    SELECT h.id, h.source, h.chapter, h.chapter_no, h.hadith_no, h.text_ar, r.name as narrator_name
     FROM hadiths h
     LEFT JOIN hadith_chains c ON h.source = c.source AND h.chapter_no = c.chapter_no AND h.hadith_no = c.hadith_no AND c.position = 1
     LEFT JOIN rawis r ON c.scholar_indx = r.scholar_indx
