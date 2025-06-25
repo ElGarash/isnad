@@ -320,49 +320,64 @@ def generate_hadith_og_image(hadith, output_path, fonts):
 def generate_chapter_og_image(
     source, chapter_no, chapter_name, hadith_count, output_path, fonts
 ):
-    """Generate modern RTL-compliant OG image for chapter page"""
+    """Generate elegant minimal OG image for chapter page"""
     image, draw = create_base_image()
     width, height = image.size
 
-    # Colors
-    primary_text = "#1F2937"
-    secondary_text = "#6B7280"
-    accent_color = "#059669"
+    # Elegant color scheme (matching other OG images)
+    primary_text = "#1b2b3b"  # Navy
+    accent_color = "#c49b66"  # Gold
 
-    # Source title
-    source_text = prepare_arabic_text(source)
+    # Convert numbers to Arabic numerals
+    def to_arabic_numerals(num):
+        arabic_digits = "٠١٢٣٤٥٦٧٨٩"
+        return "".join(arabic_digits[int(d)] for d in str(num))
+
+    # Convert source names to Arabic
+    def get_arabic_source(source):
+        source_mapping = {"Sahih Bukhari": "صحيح البخاري", "Sahih Muslim": "صحيح مسلم"}
+        return source_mapping.get(source, source)
+
+    # Content margins
+    margin = 80
+    content_width = width - (margin * 2)
+
+    # Source title - centered at top
+    arabic_source = get_arabic_source(source)
+    source_text = prepare_arabic_text(arabic_source)
     source_font = fonts.get("title_medium")
     source_bbox = draw.textbbox((0, 0), source_text, font=source_font)
     source_width = source_bbox[2] - source_bbox[0]
-    source_x = width - 80 - source_width
-    draw.text((source_x, 60), source_text, font=source_font, fill=primary_text)
+    source_x = (width - source_width) // 2
+    draw.text((source_x, 80), source_text, font=source_font, fill=primary_text)
 
-    # Chapter number
-    chapter_text = prepare_arabic_text(f"الباب {chapter_no}")
+    # Chapter number - centered below source
+    chapter_num = to_arabic_numerals(chapter_no)
+    chapter_text = prepare_arabic_text(f"الباب {chapter_num}")
     chapter_font = fonts.get("subtitle_bold")
     chapter_bbox = draw.textbbox((0, 0), chapter_text, font=chapter_font)
     chapter_width = chapter_bbox[2] - chapter_bbox[0]
-    chapter_x = width - 80 - chapter_width
-    draw.text((chapter_x, 140), chapter_text, font=chapter_font, fill=accent_color)
+    chapter_x = (width - chapter_width) // 2
+    draw.text((chapter_x, 160), chapter_text, font=chapter_font, fill=accent_color)
 
-    # Decorative line
-    line_start_x = width - 80 - max(source_width, chapter_width)
-    draw.rectangle([line_start_x - 10, 200, width - 80, 205], fill=accent_color)
+    # Elegant separator line (pushed down below chapter number)
+    line_y = 250
+    line_width = 200
+    line_x = (width - line_width) // 2
+    draw.rectangle([line_x, line_y, line_x + line_width, line_y + 2], fill=accent_color)
 
-    y_position = 230
-
-    # Chapter name with RTL support
+    # Chapter name - centered and wrapped if needed
+    y_position = 290
     if chapter_name:
         prepared_name = prepare_arabic_text(chapter_name)
         name_font = fonts.get("text")
 
-        # Create a card-like background for chapter name
+        # Check if text needs wrapping
         name_bbox = draw.textbbox((0, 0), prepared_name, font=name_font)
         name_width = name_bbox[2] - name_bbox[0]
-        name_height = name_bbox[3] - name_bbox[1]
 
-        # Wrap text if too long
-        if name_width > width - 160:
+        if name_width > content_width:
+            # Simple word wrapping
             words = prepared_name.split()
             lines = []
             current_line = ""
@@ -372,7 +387,7 @@ def generate_chapter_og_image(
                 test_bbox = draw.textbbox((0, 0), test_line, font=name_font)
                 test_width = test_bbox[2] - test_bbox[0]
 
-                if test_width <= width - 160:
+                if test_width <= content_width:
                     current_line = test_line
                 else:
                     if current_line:
@@ -384,64 +399,57 @@ def generate_chapter_og_image(
             if current_line:
                 lines.append(current_line)
 
-            # Background for text area
-            text_height = len(lines) * 45 + 20
-            draw.rectangle(
-                [80, y_position - 10, width - 80, y_position + text_height],
-                fill="#F8FAFC",
-                outline="#E2E8F0",
-                width=1,
-            )
-
-            # Draw lines with RTL alignment
-            for i, line in enumerate(lines[:3]):  # Limit to 3 lines
+            # Draw wrapped lines (max 2 lines)
+            for i, line in enumerate(lines[:2]):
                 line_bbox = draw.textbbox((0, 0), line, font=name_font)
                 line_width = line_bbox[2] - line_bbox[0]
-                line_x = width - 90 - line_width
+                line_x = (width - line_width) // 2
                 draw.text(
-                    (line_x, y_position + i * 45),
+                    (line_x, y_position + i * 40),
                     line,
                     font=name_font,
                     fill=primary_text,
                 )
 
-            y_position += len(lines[:3]) * 45 + 40
+            y_position += len(lines[:2]) * 40 + 60  # Add more spacing
         else:
-            # Single line
-            name_x = width - 80 - name_width
+            # Single line, centered
+            name_x = (width - name_width) // 2
             draw.text(
                 (name_x, y_position), prepared_name, font=name_font, fill=primary_text
             )
-            y_position += name_height + 40
+            y_position += 100  # Add more spacing before hadith count
 
-    # Hadith count with modern styling
-    count_text = prepare_arabic_text(f"عدد الأحاديث: {hadith_count}")
-    count_font = fonts.get("subtitle")
-
-    # Background for count
+    # Hadith count - centered with elegant underline accent (pushed down)
+    y_position += 20  # Additional spacing
+    hadith_num = to_arabic_numerals(hadith_count)
+    count_text = prepare_arabic_text(f"عدد الأحاديث: {hadith_num}")
+    count_font = fonts.get("text")
     count_bbox = draw.textbbox((0, 0), count_text, font=count_font)
     count_width = count_bbox[2] - count_bbox[0]
     count_height = count_bbox[3] - count_bbox[1]
 
-    count_bg_x = width - 80 - count_width - 20
-    draw.rectangle(
-        [count_bg_x - 15, y_position - 5, width - 65, y_position + count_height + 5],
-        fill=accent_color + "20",
-        outline=accent_color,
-        width=2,
-    )
-
-    count_x = width - 80 - count_width
+    # Count text centered
+    count_x = (width - count_width) // 2
     draw.text((count_x, y_position), count_text, font=count_font, fill=accent_color)
 
-    # Add watermark at bottom
-    watermark = prepare_arabic_text("إسناد - مجموعة الأحاديث")
+    # Elegant underline accent
+    underline_width = count_width + 40
+    underline_x = (width - underline_width) // 2
+    underline_y = y_position + count_height + 8
+    draw.rectangle(
+        [underline_x, underline_y, underline_x + underline_width, underline_y + 2],
+        fill=accent_color,
+    )
+
+    # Subtle watermark at bottom
+    watermark = prepare_arabic_text("إسناد")
     watermark_font = fonts.get("small")
     watermark_bbox = draw.textbbox((0, 0), watermark, font=watermark_font)
     watermark_width = watermark_bbox[2] - watermark_bbox[0]
-    watermark_x = width - 40 - watermark_width
+    watermark_x = (width - watermark_width) // 2
     draw.text(
-        (watermark_x, height - 50), watermark, font=watermark_font, fill=secondary_text
+        (watermark_x, height - 75), watermark, font=watermark_font, fill=accent_color
     )
 
     image.save(output_path)
