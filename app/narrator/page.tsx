@@ -12,12 +12,20 @@ export const metadata: Metadata = {
       "استعرض جميع رواة الأحاديث النبوية الشريفة مع معلومات مفصلة عن كل راوي",
     images: [
       {
-        url: "/images/og-images/og-default.png",
+        url: "/images/og-images/og-narrators.png",
         width: 1200,
         height: 630,
         alt: "جميع رواة الأحاديث",
       },
     ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "الرواة - جميع رواة الأحاديث",
+    description:
+      "استعرض جميع رواة الأحاديث النبوية الشريفة مع معلومات مفصلة عن كل راوي",
+    images: ["/images/og-images/og-narrators.png"],
   },
 };
 
