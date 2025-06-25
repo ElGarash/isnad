@@ -1,6 +1,7 @@
 import BrutalistCard from "@/components/brutalist-card";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { LoadingSpinner } from "@/components/loading-spinner";
+import { Summary } from "@/components/narrator-summary";
 import TeacherStudentChain from "@/components/predecessors-successors-chain";
 import VirtualizedChapterList from "@/components/virtualized-chapter-list";
 import VirtualizedNarratorList from "@/components/virtualized-narrator-list";
@@ -16,7 +17,6 @@ import {
   getSuccessors,
   narratedAbout,
 } from "@/lib/sqlite";
-import { BabyIcon, MapPinIcon, SkullIcon } from "lucide-react";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -83,65 +83,6 @@ export async function generateMetadata({
       images: [`/images/og-images/narrators/${sanitizedName}.png`],
     },
   };
-}
-
-function Summary({ narrator }: { narrator: Narrator }) {
-  return (
-    <BrutalistCard className="flex flex-col gap-6 p-4">
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-start gap-2">
-            <span className="font-bold">الدرجة</span>
-            <div className="inline-flex min-h-[28px] items-center justify-center border-2 border-navy bg-parchment px-3 py-1 text-base font-bold shadow-[3px_3px_0px_0px_theme(colors.navy)]">
-              {getArabicGrade(narrator.grade)}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-3">
-        <h2 className="text-xl font-bold">تواريخ</h2>
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <BabyIcon className="h-5 w-5" />
-            <span className="font-bold">الولادة:</span>
-            {narrator.birth_date_hijri || narrator.birth_date_gregorian ? (
-              <span>
-                {`${narrator.birth_date_hijri ?? "غير معروف"} هـ`} /{" "}
-                {`${narrator.birth_date_gregorian ?? "غير معروف"} مـ`}
-              </span>
-            ) : (
-              <span>غير معروف</span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <SkullIcon className="h-5 w-5" />
-            <span className="font-bold">الوفاة:</span>
-            {narrator.death_date_hijri || narrator.death_date_gregorian ? (
-              <span>
-                {`${narrator.death_date_hijri ?? "غير معروف"} هـ`} /{" "}
-                {`${narrator.death_date_gregorian ?? "غير معروف"} مـ`}
-              </span>
-            ) : (
-              <span>غير معروف</span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {narrator.death_place && (
-        <div className="flex flex-col gap-3">
-          <h2 className="text-xl font-bold">أماكن</h2>
-          <div className="flex items-center gap-2">
-            <MapPinIcon className="h-5 w-5" />
-            <span className="font-bold">الوفاة: </span>
-            <span>{narrator.death_place}</span>
-          </div>
-        </div>
-      )}
-    </BrutalistCard>
-  );
 }
 
 function RelationsSection({
