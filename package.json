@@ -7,6 +7,7 @@
     "build": "bunx --bun next build",
     "start": "next start",
     "lint": "bunx --bun next lint",
+    "generate-types": "bunx @rmp135/sql-ts -c sql-ts.config.json",
     "fmt": "prettier --write app components",
     "type-check": "bunx --bun tsc",
     "meta-check": "bunx --bun check-site-meta 3000",
@@ -66,12 +67,14 @@
     "recharts": "2.15.0",
     "sass": "^1.84.0",
     "sonner": "^1.7.1",
+    "sqlite3": "^5.1.7",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.6",
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@rmp135/sql-ts": "^2.2.0",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/d3": "^7.4.3",
     "@types/node": "^22.13.1",

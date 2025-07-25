@@ -1,0 +1,10 @@
+{
+  "client": "sqlite3",
+  "connection": {
+    "filename": "./data/sqlite.db"
+  },
+  "tableNameCasing": "pascal",
+  "interfaceNameFormat": "${table}",
+  "prettier": true,
+  "filename": "./types/database"
+}

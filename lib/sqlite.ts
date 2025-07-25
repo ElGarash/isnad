@@ -1,48 +1,18 @@
+import type { HadithChains, Hadiths, Rawis, Sources } from "../types/database";
 import { Database } from "bun:sqlite";
 
-export interface Hadith {
-  id: string;
-  hadith_id: number;
-  source: string;
-  chapter_no: number;
-  hadith_no: string;
-  chapter: string;
-  text_ar: string;
-  text_en: string;
-  explanation: string;
-}
-
-export interface Narrator {
-  scholar_indx: number;
-  name: string;
-  grade: string;
-  parents: string;
-  birth_date_hijri: string;
-  birth_date_gregorian: string;
-  death_date_hijri: string;
-  death_date_gregorian: string;
-  death_place: string;
-}
-
-export interface InfoSource {
-  id: number;
-  scholar_indx: number;
-  book_source: string;
-  content: string;
-}
+// Re-export the types under the same names
+export type {
+  Rawis as Narrator,
+  Sources as InfoSource,
+  HadithChains as Chain,
+  Hadiths as Hadith,
+};
 
 export type Source = "Sahih Bukhari";
 
-export interface Chain {
-  source: string;
-  chapter_no: number;
-  hadith_no: string;
-  scholar_indx: number;
-  position: number;
-}
-
-export type HadithWithChain = Hadith & Chain & Narrator;
-export type HadithWithFirstNarrator = Hadith & { narrator_name?: string };
+export type HadithWithChain = Hadiths & HadithChains & Rawis;
+export type HadithWithFirstNarrator = Hadiths & { narrator_name?: string };
 
 export interface ChapterCount {
   source: string;
@@ -235,27 +205,27 @@ function getDb() {
   return db;
 }
 
-export function getHadiths(limit = 10): Hadith[] {
+export function getHadiths(limit = 10): Hadiths[] {
   getDb();
-  return statements.getHadiths!.all({ $limit: limit }) as Hadith[];
+  return statements.getHadiths!.all({ $limit: limit }) as Hadiths[];
 }
 
-export function getNarrators(): Narrator[] {
+export function getNarrators(): Rawis[] {
   getDb();
-  return statements.getNarrators!.all() as Narrator[];
+  return statements.getNarrators!.all() as Rawis[];
 }
 
 export function getHadithById(
   source: string,
   chapter: string,
   hadithNo: string,
-): Hadith | null {
+): Hadiths | null {
   getDb();
   return statements.getHadithById!.get({
     $source: source,
     $chapter: chapter,
     $hadith_no: hadithNo,
-  }) as Hadith | null;
+  }) as Hadiths | null;
 }
 
 export function getChainForHadith(
@@ -271,9 +241,9 @@ export function getChainForHadith(
   }) as HadithWithChain[];
 }
 
-export function getAllHadiths(): Hadith[] {
+export function getAllHadiths(): Hadiths[] {
   getDb();
-  return statements.getAllHadiths!.all() as Hadith[];
+  return statements.getAllHadiths!.all() as Hadiths[];
 }
 
 export function getHadithsBySource(
@@ -287,40 +257,34 @@ export function getHadithsBySource(
   }) as HadithWithFirstNarrator[];
 }
 
-export function getNarrator(name: string): Narrator | undefined {
+export function getNarrator(name: string): Rawis | undefined {
   getDb();
   return statements.getNarratorByName!.get({
     $name: name,
-  }) as Narrator | undefined;
+  }) as Rawis | undefined;
 }
 
-export function getNarratorInfo(scholarIndex: number): InfoSource[] {
+export function getNarratorInfo(scholarIndex: number): Sources[] {
   getDb();
   return statements.getNarratorSources!.all({
     $scholar_indx: scholarIndex,
-  }) as InfoSource[];
+  }) as Sources[];
 }
 
-export function getSuccessors(
-  scholarIndex: number,
-  source: Source,
-): Narrator[] {
+export function getSuccessors(scholarIndex: number, source: Source): Rawis[] {
   getDb();
   return statements.getSuccessors!.all({
     $scholar_indx: scholarIndex,
     $source: source,
-  }) as Narrator[];
+  }) as Rawis[];
 }
 
-export function getPredecessors(
-  scholarIndex: number,
-  source: Source,
-): Narrator[] {
+export function getPredecessors(scholarIndex: number, source: Source): Rawis[] {
   getDb();
   return statements.getPredecessors!.all({
     $scholar_indx: scholarIndex,
     $source: source,
-  }) as Narrator[];
+  }) as Rawis[];
 }
 
 export function getNarratorsInSource(source: Source): string[] {

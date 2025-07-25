@@ -85,7 +85,7 @@ describe("SQLite Database Tests", () => {
 
     // Compare each hadith's ID to ensure exact same order
     firstRun.forEach((hadith, index) => {
-      expect(hadith.id).toBe(secondRun[index].id);
+      expect(hadith.hadith_id).toBe(secondRun[index].hadith_id);
     });
   });
 
@@ -94,9 +94,9 @@ describe("SQLite Database Tests", () => {
 
     // Verify that IDs are in ascending order
     for (let i = 1; i < hadiths.length; i++) {
-      expect(parseInt(hadiths[i].id, 10)).toBeGreaterThan(
-        parseInt(hadiths[i - 1].id, 10),
-      );
+      const currentId = hadiths[i].id?.toString() || "0";
+      const previousId = hadiths[i - 1].id?.toString() || "0";
+      expect(parseInt(currentId, 10)).toBeGreaterThan(parseInt(previousId, 10));
     }
   });
 });

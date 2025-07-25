@@ -14,7 +14,9 @@ export interface GraphLink {
 
 export interface NarratorGraphNode extends Narrator, BaseGraphNode {}
 
-export interface HadithGraphNode extends HadithWithChain, BaseGraphNode {
+export interface HadithGraphNode
+  extends Omit<HadithWithChain, "id">,
+    BaseGraphNode {
   fx: number;
   fy: number;
 }
