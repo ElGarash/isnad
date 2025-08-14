@@ -56,7 +56,7 @@ export default function SearchPage() {
     setLoading(true);
     setInitializing(true);
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-    fetch(`${basePath}/hadiths.json`)
+    fetch(`${basePath}/search_index.json`)
       .then((res) => res.json())
       .then((data) => {
         setAllHadiths(data);

@@ -141,3 +141,5 @@ dist
 
 *.pyc
 *.db
+
+public/search_index.json
