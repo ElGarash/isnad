@@ -5,6 +5,7 @@ import { LAYOUT } from "@/lib/layout-constants";
 import { HadithWithFirstNarrator } from "@/lib/sqlite";
 import { cleanName } from "@/lib/utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface HadithCardProps {
   hadith: HadithWithFirstNarrator;
@@ -15,6 +16,8 @@ export default function HadithCard({
   hadith,
   className = "",
 }: HadithCardProps) {
+  const router = useRouter();
+
   return (
     <Link
       href={`/hadith/${encodeURIComponent(hadith.source)}/${hadith.chapter}/${hadith.hadith_no}`}
@@ -34,20 +37,26 @@ export default function HadithCard({
               {hadith.narrator_name || arabicTexts.unknownNarrator}
             </h3>
             <div className="mt-2 text-sm text-gray-600">
-              <Link
-                href={`/hadith/${encodeURIComponent(hadith.source)}`}
-                onClick={(e) => e.stopPropagation()}
-                className="mb-2 ml-2 inline-block bg-gray-200 px-2 py-1 transition-colors hover:bg-gray-300"
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/hadith/${encodeURIComponent(hadith.source)}`);
+                }}
+                className="mb-2 ml-2 inline-block cursor-pointer bg-gray-200 px-2 py-1 transition-colors hover:bg-gray-300"
               >
                 {getArabicSource(hadith.source)}
-              </Link>
-              <Link
-                href={`/hadith/${encodeURIComponent(hadith.source)}/${encodeURIComponent(hadith.chapter)}`}
-                onClick={(e) => e.stopPropagation()}
-                className="inline-block bg-blue-100 px-2 py-1 transition-colors hover:bg-blue-200"
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(
+                    `/hadith/${encodeURIComponent(hadith.source)}/${encodeURIComponent(hadith.chapter)}`,
+                  );
+                }}
+                className="inline-block cursor-pointer bg-blue-100 px-2 py-1 transition-colors hover:bg-blue-200"
               >
                 {cleanName(hadith.chapter)}
-              </Link>
+              </button>
             </div>
           </div>
           <div className="relative">
