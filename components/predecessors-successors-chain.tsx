@@ -4,17 +4,13 @@ import NarratorCard from "./narrator-card";
 import NetworkWorkspace from "./network-workspace";
 import { Narrator } from "@/lib/sqlite";
 import { GraphLink, NarratorGraphNode } from "@/lib/types/graph";
-import type {
-  CustomGraphProps,
-  GraphViewConfig,
-} from "@/lib/types/graph-config";
+import type { GraphViewConfig } from "@/lib/types/graph-config";
 import tailwindConfig from "@/tailwind.config";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useRef } from "react";
 import { Graph } from "react-d3-graph";
 
-const TypedGraph = Graph as unknown as React.ComponentType<
-  CustomGraphProps<NarratorGraphNode, GraphLink>
->;
+const TypedGraph = Graph<NarratorGraphNode, GraphLink>;
 
 interface TeacherStudentChainProps {
   chainData: {
@@ -526,6 +522,7 @@ export default function TeacherStudentChain({
   chainData,
 }: TeacherStudentChainProps) {
   const graphRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // Use our simplified animation approach
   useAnimateLinks();
@@ -534,6 +531,10 @@ export default function TeacherStudentChain({
     <NetworkWorkspace>
       {(dimensions) => {
         const graphData = calculateGraphData(chainData, dimensions.width);
+
+        // Create a Map for O(1) node lookups instead of O(n) Array.find()
+        const nodeMap = new Map(graphData.nodes.map((node) => [node.id, node]));
+
         const graphConfig: GraphViewConfig = {
           directed: false,
           nodeHighlightBehavior: true,
@@ -567,7 +568,21 @@ export default function TeacherStudentChain({
         return (
           <div id="isnad-graph-container" ref={graphRef}>
             {graphData.nodes.length > 0 && (
-              <TypedGraph id="isnad" data={graphData} config={graphConfig} />
+              <TypedGraph
+                id="isnad"
+                data={graphData}
+                config={graphConfig}
+                onClickLink={(source, target) => {
+                  const sourceNode = nodeMap.get(source);
+                  const targetNode = nodeMap.get(target);
+
+                  if (sourceNode && targetNode) {
+                    router.push(
+                      `/narrator/${encodeURIComponent(sourceNode.name)}/to/${encodeURIComponent(targetNode.name)}`,
+                    );
+                  }
+                }}
+              />
             )}
           </div>
         );

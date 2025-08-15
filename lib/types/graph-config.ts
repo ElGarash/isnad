@@ -1,5 +1,5 @@
 import { GraphLink, GraphNode } from "./graph";
-import { GraphConfiguration } from "react-d3-graph";
+import { GraphConfiguration, GraphProps } from "react-d3-graph";
 
 export interface GraphViewConfig<TNode extends GraphNode = GraphNode>
   extends Partial<GraphConfiguration<TNode, GraphLink>> {
@@ -39,7 +39,7 @@ export interface GraphViewConfig<TNode extends GraphNode = GraphNode>
 export interface CustomGraphProps<
   TNode extends GraphNode,
   TLink extends GraphLink,
-> {
+> extends Partial<GraphProps<TNode, TLink>> {
   id: string;
   data: {
     nodes: TNode[];
