@@ -3,6 +3,8 @@ import {
   getChainForHadith,
   getHadithById,
   getHadiths,
+  getHadithsFromNarratorToNarrator,
+  getNarratorPairs,
   getNarrators,
 } from "../lib/sqlite";
 import { afterAll, describe, expect, test } from "bun:test";
@@ -133,6 +135,53 @@ describe("Hadith 6800 retrieval", () => {
     chain.forEach((narrator, idx) => {
       expect(narrator.name).toStrictEqual(expectedNarrators[idx]);
       expect(narrator.position).toBe(idx + 1);
+    });
+  });
+
+  test("getHadithsFromNarratorToNarrator returns hadiths narrated from one narrator to another", () => {
+    // First get some narrators to test with
+    const narrators = getNarrators();
+    expect(narrators.length).toBeGreaterThan(1);
+
+    // Use first two narrators for testing
+    const fromNarrator = narrators[0].name;
+    const toNarrator = narrators[1].name;
+
+    const hadiths = getHadithsFromNarratorToNarrator(
+      fromNarrator,
+      toNarrator,
+      10,
+    );
+    expect(hadiths).toBeArray();
+
+    // Each hadith should have all required properties for HadithWithFirstNarrator interface
+    hadiths.forEach((hadith) => {
+      expect(hadith).toHaveProperty("id");
+      expect(hadith).toHaveProperty("hadith_id");
+      expect(hadith).toHaveProperty("source");
+      expect(hadith).toHaveProperty("chapter_no");
+      expect(hadith).toHaveProperty("hadith_no");
+      expect(hadith).toHaveProperty("chapter");
+      expect(hadith).toHaveProperty("text_ar");
+      expect(hadith).toHaveProperty("text_en");
+      expect(hadith).toHaveProperty("explanation");
+      expect(hadith).toHaveProperty("narrator_name");
+    });
+  });
+
+  test("getNarratorPairs returns narrator pairs with hadith counts", () => {
+    const pairs = getNarratorPairs();
+    expect(pairs).toBeArray();
+
+    // Each pair should have the required properties
+    pairs.forEach((pair) => {
+      expect(pair).toHaveProperty("from_narrator");
+      expect(pair).toHaveProperty("to_narrator");
+      expect(pair).toHaveProperty("hadith_count");
+      expect(typeof pair.from_narrator).toBe("string");
+      expect(typeof pair.to_narrator).toBe("string");
+      expect(typeof pair.hadith_count).toBe("number");
+      expect(pair.hadith_count).toBeGreaterThan(0);
     });
   });
 

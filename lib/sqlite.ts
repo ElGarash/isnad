@@ -50,6 +50,12 @@ export interface ChapterCount {
   count: number;
 }
 
+export interface NarratorPair {
+  from_narrator: string;
+  to_narrator: string;
+  hadith_count: number;
+}
+
 export interface Chapter {
   source: string;
   chapter: string;
@@ -78,6 +84,8 @@ let statements: {
   getNarratorsByGrade?: ReturnType<Database["prepare"]>;
   getNarratorStats?: ReturnType<Database["prepare"]>;
   getNarratorsWithHadiths?: ReturnType<Database["prepare"]>;
+  getHadithsFromNarratorToNarrator?: ReturnType<Database["prepare"]>;
+  getNarratorPairs?: ReturnType<Database["prepare"]>;
 } = {};
 
 function getDb() {
@@ -230,6 +238,38 @@ function getDb() {
       WHERE h.source = $source
       GROUP BY r.scholar_indx
       ORDER BY hadith_count DESC, r.name
+    `);
+
+    statements.getHadithsFromNarratorToNarrator = db.prepare(`
+      SELECT h.*, r1.name as narrator_name
+      FROM hadiths h
+      JOIN hadith_chains c1 ON h.source = c1.source
+          AND h.chapter_no = c1.chapter_no
+          AND h.hadith_no = c1.hadith_no
+      JOIN hadith_chains c2 ON h.source = c2.source
+          AND h.chapter_no = c2.chapter_no
+          AND h.hadith_no = c2.hadith_no
+          AND c2.position = c1.position + 1
+      JOIN rawis r1 ON c1.scholar_indx = r1.scholar_indx
+      JOIN rawis r2 ON c2.scholar_indx = r2.scholar_indx
+      WHERE r1.name = $from_narrator AND r2.name = $to_narrator
+      ORDER BY h.source, h.chapter_no, h.hadith_no
+      LIMIT $limit
+    `);
+
+    statements.getNarratorPairs = db.prepare(`
+      SELECT DISTINCT r1.name as from_narrator, r2.name as to_narrator, COUNT(*) as hadith_count
+      FROM hadith_chains c1
+      JOIN hadith_chains c2 ON
+        c1.source = c2.source AND
+        c1.chapter_no = c2.chapter_no AND
+        c1.hadith_no = c2.hadith_no AND
+        c2.position = c1.position + 1
+      JOIN rawis r1 ON c1.scholar_indx = r1.scholar_indx
+      JOIN rawis r2 ON c2.scholar_indx = r2.scholar_indx
+      GROUP BY r1.name, r2.name
+      HAVING COUNT(*) > 0
+      ORDER BY hadith_count DESC
     `);
   }
   return db;
@@ -392,6 +432,24 @@ export function getNarratorsWithHadiths(source: Source): Narrator[] {
 export function getNarratorsWithHadithsOnly(): Narrator[] {
   getDb();
   return statements.getNarratorsWithHadithsOnly!.all() as Narrator[];
+}
+
+export function getHadithsFromNarratorToNarrator(
+  fromNarrator: string,
+  toNarrator: string,
+  limit: number = 50,
+): HadithWithFirstNarrator[] {
+  getDb();
+  return statements.getHadithsFromNarratorToNarrator!.all({
+    $from_narrator: fromNarrator,
+    $to_narrator: toNarrator,
+    $limit: limit,
+  }) as HadithWithFirstNarrator[];
+}
+
+export function getNarratorPairs(): NarratorPair[] {
+  getDb();
+  return statements.getNarratorPairs!.all() as NarratorPair[];
 }
 
 export function close() {

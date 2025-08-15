@@ -64,7 +64,7 @@ export default function HadithCard({
             <p
               className="overflow-hidden whitespace-pre-wrap break-words pr-4 text-right leading-relaxed"
               style={{
-                maxHeight: `${LAYOUT.HADITH_CARD_HEIGHT - 140}px`, // Account for padding and header
+                maxHeight: `${LAYOUT.HADITH_CARD_HEIGHT - 140}px`,
                 display: "-webkit-box",
                 WebkitLineClamp: "3",
                 WebkitBoxOrient: "vertical",
