@@ -11,8 +11,8 @@ export const dynamic = "force-static";
 
 export async function generateStaticParams() {
   return getNarratorPairs().map((pair) => ({
-    name: encodeURIComponent(pair.from_narrator),
-    receiver: encodeURIComponent(pair.to_narrator),
+    name: pair.from_narrator,
+    receiver: pair.to_narrator,
   }));
 }
 
