@@ -150,6 +150,7 @@ describe("Hadith 6800 retrieval", () => {
     const hadiths = getHadithsFromNarratorToNarrator(
       fromNarrator,
       toNarrator,
+      "Sahih Bukhari",
       10,
     );
     expect(hadiths).toBeArray();
@@ -170,7 +171,7 @@ describe("Hadith 6800 retrieval", () => {
   });
 
   test("getNarratorPairs returns narrator pairs with hadith counts", () => {
-    const pairs = getNarratorPairs();
+    const pairs = getNarratorPairs("Sahih Bukhari");
     expect(pairs).toBeArray();
 
     // Each pair should have the required properties
