@@ -112,7 +112,8 @@ function animatePathElements(pathElements: NodeListOf<Element>) {
         console.log("Path length:", pathLength);
       } catch (e) {
         console.error("Error getting path length:", e);
-        pathLength = 1000; // Default fallback
+        console.warn("Skipping path animation");
+        return;
       }
 
       // Create a glowing dot effect
@@ -188,6 +189,7 @@ function createGlowingDotEffect(
   const glowPath = path.cloneNode() as AnimatedPath;
   const pathId = path.id || `path-${index}`;
   glowPath.id = `glow-${pathId}`;
+  glowPath.classList.add("animation-clone");
   glowPath.style.stroke = COLORS.glow;
   glowPath.style.strokeWidth = `${STROKE_WIDTH.default * GLOW.outerGlowWidth}px`;
   glowPath.style.strokeLinecap = "round";
@@ -336,7 +338,7 @@ function cleanupAnimations() {
 
   // Remove the added paths
   const addedPaths = document.querySelectorAll(
-    "[id^='glow-'], [id^='dot-'], [id^='halo-'], [id^='trail-'], [id^='light-dot-']",
+    ".animation-clone, [id^='glow-'], [id^='dot-'], [id^='halo-'], [id^='trail-'], [id^='light-dot-']",
   );
   addedPaths.forEach((path) => path.parentNode?.removeChild(path));
 
@@ -360,33 +362,37 @@ function cleanupAnimations() {
 function setupAnimationRestartOnScroll() {
   // Store whether animations are currently running
   const animationsActive = { value: true };
+  let scrollTimeout: Timer | null = null;
 
   // Function to check visibility and restart animations if needed
   const checkVisibilityAndRestart = () => {
-    const isGraphVisible = () => {
-      const container = document.getElementById("isnad-graph-container");
-      if (!container) return false;
+    if (scrollTimeout) clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      const isGraphVisible = () => {
+        const container = document.getElementById("isnad-graph-container");
+        if (!container) return false;
 
-      const rect = container.getBoundingClientRect();
-      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-      return isVisible;
-    };
+        const rect = container.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+        return isVisible;
+      };
 
-    if (isGraphVisible()) {
-      if (!animationsActive.value) {
-        // Restart animations by refreshing all paths
-        const paths = document.querySelectorAll(".link, path");
-        if (paths.length) {
-          console.log("Graph is visible, restarting animations");
-          cleanupAnimations();
-          animatePathElements(paths as NodeListOf<Element>);
-          animationsActive.value = true;
+      if (isGraphVisible()) {
+        if (!animationsActive.value) {
+          // Restart animations by refreshing all paths
+          const paths = document.querySelectorAll(".link, path");
+          if (paths.length) {
+            console.log("Graph is visible, restarting animations");
+            cleanupAnimations();
+            animatePathElements(paths as NodeListOf<Element>);
+            animationsActive.value = true;
+          }
         }
+      } else {
+        // Graph is not visible, mark animations as inactive
+        animationsActive.value = false;
       }
-    } else {
-      // Graph is not visible, mark animations as inactive
-      animationsActive.value = false;
-    }
+    }, 100);
   };
 
   // Set up scroll listener
@@ -397,6 +403,9 @@ function setupAnimationRestartOnScroll() {
   // Clean up function
   return () => {
     window.removeEventListener("scroll", checkVisibilityAndRestart);
+    if (scrollTimeout) {
+      clearTimeout(scrollTimeout);
+    }
   };
 }
 

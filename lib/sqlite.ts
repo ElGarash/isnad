@@ -252,7 +252,9 @@ function getDb() {
           AND c2.position = c1.position + 1
       JOIN rawis r1 ON c1.scholar_indx = r1.scholar_indx
       JOIN rawis r2 ON c2.scholar_indx = r2.scholar_indx
-      WHERE r1.name = $from_narrator AND r2.name = $to_narrator
+      WHERE r1.name = $from_narrator
+          AND r2.name = $to_narrator
+          AND ($source IS NULL OR h.source = $source)
       ORDER BY h.source, h.chapter_no, h.hadith_no
       LIMIT $limit
     `);
@@ -267,6 +269,7 @@ function getDb() {
         c2.position = c1.position + 1
       JOIN rawis r1 ON c1.scholar_indx = r1.scholar_indx
       JOIN rawis r2 ON c2.scholar_indx = r2.scholar_indx
+      WHERE ($source IS NULL OR c1.source = $source)
       GROUP BY r1.name, r2.name
       HAVING COUNT(*) > 0
       ORDER BY hadith_count DESC
@@ -437,19 +440,23 @@ export function getNarratorsWithHadithsOnly(): Narrator[] {
 export function getHadithsFromNarratorToNarrator(
   fromNarrator: string,
   toNarrator: string,
-  limit: number = 50,
+  source: Source,
+  limit: number = 5000,
 ): HadithWithFirstNarrator[] {
   getDb();
   return statements.getHadithsFromNarratorToNarrator!.all({
     $from_narrator: fromNarrator,
     $to_narrator: toNarrator,
+    $source: source,
     $limit: limit,
   }) as HadithWithFirstNarrator[];
 }
 
-export function getNarratorPairs(): NarratorPair[] {
+export function getNarratorPairs(source: Source): NarratorPair[] {
   getDb();
-  return statements.getNarratorPairs!.all() as NarratorPair[];
+  return statements.getNarratorPairs!.all({
+    $source: source,
+  }) as NarratorPair[];
 }
 
 export function close() {

@@ -10,7 +10,7 @@ import { notFound } from "next/navigation";
 export const dynamic = "force-static";
 
 export async function generateStaticParams() {
-  return getNarratorPairs().map((pair) => ({
+  return getNarratorPairs("Sahih Bukhari").map((pair) => ({
     name: pair.from_narrator,
     receiver: pair.to_narrator,
   }));
@@ -48,7 +48,7 @@ export default async function NarratorToNarratorPage({
   const hadiths = getHadithsFromNarratorToNarrator(
     fromNarrator,
     toNarrator,
-    5000,
+    "Sahih Bukhari",
   );
 
   if (hadiths.length === 0) {
