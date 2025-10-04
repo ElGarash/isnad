@@ -17,6 +17,11 @@ export const metadata: Metadata = {
     template: "%s | Hadith Transmission Chain Visualizer",
   },
   description: "Explore the chains of transmission for authentic hadiths",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+  },
   openGraph: {
     title: {
       default: "Hadith Transmission Chain Visualizer",

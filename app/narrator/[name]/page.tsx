@@ -158,29 +158,29 @@ function InfoSection({ info }: { info: InfoSource[] }) {
   if (!info || info.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 md:gap-6">
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t-4 border-black"></div>
+          <div className="w-full border-t-2 border-black md:border-t-4"></div>
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-parchment-dark px-4 text-2xl font-bold">
+          <span className="bg-parchment-dark px-3 text-xl font-bold md:px-4 md:text-2xl">
             ذُكر عنه
           </span>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
         {info.map((entry, index) => (
           <BrutalistCard
             key={index}
             className="group transition-all duration-500 ease-in-out hover:scale-105"
           >
-            <h2 className="relative my-6 inline-block text-xl font-bold">
+            <h2 className="relative my-4 inline-block text-base font-bold md:my-6 md:text-xl">
               {mapBookSourceToReadableName(entry.book_source)}
-              <div className="absolute bottom-0 left-0 right-0 -z-10 h-3 translate-y-1 bg-parchment"></div>
+              <div className="absolute bottom-0 left-0 right-0 -z-10 h-2 translate-y-1 bg-parchment md:h-3"></div>
             </h2>
             <div className="max-h-0 overflow-hidden transition-[max-height] duration-500 ease-in-out group-hover:max-h-[30vh]">
-              <p className="max-h-[30vh] overflow-y-auto whitespace-pre-wrap pl-5 text-lg opacity-0 transition-opacity delay-200 duration-300 group-hover:opacity-100">
+              <p className="max-h-[30vh] overflow-y-auto whitespace-pre-wrap pl-3 text-sm opacity-0 transition-opacity delay-200 duration-300 group-hover:opacity-100 md:pl-5 md:text-lg">
                 {entry.content}
               </p>
             </div>
@@ -219,16 +219,16 @@ export default async function NarratorPage({
 
   return (
     <main className="flex items-center justify-center">
-      <div className="container my-12 flex min-h-screen flex-col gap-12">
+      <div className="container my-6 flex min-h-screen flex-col gap-6 px-2 md:my-12 md:gap-12 md:px-4">
         <div className="w-fit">
-          <h1 className="relative inline-block text-4xl font-bold">
+          <h1 className="relative inline-block text-2xl font-bold md:text-4xl">
             {narrator.name} ({getBlessings(getArabicGrade(narrator.grade))})
-            <div className="absolute bottom-0 left-0 right-0 -z-10 h-4 translate-y-2 bg-parchment"></div>
+            <div className="absolute bottom-0 left-0 right-0 -z-10 h-3 translate-y-1 bg-parchment md:h-4 md:translate-y-2"></div>
           </h1>
         </div>
 
-        <div className="grid grid-cols-12 gap-6">
-          <div className="order-1 col-span-3 flex flex-col gap-6">
+        <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-12">
+          <div className="flex flex-col gap-4 md:gap-6 lg:order-1 lg:col-span-3">
             <Summary narrator={narrator} />
             <RelationsSection
               predecessors={predecessors}
@@ -237,8 +237,8 @@ export default async function NarratorPage({
             />
           </div>
 
-          <div className="order-2 col-span-9 flex flex-col gap-6">
-            <BrutalistCard className="min-h-screen p-1">
+          <div className="flex flex-col gap-4 md:gap-6 lg:order-2 lg:col-span-9">
+            <BrutalistCard className="min-h-[400px] p-1 md:min-h-screen">
               <ErrorBoundary>
                 <Suspense fallback={<LoadingSpinner />}>
                   <TeacherStudentChain
@@ -253,7 +253,7 @@ export default async function NarratorPage({
             </BrutalistCard>
 
             {info && info.length > 0 && (
-              <div className="mt-6">
+              <div className="mt-4 md:mt-6">
                 <InfoSection info={info} />
               </div>
             )}

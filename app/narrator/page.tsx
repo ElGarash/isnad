@@ -33,11 +33,11 @@ export default async function NarratorsPage() {
   const narrators = getNarratorsWithHadithsOnly();
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="mb-4 text-4xl font-bold">الرواة</h1>
-        <div className="flex items-center gap-4 text-sm text-gray-600">
-          <span className="inline-block -skew-x-12 transform bg-black px-3 py-1 text-white">
+    <div className="container mx-auto px-2 py-4 md:px-4 md:py-8">
+      <div className="mb-6 md:mb-8">
+        <h1 className="mb-3 text-2xl font-bold md:mb-4 md:text-4xl">الرواة</h1>
+        <div className="flex flex-col items-start gap-2 text-xs text-gray-600 sm:flex-row sm:items-center sm:gap-4 md:text-sm">
+          <span className="inline-block -skew-x-12 transform bg-black px-2 py-1 text-white md:px-3">
             {narrators.length.toLocaleString()} راوي
           </span>
           <span>جميع الرواة في قاعدة البيانات</span>
