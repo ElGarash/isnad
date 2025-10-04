@@ -1,7 +1,7 @@
 import "./globals.css";
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import { Noto_Naskh_Arabic } from "next/font/google";
 
 const notoNaskhArabic = Noto_Naskh_Arabic({
@@ -10,6 +10,12 @@ const notoNaskhArabic = Noto_Naskh_Arabic({
   variable: "--font-naskh",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_METADATA_BASE!),
   title: {
@@ -17,11 +23,6 @@ export const metadata: Metadata = {
     template: "%s | Hadith Transmission Chain Visualizer",
   },
   description: "Explore the chains of transmission for authentic hadiths",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-  },
   openGraph: {
     title: {
       default: "Hadith Transmission Chain Visualizer",
