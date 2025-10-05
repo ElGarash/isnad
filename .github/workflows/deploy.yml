@@ -100,9 +100,8 @@ jobs:
       - name: Build
         run: bun run build
         env:
-          NEXT_PUBLIC_BASE_PATH: "/isnad"
           NODE_ENV: production
-          NEXT_PUBLIC_METADATA_BASE: https://elgarash.github.io/isnad
+          NEXT_PUBLIC_METADATA_BASE: http://www.asaneed.org/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
