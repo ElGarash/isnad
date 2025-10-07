@@ -24,7 +24,7 @@ export default function HadithCard({
       hrefLang="ar"
       className={className}
     >
-      <Card className="relative m-2 overflow-hidden border-4 border-black">
+      <Card className="relative overflow-hidden border-4 border-black">
         {/* Decorative corner - hidden on very small screens */}
         <div className="absolute left-0 top-0 z-10 hidden h-16 w-16 -translate-x-8 -translate-y-8 -rotate-45 transform bg-parchment sm:block md:h-24 md:w-24 md:-translate-x-12 md:-translate-y-12"></div>
         <div className="absolute left-1 top-1 z-20 hidden rotate-45 transform sm:block md:left-2 md:top-2">
@@ -44,7 +44,7 @@ export default function HadithCard({
             <h3 className="mb-1 inline-block -skew-x-12 transform bg-black px-2 py-1 text-lg font-bold text-white md:text-xl">
               {hadith.narrator_name || arabicTexts.unknownNarrator}
             </h3>
-            <div className="mt-2 flex flex-col gap-2 text-xs text-gray-600 sm:flex-row md:text-sm">
+            <div className="mt-2 flex flex-wrap items-start justify-start gap-2 text-xs text-gray-600 md:text-sm">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
