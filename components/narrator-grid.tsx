@@ -23,7 +23,7 @@ interface FilterState {
   century: string;
 }
 
-const GAP = 16;
+const GAP = 24;
 
 function FilterPanel({
   filters,
@@ -124,10 +124,10 @@ export default function NarratorGrid({ narrators }: NarratorGridProps) {
 
     if (isMobile) {
       setItemsPerRow(1);
-      setCardHeight(280);
+      setCardHeight(320);
     } else if (window.innerWidth < 1024) {
       setItemsPerRow(2);
-      setCardHeight(300);
+      setCardHeight(320);
     } else if (window.innerWidth < 1280) {
       setItemsPerRow(3);
       setCardHeight(320);
@@ -221,13 +221,15 @@ export default function NarratorGrid({ narrators }: NarratorGridProps) {
             return (
               <div
                 key={virtualRow.index}
+                ref={virtualizer.measureElement}
+                data-index={virtualRow.index}
                 className="absolute left-0 top-0 w-full"
                 style={{
-                  height: `${virtualRow.size}px`,
                   transform: `translateY(${virtualRow.start}px)`,
+                  paddingBottom: `${GAP}px`,
                 }}
               >
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {row.map((narrator) => (
                     <Link
                       key={narrator.scholar_indx}
