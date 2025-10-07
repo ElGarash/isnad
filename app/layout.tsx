@@ -1,7 +1,7 @@
 import "./globals.css";
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import { Noto_Naskh_Arabic } from "next/font/google";
 
 const notoNaskhArabic = Noto_Naskh_Arabic({
@@ -9,6 +9,12 @@ const notoNaskhArabic = Noto_Naskh_Arabic({
   weight: ["400", "500", "600", "700"],
   variable: "--font-naskh",
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_METADATA_BASE!),
@@ -54,9 +60,9 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <body className={notoNaskhArabic.className}>
-        <div className="flex min-h-screen flex-col">
+        <div className="relative flex min-h-screen flex-col">
           <Navbar />
-          <main className="flex-grow">{children}</main>
+          <main className="flex-grow pb-20 md:pb-24">{children}</main>
           <Footer />
         </div>
       </body>

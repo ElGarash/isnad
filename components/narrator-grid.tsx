@@ -4,12 +4,13 @@ import { Summary } from "@/components/narrator-summary";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { getArabicGrade } from "@/lib/grade-mapping";
 import type { Narrator } from "@/lib/sqlite";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Loader2, Search, Users } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface NarratorGridProps {
   narrators: Narrator[];
@@ -22,9 +23,7 @@ interface FilterState {
   century: string;
 }
 
-const ITEMS_PER_ROW = 4;
-const CARD_HEIGHT = 320; // Updated to match the fixed height
-const GAP = 16;
+const GAP = 24;
 
 function FilterPanel({
   filters,
@@ -46,7 +45,7 @@ function FilterPanel({
   ];
 
   return (
-    <div className="mb-8 space-y-4">
+    <div className="mb-6 space-y-3 md:mb-8 md:space-y-4">
       {/* Search */}
       <div className="relative">
         <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
@@ -57,7 +56,7 @@ function FilterPanel({
           onChange={(e) =>
             onFilterChange({ ...filters, search: e.target.value })
           }
-          className="border-2 border-black pl-4 pr-10 text-right"
+          className="border-2 border-black pl-4 pr-10 text-right text-sm md:text-base"
         />
       </div>
 
@@ -66,21 +65,22 @@ function FilterPanel({
         <Button
           variant={filters.grade === "" ? "default" : "outline"}
           onClick={() => onFilterChange({ ...filters, grade: "" })}
-          className={`border-2 border-black text-xs transition-all hover:bg-parchment hover:shadow-[4px_4px_0px_0px_theme(colors.gray.900)] active:translate-x-1 active:translate-y-1 active:shadow-none ${
+          className={`border-2 border-black text-xs transition-all hover:bg-parchment hover:shadow-[4px_4px_0px_0px_theme(colors.gray.900)] active:translate-x-1 active:translate-y-1 active:shadow-none md:text-sm ${
             filters.grade === ""
               ? "bg-black text-white hover:bg-gray-800"
               : "bg-white text-black hover:bg-parchment"
           }`}
         >
-          <Users className="ml-2 h-4 w-4" />
-          جميع الدرجات
+          <Users className="ml-2 h-3 w-3 md:h-4 md:w-4" />
+          <span className="hidden sm:inline">جميع الدرجات</span>
+          <span className="sm:hidden">الكل</span>
         </Button>
         {grades.map((grade) => (
           <Button
             key={grade}
             variant={filters.grade === grade ? "default" : "outline"}
             onClick={() => onFilterChange({ ...filters, grade })}
-            className={`border-2 border-black text-xs transition-all hover:bg-parchment hover:shadow-[4px_4px_0px_0px_theme(colors.gray.900)] active:translate-x-1 active:translate-y-1 active:shadow-none ${
+            className={`border-2 border-black text-xs transition-all hover:bg-parchment hover:shadow-[4px_4px_0px_0px_theme(colors.gray.900)] active:translate-x-1 active:translate-y-1 active:shadow-none md:text-sm ${
               filters.grade === grade
                 ? "bg-black text-white hover:bg-gray-800"
                 : "bg-white text-black hover:bg-parchment"
@@ -92,7 +92,7 @@ function FilterPanel({
       </div>
 
       {/* Results count */}
-      <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="flex items-center gap-2 text-xs text-gray-600 md:text-sm">
         <Badge className="bg-parchment px-2 py-1 text-black">
           {narratorCount.toLocaleString()} راوي
         </Badge>
@@ -103,6 +103,7 @@ function FilterPanel({
 }
 
 export default function NarratorGrid({ narrators }: NarratorGridProps) {
+  const isMobile = useIsMobile();
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     grade: "",
@@ -113,6 +114,28 @@ export default function NarratorGrid({ narrators }: NarratorGridProps) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const parentRef = useRef<HTMLDivElement>(null);
+
+  // Responsive items per row and card height
+  const [itemsPerRow, setItemsPerRow] = useState(4);
+  const [cardHeight, setCardHeight] = useState(320);
+
+  useEffect(() => {
+    if (isMobile === undefined) return;
+
+    if (isMobile) {
+      setItemsPerRow(1);
+      setCardHeight(320);
+    } else if (window.innerWidth < 1024) {
+      setItemsPerRow(2);
+      setCardHeight(320);
+    } else if (window.innerWidth < 1280) {
+      setItemsPerRow(3);
+      setCardHeight(320);
+    } else {
+      setItemsPerRow(4);
+      setCardHeight(320);
+    }
+  }, [isMobile]);
 
   // Filter narrators based on current filters with optimized search
   const filteredNarrators = useMemo(() => {
@@ -150,16 +173,16 @@ export default function NarratorGrid({ narrators }: NarratorGridProps) {
   // Group narrators into rows for virtualization
   const rows = useMemo(() => {
     const result = [];
-    for (let i = 0; i < filteredNarrators.length; i += ITEMS_PER_ROW) {
-      result.push(filteredNarrators.slice(i, i + ITEMS_PER_ROW));
+    for (let i = 0; i < filteredNarrators.length; i += itemsPerRow) {
+      result.push(filteredNarrators.slice(i, i + itemsPerRow));
     }
     return result;
-  }, [filteredNarrators]);
+  }, [filteredNarrators, itemsPerRow]);
 
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => CARD_HEIGHT + GAP,
+    estimateSize: () => cardHeight + GAP,
     overscan: 3,
   });
 
@@ -188,7 +211,7 @@ export default function NarratorGrid({ narrators }: NarratorGridProps) {
         narratorCount={filteredNarrators.length}
         totalCount={narrators.length}
       />
-      <div ref={parentRef} className="h-[800px] overflow-auto">
+      <div ref={parentRef} className="h-[600px] overflow-auto md:h-[800px]">
         <div
           className="relative w-full"
           style={{ height: `${virtualizer.getTotalSize()}px` }}
@@ -198,13 +221,15 @@ export default function NarratorGrid({ narrators }: NarratorGridProps) {
             return (
               <div
                 key={virtualRow.index}
+                ref={virtualizer.measureElement}
+                data-index={virtualRow.index}
                 className="absolute left-0 top-0 w-full"
                 style={{
-                  height: `${virtualRow.size}px`,
                   transform: `translateY(${virtualRow.start}px)`,
+                  paddingBottom: `${GAP}px`,
                 }}
               >
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {row.map((narrator) => (
                     <Link
                       key={narrator.scholar_indx}

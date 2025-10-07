@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toArabicNumerals } from "@/lib/arabic-utils";
 import { getArabicGrade } from "@/lib/grade-mapping";
@@ -129,13 +130,17 @@ export const NarratorCard = ({
         }}
         death_place={death_place}
       />
-      <Link
-        href={`/narrator/${name}`}
-        className="absolute bottom-1 left-1 flex items-center bg-isnad-primary px-1 py-0.5 text-[6px] font-bold text-isnad-background transition-colors hover:bg-isnad-primary-hover"
-      >
-        المزيد
-        <ArrowUpRightIcon className="mr-0.5 h-2 w-2" />
-      </Link>
+      <div className="absolute bottom-1 left-1">
+        <Button
+          asChild
+          className="flex h-4 items-center gap-0.5 rounded-none border border-isnad-primary bg-isnad-primary px-1 text-[6px] font-bold text-isnad-background shadow-[1px_1px_0px_0px_theme(colors.isnad.primary)] transition-colors hover:bg-isnad-primary-hover focus-visible:ring-isnad-primary focus-visible:ring-offset-0"
+        >
+          <Link href={`/narrator/${name}`}>
+            <span className="leading-none">المزيد</span>
+            <ArrowUpRightIcon className="h-2 w-2" />
+          </Link>
+        </Button>
+      </div>
       <div className="absolute bottom-0 left-0 -z-10 h-4 w-4 -translate-x-2 translate-y-2 rotate-45 transform bg-isnad-secondary opacity-50" />
     </Card>
   );

@@ -151,20 +151,20 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-2 py-4 md:px-4 md:py-6">
       {/* Search Form with brutalist card design */}
-      <div className="relative mx-16 mb-4 overflow-hidden border-4 border-black bg-parchment">
-        {/* Decorative corner */}
-        <div className="absolute left-0 top-0 z-10 h-16 w-16 -translate-x-8 -translate-y-8 -rotate-45 transform bg-parchment"></div>
-        <div className="absolute left-1 top-1 z-20 rotate-45 transform">
+      <div className="relative mx-2 mb-4 overflow-hidden border-4 border-black bg-parchment md:mx-16">
+        {/* Decorative corner - hidden on mobile */}
+        <div className="absolute left-0 top-0 z-10 hidden h-16 w-16 -translate-x-8 -translate-y-8 -rotate-45 transform bg-parchment sm:block"></div>
+        <div className="absolute left-1 top-1 z-20 hidden rotate-45 transform sm:block">
           <div className="-rotate-90 transform bg-black px-2 py-1 text-sm font-bold text-parchment">
             {arabicTexts.search}
           </div>
         </div>
 
         {/* Form content */}
-        <form className="p-4 pl-12 pt-8">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <form className="p-3 sm:pl-12 sm:pt-8 md:p-4">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
             {/* Source Selection */}
             <div>
               <label className="mb-2 inline-block -skew-x-6 transform bg-black px-2 py-1 text-xs font-bold text-white">
@@ -230,7 +230,7 @@ export default function SearchPage() {
             </div>
           </div>{" "}
           {/* Results Info integrated into the search card */}
-          <div className="mt-4 border-t-2 border-black bg-parchment px-4 py-2">
+          <div className="mt-3 border-t-2 border-black bg-parchment px-3 py-2 md:mt-4 md:px-4">
             <div className="text-right text-sm font-bold">
               {loading ? (
                 <span>🔍 {arabicTexts.searching}</span>
@@ -255,9 +255,9 @@ export default function SearchPage() {
 
       {/* Loading state with brutalist styling */}
       {loading && (
-        <div className="py-8 text-center">
-          <div className="inline-block border-4 border-black bg-parchment px-6 py-4">
-            <div className="animate-pulse text-xl font-bold">
+        <div className="py-4 text-center md:py-8">
+          <div className="inline-block border-4 border-black bg-parchment px-4 py-3 md:px-6 md:py-4">
+            <div className="animate-pulse text-lg font-bold md:text-xl">
               ⏳ {arabicTexts.loading}
             </div>
           </div>
@@ -266,13 +266,15 @@ export default function SearchPage() {
 
       {/* No results state with brutalist styling */}
       {!loading && totalCount === 0 && (
-        <div className="py-8 text-center">
-          <div className="inline-block border-4 border-black bg-white px-8 py-6">
-            <div className="text-2xl font-bold text-gray-700">🔍</div>
-            <div className="mt-2 text-lg font-bold text-gray-700">
+        <div className="py-4 text-center md:py-8">
+          <div className="inline-block border-4 border-black bg-white px-6 py-4 md:px-8 md:py-6">
+            <div className="text-xl font-bold text-gray-700 md:text-2xl">
+              🔍
+            </div>
+            <div className="mt-2 text-base font-bold text-gray-700 md:text-lg">
               {arabicTexts.noResults}
             </div>
-            <div className="mt-1 text-sm text-gray-500">
+            <div className="mt-1 text-xs text-gray-500 md:text-sm">
               {arabicTexts.tryDifferentSearch}
             </div>
           </div>

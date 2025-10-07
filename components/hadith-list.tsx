@@ -13,10 +13,10 @@ export default function HadithList({ hadiths }: HadithListProps) {
   const { parentRef, virtualizer } = useHadithVirtualizer(hadiths);
 
   return (
-    <div className={LAYOUT.CONTAINER_CLASSES}>
+    <div className={`${LAYOUT.CONTAINER_CLASSES} px-4 md:px-4`}>
       <div
         ref={parentRef}
-        style={{ height: `${LAYOUT.VIRTUALIZED_CONTAINER_HEIGHT}px` }}
+        style={{ height: LAYOUT.VIRTUALIZED_CONTAINER_HEIGHT }}
         className="overflow-auto"
       >
         <div
@@ -29,7 +29,7 @@ export default function HadithList({ hadiths }: HadithListProps) {
             const hadith = hadiths[virtualRow.index];
             return (
               <div
-                className="absolute left-0 top-0 w-full pl-4"
+                className="absolute left-0 top-0 w-full px-2 md:px-4"
                 key={virtualRow.index}
                 style={{
                   height: `${virtualRow.size}px`,
