@@ -60,9 +60,9 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <body className={notoNaskhArabic.className}>
-        <div className="flex min-h-screen flex-col">
+        <div className="relative flex min-h-screen flex-col">
           <Navbar />
-          <main className="flex-grow">{children}</main>
+          <main className="flex-grow pb-20 md:pb-24">{children}</main>
           <Footer />
         </div>
       </body>

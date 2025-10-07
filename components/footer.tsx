@@ -3,7 +3,7 @@ import { FaGithub } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="mt-auto w-full border-t border-gray-200 py-4 md:py-6">
+    <footer className="absolute bottom-0 left-0 right-0 w-full border-t-4 border-black bg-white py-4 md:py-6">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-center">
           <Link

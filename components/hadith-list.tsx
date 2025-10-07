@@ -16,7 +16,7 @@ export default function HadithList({ hadiths }: HadithListProps) {
     <div className={`${LAYOUT.CONTAINER_CLASSES} px-4 md:px-4`}>
       <div
         ref={parentRef}
-        style={{ height: `${LAYOUT.VIRTUALIZED_CONTAINER_HEIGHT}px` }}
+        style={{ height: LAYOUT.VIRTUALIZED_CONTAINER_HEIGHT }}
         className="overflow-auto"
       >
         <div

@@ -95,7 +95,7 @@ export default function ChapterPage({
       {/* Hadiths List */}
       <div
         ref={parentRef}
-        style={{ height: `${LAYOUT.VIRTUALIZED_CONTAINER_HEIGHT}px` }}
+        style={{ height: LAYOUT.VIRTUALIZED_CONTAINER_HEIGHT }}
         className="overflow-auto"
       >
         <div

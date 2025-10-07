@@ -2,7 +2,7 @@
 export const LAYOUT = {
   // Virtualized list heights
   HADITH_CARD_HEIGHT: 300,
-  VIRTUALIZED_CONTAINER_HEIGHT: 800,
+  VIRTUALIZED_CONTAINER_HEIGHT: "calc(100vh - 160px)", // Dynamic: 100vh - navbar(64-80px) - footer(60px) - bottom-padding(80-96px) accounted in parent
 
   // Overscan for virtualization
   VIRTUALIZATION_OVERSCAN: 5,
